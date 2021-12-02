@@ -73,7 +73,7 @@ runs:
         echo "ZPROXY_TAG=$(echo '${{inputs.zproxy_image}}')" >> $GITHUB_ENV
         echo "ZSEARCH_TAG=$(echo '${{inputs.zsearch_image}}')" >> $GITHUB_ENV
         ALWAYS_TEARDOWN=true
-        echo "TEARDOWN_CONDITION=$(echo $${{inputs.teardown_condition}})" >> $GITHUB_ENV
+        echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -191,7 +191,7 @@ runs:
         echo '
         #!/bin/bash
 
-        if [ $TEARDOWN_CONDITION ]; then
+        if [ $${{ env.TEARDOWN_CONDITION }} ]; then
            echo
            echo "======================================================"
            echo "TEARING DOWN 0CHAIN NETWORK AFTER WORKFLOW RUN:"
@@ -204,7 +204,7 @@ runs:
            fi
            helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm2/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config;
         else
-           echo "SKIPPING TEARDOWN AS TEARDOWN CONDITION - [${{inputs.teardown_condition}}] WAS $TEARDOWN_CONDITION"
+           echo "SKIPPING TEARDOWN AS CONDITION - [${{ env.TEARDOWN_CONDITION }}] WAS [$${{ env.TEARDOWN_CONDITION }}]"
         fi
         ' > ./post.sh;
         chmod 777 ./post.sh;
