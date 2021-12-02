@@ -48,6 +48,10 @@ inputs:
     description: 'Blobber stake DOCKER IMAGE to deploy'
     default: 'latest'
     required: true
+  teardown_condition:
+    description: 'Variable on which to teardown network'
+    default: 'ALWAYS_TEARDOWN'
+    required: true
 
 
 runs:
@@ -68,6 +72,8 @@ runs:
         echo "BLOBBER_STAKE_TAG=$(echo '${{inputs.blobber_stake_image}}')" >> $GITHUB_ENV
         echo "ZPROXY_TAG=$(echo '${{inputs.zproxy_image}}')" >> $GITHUB_ENV
         echo "ZSEARCH_TAG=$(echo '${{inputs.zsearch_image}}')" >> $GITHUB_ENV
+        ALWAYS_TEARDOWN=true
+        echo "TEARDOWN_CONDITION=$(echo $${{inputs.teardown_condition}})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -185,7 +191,7 @@ runs:
         echo '
         #!/bin/bash
 
-        if [ $TESTS_PASSED == true ]; then
+        if [ $TEARDOWN_CONDITION == true ]; then
            echo
            echo "======================================================"
            echo "TEARING DOWN 0CHAIN NETWORK AFTER WORKFLOW RUN:"
@@ -198,7 +204,7 @@ runs:
            fi
            helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm2/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config;
         else
-           echo "SKIPPING TEARDOWN AS <> WAS $TESTS_PASSED"
+           echo "SKIPPING TEARDOWN AS TEARDOWN CONDITION - [${{inputs.teardown_condition}}] WAS $TEARDOWN_CONDITION"
         fi
         ' > ./post.sh;
         chmod 777 ./post.sh;
