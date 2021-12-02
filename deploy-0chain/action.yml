@@ -191,7 +191,7 @@ runs:
         echo '
         #!/bin/bash
 
-        if [ $TEARDOWN_CONDITION == true ]; then
+        if [ $TEARDOWN_CONDITION ]; then
            echo
            echo "======================================================"
            echo "TEARING DOWN 0CHAIN NETWORK AFTER WORKFLOW RUN:"
