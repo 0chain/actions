@@ -188,10 +188,9 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
-        echo '
-        #!/bin/bash
+        echo '#!/bin/bash
 
-        if [[ "$${{ env.TEARDOWN_CONDITION }}" == "true" ]]; then
+        if [ "$${{ env.TEARDOWN_CONDITION }}" == "true" ]; then
            echo
            echo "======================================================"
            echo "TEARING DOWN 0CHAIN NETWORK AFTER WORKFLOW RUN:"
