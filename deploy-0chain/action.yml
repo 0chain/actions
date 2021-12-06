@@ -120,7 +120,7 @@ runs:
         echo "=================================================="
         echo
         cd ..
-        helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/staging/
+        helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/latest/
         helm repo update
         mkdir -p ./kube
         echo "${{ inputs.kube_config }}" | xargs | base64 -d > ./kube/${{ env.NAMESPACE }}-config
