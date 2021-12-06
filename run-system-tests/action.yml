@@ -123,12 +123,12 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
+        echo "Building 0wallet... [${{ env.ZWALLET_BRANCH }}]"
         cd zwalletcli
         make install > build.log || { cat build.log && exit 1 }
-        echo "Building 0wallet... [${{ env.ZWALLET_BRANCH }}]"
         mv zwallet ../tests/cli_tests
-        cd ../zboxcli
          echo "Building 0box... [${{ env.ZBOX_BRANCH }}]"
+        cd ../zboxcli
         make install > build.log || { cat build.log && exit 1 }
         mv zbox ../tests/cli_tests
 
