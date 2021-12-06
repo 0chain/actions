@@ -124,10 +124,12 @@ runs:
         echo "======================================================"
         echo
         cd zwalletcli
-        make install
+        make install > build.log || { cat build.log && exit 1 }
+        echo "Building 0wallet... [${{ env.ZWALLET_BRANCH }}]"
         mv zwallet ../tests/cli_tests
         cd ../zboxcli
-        make install
+         echo "Building 0box... [${{ env.ZBOX_BRANCH }}]"
+        make install > build.log || { cat build.log && exit 1 }
         mv zbox ../tests/cli_tests
 
     - name: "Set up system tests"
