@@ -259,4 +259,4 @@ runs:
            then
               echo "Flaky system tests report:"
               echo "https://0chain.github.io/${{ github.repository }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html"
-        FI
+        fi
