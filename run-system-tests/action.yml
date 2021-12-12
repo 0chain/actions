@@ -157,8 +157,8 @@ runs:
         cd tests/cli_tests
         mkdir -p $(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')/${GITHUB_SHA}/flaky
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./config/zbox_config.yaml
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=30m $TESTS_TO_RUN -json -count=1 -timeout=30m | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=30m -run  "^Test___Flaky.*$" ./... -json -count=1 -timeout=30m | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
@@ -242,7 +242,7 @@ runs:
     - name: "Wait for report deployment to complete"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
-      run: counter=0; while [ $counter -lt 5 ] && curl -o /dev/null -Isw '%{http_code}\n' "https://0chain.github.io/system_test/${{ env.BRANCH }}/${GITHUB_SHA}/index.html?t=$(date +%s)" | grep -v 200 > /dev/null; do sleep 10 && echo "Waiting for report page to deploy..." && ((counter=counter+1)); done
+      run: counter=0; while [ $counter -lt 5 ] && curl -o /dev/null -Isw '%{http_code}\n' "https://0chain.github.io/${{ github.repository }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html?t=$(date +%s)" | grep -v 200 > /dev/null; do sleep 10 && echo "Waiting for report page to deploy..." && ((counter=counter+1)); done
 
     - name: "Report Links"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
