@@ -128,7 +128,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         sudo apt update
-        sudo apt install ffmpeg
+        sudo apt install -y ffmpeg
 
     - name: "Build CLI Binaries"
 #      if: steps.cli-cache.outputs.cache-hit != 'true'
