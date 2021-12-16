@@ -118,6 +118,16 @@ runs:
       with:
         go-version: 1.16
 
+    - name: "Download youtube-dl"
+      run: |
+        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+        sudo chmod a+rx /usr/local/bin/youtube-dl
+
+    - name: "Donwload ffmpeg"
+      run: |
+        sudo apt update
+        sudo apt install ffmpeg
+
     - name: "Build CLI Binaries"
 #      if: steps.cli-cache.outputs.cache-hit != 'true'
       shell: 'script --return --quiet --command "bash {0}"'
