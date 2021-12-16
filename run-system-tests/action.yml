@@ -119,11 +119,13 @@ runs:
         go-version: 1.16
 
     - name: "Download youtube-dl"
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
         sudo chmod a+rx /usr/local/bin/youtube-dl
 
     - name: "Donwload ffmpeg"
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         sudo apt update
         sudo apt install ffmpeg
