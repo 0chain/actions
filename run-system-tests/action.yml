@@ -255,9 +255,9 @@ runs:
         echo "======================================================"
         echo
         echo "System tests report:"
-        echo "https://0chain.github.io/${{ github.repository }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html"
+        echo "https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html"
         if [ "${{ env.FLAKY_TESTS_RAN }}" == "true" ];
            then
               echo "Flaky system tests report:"
-              echo "https://0chain.github.io/${{ github.repository }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html"
+              echo "https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html"
         fi
