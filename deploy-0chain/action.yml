@@ -191,7 +191,7 @@ runs:
 
         echo "0Chain deployed successfully!"
 
-    - name: "Create post teardown script"
+    - name: "Create post run teardown script"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
