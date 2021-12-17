@@ -189,6 +189,8 @@ runs:
           exit 1
         fi
 
+        echo "0Chain deployed successfully!"
+
     - name: "Create post teardown script"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
