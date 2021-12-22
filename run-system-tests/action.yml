@@ -136,6 +136,7 @@ runs:
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || exit 1
+          go mod tidy
         fi
         make install > build.log 2>&1 || { cat build.log && exit 1; }
         mv zwallet ../tests/cli_tests
@@ -145,6 +146,7 @@ runs:
         then
           echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || exit 1
+          go mod tidy
         fi
         make install > build.log 2>&1 || { cat build.log && exit 1; }
         mv zbox ../tests/cli_tests
