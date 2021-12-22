@@ -161,7 +161,7 @@ runs:
         echo "=================================================="
         echo
         cd ..
-        helm upgrade --install 0chain --wait --set sharder.image.tag=${{ env.SHARDER_TAG }} --set miner.image.tag=${{ env.MINER_TAG }} --set zchain.serverChain.transaction.minFee=${{ env.MINER_FEE }} -n ${{ env.NAMESPACE }} 0chain-helm/zchain --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install 0chain --wait --timeout 10m --set sharder.image.tag=${{ env.SHARDER_TAG }} --set miner.image.tag=${{ env.MINER_TAG }} --set zchain.serverChain.transaction.minFee=${{ env.MINER_FEE }} -n ${{ env.NAMESPACE }} 0chain-helm/zchain --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install blobber --wait --set blobber.config.delegateWallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegateWallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0block --set zblock.host=devnet-0chain.net --set zblock.image.tag=${{ env.ZBLOCK_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zblock --kubeconfig ./kube/${{ env.NAMESPACE }}-config
@@ -169,7 +169,6 @@ runs:
         helm upgrade --install 0proxy --set zproxy.host=devnet-0chain.net --set zproxy.image.tag=${{ env.ZPROXY_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zproxy --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0box --wait --set zbox.host=devnet-0chain.net --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0search --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        sleep 30
         helm upgrade --install blobber-stake --wait -n ${{ env.NAMESPACE }} --set blobberStake.blobberCount=6 --set blobberStake.host=devnet-0chain.net --set blobberStake.image.tag=${{ env.BLOBBER_STAKE_TAG }} 0chain-helm/blobberStake --kubeconfig ./kube/${{ env.NAMESPACE }}-config
 
     - name: "Wait for 0Chain network deployment to complete"
