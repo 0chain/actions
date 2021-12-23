@@ -116,7 +116,29 @@ runs:
     - name: "Setup Go"
       uses: actions/setup-go@v2
       with:
-        go-version: 1.16
+        go-version: 1.17.2
+
+    - name: "Download youtube-dl"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "Installing youtube-dl"
+        echo "======================================================"
+        echo
+        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && exit 1; }
+        sudo chmod a+rx /usr/local/bin/youtube-dl
+
+    - name: "Donwload ffmpeg"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "Installing ffmpeg"
+        echo "======================================================"
+        echo
+        sudo apt update > build.log 2>&1 || { cat build.log && exit 1; }
+        sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && exit 1; }
 
     - name: "Build CLI Binaries"
 #      if: steps.cli-cache.outputs.cache-hit != 'true'
