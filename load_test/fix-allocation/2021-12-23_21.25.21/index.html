@@ -1,0 +1,602 @@
+
+<!DOCTYPE html>
+<html lang="en" style="overflow-y: scroll;">
+<head>
+    <meta charset="UTF-8">
+    <title>0Chain load test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+</head>
+<body class="">
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-summary" role="tabcard" aria-labelledby="pills-summary-tab">
+                    <div class="row">
+                        <div class="col-md-9 col-lg-12 main">
+                            <h1 class="display-2 text-center">0Chain Load Tests</h1>
+                            <h5 class="text-center"><span><i class="fas fa-server"></i></span> Network: http://loadtest.testnet-0chain.net/dns</h5>
+                            <h5 class="text-center"><span><i class="fas fa-running"></i></span> Time started: 2021-12-23 21:25:24.97024521 &#43;0000 UTC - 2021-12-23 21:28:18.803013782 &#43;0000 UTC</h5>
+                            <h5 class="text-center"><span><i class="fas fa-stopwatch"></i></span> Total run duration: 2m53.832768572s</h5>
+                            <br>
+                            <h3 class="display-5 text-center">Transactions executed</h3>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row">
+                                        <div class="col-sm-12 mb-3">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-bordered">
+                                                    <thead class="thead-inverse">
+                                                    <tr class="text-center">
+                                                        <th class="text-uppercase">Summary</th>
+                                                        <th class="text-uppercase">Total</th>
+                                                        <th class="text-uppercase">Failed</th>
+                                                        <th class="text-uppercase">Average Duration</th>
+                                                        <th class="text-uppercase">Max Duration</th>
+                                                        <th class="text-uppercase">Min Duration</th>
+                                                        <th class="text-uppercase">Avg File Size</th>
+                                                        <th class="text-uppercase">Max File Size</th>
+                                                        <th class="text-uppercase">Min File Size</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>Register Wallets</td>
+                                                        <td class="text-center">100</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">7ms</td>
+                                                        <td class="text-center">51.41259ms</td>
+                                                        <td class="text-center">2.869557ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Faucet Pour</td>
+                                                        <td class="text-center">129</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">2.009s</td>
+                                                        <td class="text-center">5.308768331s</td>
+                                                        <td class="text-center">739.906265ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Send</td>
+                                                        <td class="text-center">18</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">6.55s</td>
+                                                        <td class="text-center">21.183198399s</td>
+                                                        <td class="text-center">1.355697581s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Interest Pool Lock</td>
+                                                        <td class="text-center">15</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">6.445s</td>
+                                                        <td class="text-center">21.66478309s</td>
+                                                        <td class="text-center">1.016114644s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Interest Pool Unlock</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Miner Stake Lock</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">6.157s</td>
+                                                        <td class="text-center">21.119958515s</td>
+                                                        <td class="text-center">860.829446ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Miner Stake Unlock</td>
+                                                        <td class="text-center">3</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">13.053s</td>
+                                                        <td class="text-center">19.261839348s</td>
+                                                        <td class="text-center">2.417243415s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Sharder Stake Lock</td>
+                                                        <td class="text-center">9</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">6.833s</td>
+                                                        <td class="text-center">22.502266134s</td>
+                                                        <td class="text-center">1.432521164s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Sharder Stake Unlock</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">11.302s</td>
+                                                        <td class="text-center">18.593105287s</td>
+                                                        <td class="text-center">4.012231778s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Blobber Stake Lock</td>
+                                                        <td class="text-center">6</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">2.495s</td>
+                                                        <td class="text-center">3.864597473s</td>
+                                                        <td class="text-center">1.686219826s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Blobber Stake Unlock</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">1.298s</td>
+                                                        <td class="text-center">1.298066956s</td>
+                                                        <td class="text-center">1.298066956s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Create Read Pool</td>
+                                                        <td class="text-center">100</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">2.025s</td>
+                                                        <td class="text-center">6.261346889s</td>
+                                                        <td class="text-center">653.740189ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>New Allocations</td>
+                                                        <td class="text-center">129</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">2.223s</td>
+                                                        <td class="text-center">20.066052321s</td>
+                                                        <td class="text-center">5.357066ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Update Allocations</td>
+                                                        <td class="text-center">11</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">6.763s</td>
+                                                        <td class="text-center">22.204863673s</td>
+                                                        <td class="text-center">956.770918ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Read Pool Lock</td>
+                                                        <td class="text-center">40</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">2.662s</td>
+                                                        <td class="text-center">23.612952262s</td>
+                                                        <td class="text-center">664.174367ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Write Pool Lock</td>
+                                                        <td class="text-center">11</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">3.929s</td>
+                                                        <td class="text-center">23.717213714s</td>
+                                                        <td class="text-center">1.017317215s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Upload File</td>
+                                                        <td class="text-center">15</td>
+                                                        <td class="text-center">6</td>
+                                                        <td class="text-center">3.45s</td>
+                                                        <td class="text-center">8.639711405s</td>
+                                                        <td class="text-center">5.071493835s</td>
+                                                        <td class="text-center">163 KB</td>
+                                                        <td class="text-center">692 KB</td>
+                                                        <td class="text-center">28 KB</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Upload Encrypted File</td>
+                                                        <td class="text-center">6</td>
+                                                        <td class="text-center">3</td>
+                                                        <td class="text-center">2.651s</td>
+                                                        <td class="text-center">5.702558038s</td>
+                                                        <td class="text-center">5.070953419s</td>
+                                                        <td class="text-center">64 KB</td>
+                                                        <td class="text-center">183 KB</td>
+                                                        <td class="text-center">93 KB</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Update File</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0 KB</td>
+                                                        <td class="text-center">0 KB</td>
+                                                        <td class="text-center">0 KB</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Download By Remote Path</td>
+                                                        <td class="text-center">3</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">18ms</td>
+                                                        <td class="text-center">18.982412ms</td>
+                                                        <td class="text-center">18.982412ms</td>
+                                                        <td class="text-center">237 KB</td>
+                                                        <td class="text-center">237 KB</td>
+                                                        <td class="text-center">237 KB</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Download By Blocks</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0 KB</td>
+                                                        <td class="text-center">0 KB</td>
+                                                        <td class="text-center">0 KB</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Download By Authticket</td>
+                                                        <td class="text-center">5</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">38ms</td>
+                                                        <td class="text-center">51.204328ms</td>
+                                                        <td class="text-center">27.431034ms</td>
+                                                        <td class="text-center">237 KB</td>
+                                                        <td class="text-center">237 KB</td>
+                                                        <td class="text-center">237 KB</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Copy File</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Delete File</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Move File</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">5.255s</td>
+                                                        <td class="text-center">5.307525097s</td>
+                                                        <td class="text-center">5.20487676s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Rename File</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">5.827s</td>
+                                                        <td class="text-center">6.583659945s</td>
+                                                        <td class="text-center">5.072101639s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Share File to Public</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">5ms</td>
+                                                        <td class="text-center">5.615621ms</td>
+                                                        <td class="text-center">5.615621ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Share File to Third Party</td>
+                                                        <td class="text-center">3</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">12ms</td>
+                                                        <td class="text-center">14.726438ms</td>
+                                                        <td class="text-center">11.387799ms</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Add File Collab</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Delete File Collab</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">0s</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-center">-</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                </div>
+                            </div>
+                            <br>
+                            <h3 class="display-5 text-center">Phases results</h3>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row">
+                                        <div class="col-sm-12 mb-3">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-bordered">
+                                                    <thead class="thead-inverse">
+                                                    <tr class="text-center">
+                                                        <th class="text-uppercase">Phase</th>
+                                                        <th class="text-uppercase">Total</th>
+                                                        <th class="text-uppercase">Target Count</th>
+                                                        <th class="text-uppercase">Duration</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>Phase 1: Wallet Creations</td>
+                                                        <td class="text-center">100</td>
+                                                        <td class="text-center">100</td>
+                                                        <td class="text-center">43.344471195s</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Phase 2: Transaction Creations</td>
+                                                        <td class="text-center">109</td>
+                                                        <td class="text-center">100</td>
+                                                        <td class="text-center">1m4.967846119s</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Phase 3: Allocation Creations</td>
+                                                        <td class="text-center">100</td>
+                                                        <td class="text-center">100</td>
+                                                        <td class="text-center">20.401117074s</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Phase 4: Storage Wallet Preparations</td>
+                                                        <td class="text-center">29</td>
+                                                        <td class="text-center">20</td>
+                                                        <td class="text-center">18.247768014s</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Phase 5: Storage Transactions</td>
+                                                        <td class="text-center">23</td>
+                                                        <td class="text-center">20</td>
+                                                        <td class="text-center">26.855120767s</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                </div>
+                            </div>
+                            <br>
+                            <h3 class="display-5 text-center">Config file</h3>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row">
+                                        <div class="col-sm-12 mb-3">
+                                            <pre>version: 1.0
+server_chain:
+  # The chain ID of the work
+  id: &#34;0afc093ffb509f059c55478bc1a60351cef7b4e9c008a53a6cc8241ca8617dfe&#34;
+  # The URL to DNS - this will be used for discovering miners, sharders, and blobbers.
+  block_worker: http://loadtest.testnet-0chain.net/dns
+  # The signature scheme of the chain
+  signature_scheme: bls0chain
+# These are commented because node IDs are changing on networks.
+# Load test now discover this node details automatically starting from block worker.
+#  blobbers:
+#    - id: a6f9416c8fcf3e24c40506f4e9d1ac2676d0db18c737940c3d9d00c92dbeaab8
+#      host: loadtest.testnet-0chain.net/blobber01
+#      protocol: http
+#    - id: 1a6a52fe9bd4efa6ece3ae8890a3c6ebfdc573a176cabe24d3cb4ecbdb4d4bb7
+#      host: loadtest.testnet-0chain.net/blobber01
+#      protocol: http
+#  miners:
+#    - id: 309677f9e7fff53f7bb3ffb4ece7e67de0dcda463e85fa1fec6cdd2f015e5806
+#      host: loadtest.testnet-0chain.net/miner01
+#      protocol: http
+#    - id: 6ef937fe597b9485b25a8a69fdcbf89e31f9da172343619cfa59c4c08ff49dc2
+#      host: loadtest.testnet-0chain.net/miner02
+#      protocol: http
+#    - id: 85263468c08d1f94940f0c2c7cc5713ef28876850352c5c0c3f3669e3f6c851e
+#      host: loadtest.testnet-0chain.net/miner03
+#      protocol: http
+#    - id: d0c7fecec2a46daef5043684950ba7c8ea1b53606b416e963d6f7f5f7db295e0
+#      host: loadtest.testnet-0chain.net/miner04
+#      protocol: http
+#  sharders:
+#    - id: 9abb72a6f44c430688b37664ef79cea964c38bb870d4bcc16a7fc64e82ca28ae
+#      host: loadtest.testnet-0chain.net/sharder01
+#      protocol: http
+
+settings:
+  # The following are gosdk settings which is used for storage transactions
+
+  # The minimum percent of miner nodes to send transactions to.
+  min_submit: 50
+  # The minimum percent of sharder nodes to verify transactions from.
+  min_confirmation: 50
+  # The chain length required to confirm a transaction.
+  confirmation_chain_length: 3
+  # The following are other settings used by the load test.
+
+  # The maximum wait duration before giving up on a transaction when retrying to get on sharders
+  request_timeout: 60s
+  # The flag to determine whether to do an exponential backoff (500ms to 5s) or constant 1-sec when retrying to retrieve a transaction on sharders.
+  exponential_wait_on_txn_verify: true
+  # The maximum wait duration before giving up on a balance check.
+  balance_check_timeout: 5s
+  # The duration to use on InterestPool SC Locks. This should be as short as possible that the chain allows.
+  lock_duration_min: 1
+  # The wait duration until InterestPool SC Locks are reflected on sharder API. Even after transaction is verified, there was a delay before it is available on API.
+  wait_after_lock: 30s
+  # The wait duration until MinerSC/StorageSC Locks are reflected on sharder API. Even after transaction is verified, there was a delay before it is available on API.
+  wait_after_stake: 30s
+  # The maximum file size used on uploads.
+  small_file_max_size: 1048576 # 1MB
+  # The minimum file size used on uploads.
+  small_file_min_size: 10240 # 10KB
+  # The allocation size used on `Phase 4: Storage Wallet Preps` and `Phase 5: Storage Transactions`.
+  # Should be big to allow many uploads.
+  allocation_storage_size: 104857600 # 100MB
+  # The allocation size when creating new allocation on `Phase 2: Transaction Creations` and `Phase 3: Allocation Creations`
+  allocation_new_size: 1048576 # 1MB
+  # The allocation size when creating updating allocation on `Phase 2: Transaction Creations` and `Phase 3: Allocation Creations`
+  allocation_update_size: 1048577 # 1MB &#43; 1 byte
+  # The number of data shards used for new allocations. allocation_data_shards &#43; allocation_parity_shards should not exceed the total number of blobbers.
+  allocation_data_shards: 1
+  # The number of parity shards used for new allocations. allocation_data_shards &#43; allocation_parity_shards should not exceed the total number of blobbers.
+  allocation_parity_shards: 1
+  # The following lock token amounts are at most used once per wallet. Ensure total does not exceed 1 token.
+  # The token amount used on StorageSC locks.
+  storage_stake_lock: 1000000000 # 0.1 token (min allowed is 0.1 token)
+  # The token amount used on new allocations.
+  allocation_new_lock: 5000000000 # 0.5 token (min allowed is 0.5 token)
+  # The token amount used when updating allocations.
+  allocation_update_lock: 100000000 # 0.01 token (min allowed is 0.01 token)
+  # The token amount used on read pool locks.
+  read_pool_lock: 1000000000 # 0.1 token (min allowed is 0.1 token)
+  # The token amount used on write pool locks.
+  write_pool_lock: 1000000000 # 0.1 token (min allowed is 0.1 token)
+# Settings for Phase 1: Wallet Creations
+wallets:
+  # The number of wallets to create. This cannot be larger than `transactions.wallet` as only one allocation will be created per wallet.
+  count: 100
+  # The number of concurrent or in-flight transactions at a time.
+  max_concurrency: 10 # 100 is recommended stable load
+  # The number of wallets allowed to be submitted on one second.
+  max_qps: 10 # 100 is recommended stable load
+# Settings for Phase 2: Transaction Creations
+transactions:
+  # The number of transactions to create.
+  count: 100
+  # The maximum number of concurrent or in-flight transactions at a time.
+  max_concurrency: 10 # 100 is recommended stable load
+  # The maximum number of transactions allowed to be submitted on one second.
+  max_qps: 10 # 100 is recommended stable load
+# Settings for Phase 3: Allocation Creations
+allocations:
+  # The number of allocations to create. This cannot be larger than `transactions.wallet` as only one allocation will be created per wallet.
+  count: 100
+  # The maximum number of concurrent or in-flight requests at a time.
+  max_concurrency: 10 # 100 is recommended stable load
+  # The maximum number of new allocations allowed to be requested on one second.
+  max_qps: 10 # 100 is recommended stable load
+# Settings for Phase 4: Storage Wallet Preps
+storage_wallets:
+  # The number of wallet allocations to prepare. Should be at least equal to `storage_txns.max_concurrency`.
+  count: 20
+  # The maximum number of concurrent or in-flight requests at a time.
+  max_concurrency: 10 # 50 is recommended stable load
+  # The maximum number of wallet allocations allowed to be requested on one second.
+  max_qps: 10 # 50 is recommended stable load
+# Settings for Phase 5: Storage Creations
+storage_txns:
+  # The number of storage transactions to create.
+  count: 20
+  # The maximum number of concurrent or in-flight storage transactions at a time.
+  max_concurrency: 5 # 10 is recommended stable load
+  # The maximum number of storage transactions allowed to be submitted on one second.
+  max_qps: 5 # 10 is recommended in one load test instance
+# Settings for Phase 6: Third-party Transactions (currently disabled)
+thirdparty_txns:
+  # The number of third-party transactions to create.
+  count: 20
+  # The maximum number of concurrent or in-flight third-party transactions at a time.
+  max_concurrency: 5 # 10 is recommended stable load
+  # The maximum number of third-party transactions allowed to be submitted on one second.
+  max_qps: 5 # 10 is recommended in one load test instance
+logging:
+  # The logging level.
+  level: &#34;info&#34;
+  # Whether logging should be verbose including debug logs.
+  verbose: false
+reporting:
+  # The frequency before a report is created.
+  interval: 15s
+</pre>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+
