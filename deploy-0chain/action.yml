@@ -135,12 +135,14 @@ runs:
       if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        cd ..
+        echo '#!/bin/bash
         echo
         echo "=================================================="
         echo "REMOVING EXISTING 0CHAIN NETWORK"
         echo "=================================================="
         echo
-        cd ..
+
         output=$(helm list -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | wc -l);
         if [ $output -gt 1 ]; then
             helm list --short -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | xargs -L1 helm delete -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config"
@@ -149,18 +151,22 @@ runs:
             helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config
             kubectl wait --for=condition=complete --timeout 900s job/helm-clean-directory -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
             kubectl delete all --all -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-
+        ' > ./teardown.sh;
+        chmod 777 ./teardown.sh;
+        ./teardown.sh
 
     - name: "Deploy 0Chain network"
       if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        cd ..
+        echo '#!/bin/bash
         echo
         echo "=================================================="
         echo "DEPLOYING 0CHAIN NETWORK"
         echo "=================================================="
         echo
-        cd ..
+
         helm upgrade --install 0chain --wait --timeout 10m --set sharder.image.tag=${{ env.SHARDER_TAG }} --set miner.image.tag=${{ env.MINER_TAG }} --set zchain.serverChain.transaction.minFee=${{ env.MINER_FEE }} -n ${{ env.NAMESPACE }} 0chain-helm/zchain --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install blobber --wait --set blobber.config.delegateWallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegateWallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
@@ -170,26 +176,34 @@ runs:
         helm upgrade --install 0box --wait --set zbox.host=devnet-0chain.net --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0search --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install blobber-stake --wait -n ${{ env.NAMESPACE }} --set blobberStake.blobberCount=6 --set blobberStake.host=devnet-0chain.net --set blobberStake.image.tag=${{ env.BLOBBER_STAKE_TAG }} 0chain-helm/blobberStake --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        ' > ./deploy.sh;
+        chmod 777 ./deploy.sh;
+        ./deploy.sh
 
     - name: "Wait for 0Chain network deployment to complete"
       if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
+        echo '#!/bin/bash
+
         echo "Waiting for 0Chain deployment to finish..."
-        sleep 60
+        sleep 80
         counter=0;
-        while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
+        while [ $counter -lt 6 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
           sleep 10
           echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
         done
 
-        if [ $counter -eq 30 ]; then
+        if [ $counter -eq 6 ]; then
           echo "Chain setup did not complete as expected"
           exit 1
         fi
 
         echo "0Chain deployed successfully!"
+        ' > ./wait.sh;
+        chmod 777 ./wait.sh;
+        ./wait.sh || { echo && echo "Retrying deployment..." && ./teardown.sh && ./deploy.sh && ./wait.sh; }
 
     - name: "Create post run teardown script"
       shell: 'script --return --quiet --command "bash {0}"'
