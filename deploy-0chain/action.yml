@@ -207,7 +207,7 @@ runs:
           exit 1
         fi
 
-        echo "::notice title=0Chain network deployment was successful $RETRY_ATTEMPT::0Chain network deployment was successful $RETRY_ATTEMPT"
+        echo "::notice title=0Chain network deployment was successful $RETRY_ATTEMPT::0Chain was successfully deployed to [${{ env.NETWORK_URL }}]"
         ' > ./wait.sh;
         chmod 777 ./wait.sh;
         ./wait.sh || {
