@@ -193,7 +193,7 @@ runs:
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
 
           if ( echo Error | grep -i Error ); then
-            echo "Blobber stake failed. Exiting early..."
+            echo "Blobber stake failed."
             exit 1
           fi
 
@@ -209,7 +209,16 @@ runs:
         echo "0Chain deployed successfully!"
         ' > ./wait.sh;
         chmod 777 ./wait.sh;
-        ./wait.sh || { echo && echo "Retrying deployment..." && ./teardown.sh && ./deploy.sh && ./wait.sh; }
+        ./wait.sh || {
+          RED='\033[0;31m'
+          NC='\033[0m'
+          echo
+          echo -e "${RED}======================================================${NC}"
+          echo -e "${RED}RETRYING DEPLOYMENT:${NC}"
+          echo -e "${RED}======================================================${NC}"
+          echo
+          ./teardown.sh && ./deploy.sh && ./wait.sh;
+        }
 
     - name: "Create post run teardown script"
       shell: 'script --return --quiet --command "bash {0}"'
