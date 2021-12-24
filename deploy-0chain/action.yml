@@ -175,7 +175,7 @@ runs:
         fi
 
         echo "Waiting for 0Chain deployment to finish..."
-        sleep 70
+        sleep 7
         counter=0;
         while [ $counter -lt 30 ]; do
 
