@@ -188,14 +188,17 @@ runs:
         echo '#!/bin/bash
 
         echo "Waiting for 0Chain deployment to finish..."
-        sleep 80
+        sleep 70
         counter=0;
-        while [ $counter -lt 6 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
+        while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
+          if [ kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ]; then
+            echo "Blober stake failed" && exit 1
+          fi
           sleep 10
           echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
         done
 
-        if [ $counter -eq 6 ]; then
+        if [ $counter -eq 30 ]; then
           echo "Chain setup did not complete as expected"
           exit 1
         fi
