@@ -180,7 +180,7 @@ runs:
         while [ $counter -lt 30 ]; do
 
           if ( echo error | grep -i Error ); then
-            echo "::$ANNOTATION_LEVEL ::title=0chain deployment failed::blobber stake failed $RETRY_ATTEMPT"
+            echo "::$ANNOTATION_LEVEL title=0chain deployment failed::blobber stake failed $RETRY_ATTEMPT"
             exit 1
           fi
 
@@ -235,7 +235,7 @@ runs:
     - name: "Set failure annotation"
       if: failure()
       shell: 'script --return --quiet --command "bash {0}"'
-      run: echo "::error ::0Chain Deployment failed."
+#      run: echo "::error ::0Chain Deployment failed."
 
     - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
       uses: webiny/action-post-run@2.0.1
