@@ -177,7 +177,7 @@ runs:
         echo "Waiting for 0Chain deployment to finish..."
         sleep 70
         counter=0;
-#        while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
+        while [ $counter -lt 30 ]; do
 
           if ( echo error | grep -i Error ); then
             echo "::$ANNOTATION_LEVEL ::title=0chain deployment failed::blobber stake failed $RETRY_ATTEMPT"
@@ -186,7 +186,7 @@ runs:
 
           sleep 10
           echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
-#        done
+        done
 
         if [ $counter -eq 30 ]; then
           echo "::$ANNOTATION_LEVEL title=0chain deployment failed::Chain setup did not complete within the time limit $RETRY_ATTEMPT"
