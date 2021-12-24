@@ -105,18 +105,15 @@ runs:
         echo "Stake docker image:     [${{ env.BLOBBER_STAKE_TAG }}]"
 
     - name: "Install helm"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       uses: azure/setup-helm@v1
       with:
         version: 'v3.2.2'
 
     - name: "Install kubectl"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       uses: azure/setup-kubectl@v1
       id: install
 
     - name: "Configure helm & kubectl"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -132,7 +129,6 @@ runs:
         echo "${{ inputs.kube_config }}" | xargs | base64 -d > ./kube/${{ env.NAMESPACE }}-config
 
     - name: "Remove existing 0Chain network and data"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
@@ -156,7 +152,6 @@ runs:
         ./teardown.sh
 
     - name: "Deploy 0Chain network"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
@@ -181,7 +176,6 @@ runs:
         ./deploy.sh
 
     - name: "Wait for 0Chain network deployment to complete"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
@@ -193,7 +187,7 @@ runs:
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
 
           if ( kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ); then
-            echo "Blobber stake failed."
+            echo "::warning ::Blobber stake failed."
             exit 1
           fi
 
@@ -202,7 +196,7 @@ runs:
         done
 
         if [ $counter -eq 30 ]; then
-          echo "Chain setup did not complete within the time limit..."
+          echo "::warning ::Chain setup did not complete within the time limit."
           exit 1
         fi
 
@@ -244,6 +238,11 @@ runs:
         fi
         ' > ./post.sh;
         chmod 777 ./post.sh;
+
+    - name: "Set failure annotation"
+      if: failure()
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: echo "::error ::0Chain Deployment failed."
 
     - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
       uses: webiny/action-post-run@2.0.1
