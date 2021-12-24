@@ -167,11 +167,11 @@ runs:
         cd ..
         echo '#!/bin/bash
 
-        RETRY_ATTEMPT='on final attempt'
-        ANNOTATION_LEVEL='error'
+        RETRY_ATTEMPT="on final attempt"
+        ANNOTATION_LEVEL="error"
         if [ -z "$1" ]; then
-            RETRY_ATTEMPT='on first attempt'
-            ANNOTATION_LEVEL='warning'
+            RETRY_ATTEMPT="on first attempt"
+            ANNOTATION_LEVEL="warning"
         fi
 
         echo "Waiting for 0Chain deployment to finish..."
