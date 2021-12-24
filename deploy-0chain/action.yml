@@ -191,15 +191,18 @@ runs:
         sleep 70
         counter=0;
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
-          if ( kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ); then
-            echo "Blobber stake failed" && exit 1
+
+          if ( echo Error | grep -i Error ); then
+            echo "Blobber stake failed. Exiting early..."
+            exit 1
           fi
+
           sleep 10
           echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
         done
 
         if [ $counter -eq 30 ]; then
-          echo "Chain setup did not complete as expected"
+          echo "Chain setup did not complete within the time limit..."
           exit 1
         fi
 
