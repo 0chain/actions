@@ -138,17 +138,8 @@ runs:
         echo "REMOVING EXISTING 0CHAIN NETWORK"
         echo "=================================================="
         echo
-
-#        output=$(helm list -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | wc -l);
-#        if [ $output -gt 1 ]; then
-#            helm list --short -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | xargs -L1 helm delete -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config"
-#            sleep 30
-#        fi
-#            helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-#            kubectl wait --for=condition=complete --timeout 900s job/helm-clean-directory -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-#            kubectl delete all --all -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-             echo tearing down...
-             sleep 5
+        echo tearing down...
+        sleep 5
         ' > ./teardown.sh;
         chmod 777 ./teardown.sh;
         ./teardown.sh
