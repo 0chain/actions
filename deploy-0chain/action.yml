@@ -232,11 +232,6 @@ runs:
         ' > ./post.sh;
         chmod 777 ./post.sh;
 
-    - name: "Set failure annotation"
-      if: failure()
-      shell: 'script --return --quiet --command "bash {0}"'
-#      run: echo "::error ::0Chain Deployment failed."
-
     - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
       uses: webiny/action-post-run@2.0.1
       with:
