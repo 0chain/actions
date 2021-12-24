@@ -181,11 +181,11 @@ runs:
         cd ..
         echo '#!/bin/bash
 
-        RETRY_ATTEMPT=''
-
-        if [ -z "$1" ]
-          then
+        RETRY_ATTEMPT='on final attempt'
+        ANNOTATION_LEVEL='error'
+        if [ -z "$1" ]; then
             RETRY_ATTEMPT='on first attempt'
+            ANNOTATION_LEVEL='warning'
         fi
 
         echo "Waiting for 0Chain deployment to finish..."
@@ -194,7 +194,7 @@ runs:
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
 
           if ( echo error | grep -i Error ); then
-            echo "::warning ::Blobber stake failed $RETRY_ATTEMPT"
+            echo "::$ANNOTATION_LEVEL ::title=0chain deployment failed::blobber stake failed $RETRY_ATTEMPT"
             exit 1
           fi
 
@@ -203,11 +203,11 @@ runs:
         done
 
         if [ $counter -eq 30 ]; then
-          echo "::warning ::Chain setup did not complete within the time limit $RETRY_ATTEMPT"
+          echo "::$ANNOTATION_LEVEL title=0chain deployment failed::Chain setup did not complete within the time limit $RETRY_ATTEMPT"
           exit 1
         fi
 
-        echo "::notice ::0Chain deployed successfully $RETRY_ATTEMPT"
+        echo "::notice ::0Chain deployment successful $RETRY_ATTEMPT"
         ' > ./wait.sh;
         chmod 777 ./wait.sh;
         ./wait.sh || {
