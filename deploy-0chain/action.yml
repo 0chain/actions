@@ -179,7 +179,7 @@ runs:
         counter=0;
         while [ $counter -lt 30 ]; do
 
-          if ( echo error | grep -i Error ); then
+          if [ -z "$1" ]; then
             echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::blobber stake failed $RETRY_ATTEMPT"
             exit 1
           fi
