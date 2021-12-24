@@ -181,11 +181,10 @@ runs:
         cd ..
         echo '#!/bin/bash
 
-        RETRY_ATTEMPT="on final attempt"
-        ANNOTATION_LEVEL="error"
-        if [ -z "$1" ]; then
-            RETRY_ATTEMPT="on first attempt"
-            ANNOTATION_LEVEL="warning"
+        RETRY_ATTEMPT=$1
+        ANNOTATION_LEVEL="warning"
+        if [ "$1" == "final" ]; then
+            ANNOTATION_LEVEL="error"
         fi
 
         echo "Waiting for 0Chain deployment to finish..."
@@ -194,7 +193,7 @@ runs:
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
 
           if ( kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ); then
-            echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::blobber stake failed $RETRY_ATTEMPT"
+            echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed on $RETRY_ATTEMPT attempt::blobber stake failed on $RETRY_ATTEMPT attempt"
             exit 1
           fi
 
@@ -203,22 +202,26 @@ runs:
         done
 
         if [ $counter -eq 30 ]; then
-          echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::Chain setup did not complete within the time limit $RETRY_ATTEMPT"
+          echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed on $RETRY_ATTEMPT attempt::Chain setup did not complete within the time limit on $RETRY_ATTEMPT attempt"
           exit 1
         fi
 
-        echo "::notice title=0Chain network deployment was successful $RETRY_ATTEMPT::0Chain was successfully deployed to [${{ env.NETWORK_URL }}]"
+        echo "::notice title=0Chain network deployment was successful on $RETRY_ATTEMPT attempt::0Chain was successfully deployed to [${{ env.NETWORK_URL }}]"
         ' > ./wait.sh;
         chmod 777 ./wait.sh;
-        ./wait.sh || {
-          RED='\033[0;31m'
-          NC='\033[0m'
+        ./wait.sh "first" || {
+          echo '#!/bin/bash
+          RED="\033[0;31m"
+          NC="\033[0m"
           echo
           echo -e "${RED}======================================================${NC}"
-          echo -e "${RED}RETRYING DEPLOYMENT:${NC}"
+          echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
           echo -e "${RED}======================================================${NC}"
           echo
-          ./teardown.sh && ./deploy.sh && ./wait.sh 'final-attempt';
+          ./teardown.sh && ./deploy.sh && ./wait.sh $1;
+          ' > ./retry.sh;
+          chmod 777 ./retry.sh;
+          ./retry.sh "second" || ./retry.sh "final"
         }
 
     - name: "Create post run teardown script"
