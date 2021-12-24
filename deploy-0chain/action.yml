@@ -105,18 +105,15 @@ runs:
         echo "Stake docker image:     [${{ env.BLOBBER_STAKE_TAG }}]"
 
     - name: "Install helm"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       uses: azure/setup-helm@v1
       with:
         version: 'v3.2.2'
 
     - name: "Install kubectl"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       uses: azure/setup-kubectl@v1
       id: install
 
     - name: "Configure helm & kubectl"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -132,7 +129,6 @@ runs:
         echo "${{ inputs.kube_config }}" | xargs | base64 -d > ./kube/${{ env.NAMESPACE }}-config
 
     - name: "Remove existing 0Chain network and data"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
@@ -156,7 +152,6 @@ runs:
         ./teardown.sh
 
     - name: "Deploy 0Chain network"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
@@ -181,11 +176,17 @@ runs:
         ./deploy.sh
 
     - name: "Wait for 0Chain network deployment to complete"
-      if: github.event_name == 'push' || inputs.existing_network == ''
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
         echo '#!/bin/bash
+
+        RETRY_ATTEMPT="on final attempt"
+        ANNOTATION_LEVEL="error"
+        if [ -z "$1" ]; then
+            RETRY_ATTEMPT="on first attempt"
+            ANNOTATION_LEVEL="warning"
+        fi
 
         echo "Waiting for 0Chain deployment to finish..."
         sleep 70
@@ -193,7 +194,7 @@ runs:
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
 
           if ( kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ); then
-            echo "Blobber stake failed."
+            echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::blobber stake failed $RETRY_ATTEMPT"
             exit 1
           fi
 
@@ -202,11 +203,11 @@ runs:
         done
 
         if [ $counter -eq 30 ]; then
-          echo "Chain setup did not complete within the time limit..."
+          echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::Chain setup did not complete within the time limit $RETRY_ATTEMPT"
           exit 1
         fi
 
-        echo "0Chain deployed successfully!"
+        echo "::notice title=0Chain network deployment was successful::0Chain deployment was successful $RETRY_ATTEMPT"
         ' > ./wait.sh;
         chmod 777 ./wait.sh;
         ./wait.sh || {
@@ -217,7 +218,7 @@ runs:
           echo -e "${RED}RETRYING DEPLOYMENT:${NC}"
           echo -e "${RED}======================================================${NC}"
           echo
-          ./teardown.sh && ./deploy.sh && ./wait.sh;
+          ./teardown.sh && ./deploy.sh && ./wait.sh 'final-attempt';
         }
 
     - name: "Create post run teardown script"
