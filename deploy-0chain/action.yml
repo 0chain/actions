@@ -177,16 +177,15 @@ runs:
         echo "Waiting for 0Chain deployment to finish..."
         sleep 7
         counter=0;
-        while [ $counter -lt 30 ]; do
 
-          if [ -z "$1" ]; then
-            echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::blobber stake failed $RETRY_ATTEMPT"
-            exit 1
-          fi
 
-          sleep 10
-          echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
-        done
+        if [ -z "$1" ]; then
+          echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::blobber stake failed $RETRY_ATTEMPT"
+          exit 1
+        fi
+
+        sleep 10
+        echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
 
         if [ $counter -eq 30 ]; then
           echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed $RETRY_ATTEMPT::Chain setup did not complete within the time limit $RETRY_ATTEMPT"
