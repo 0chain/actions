@@ -181,13 +181,20 @@ runs:
         cd ..
         echo '#!/bin/bash
 
+        RETRY_ATTEMPT=''
+
+        if [ -z "$1" ]
+          then
+            RETRY_ATTEMPT='on first attempt'
+        fi
+
         echo "Waiting for 0Chain deployment to finish..."
         sleep 70
         counter=0;
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
 
           if ( echo error | grep -i Error ); then
-            echo "::warning ::Blobber stake failed."
+            echo "::warning ::Blobber stake failed $RETRY_ATTEMPT"
             exit 1
           fi
 
@@ -196,11 +203,11 @@ runs:
         done
 
         if [ $counter -eq 30 ]; then
-          echo "::warning ::Chain setup did not complete within the time limit."
+          echo "::warning ::Chain setup did not complete within the time limit $RETRY_ATTEMPT"
           exit 1
         fi
 
-        echo "0Chain deployed successfully!"
+        echo "::notice ::0Chain deployed successfully $RETRY_ATTEMPT"
         ' > ./wait.sh;
         chmod 777 ./wait.sh;
         ./wait.sh || {
@@ -211,7 +218,7 @@ runs:
           echo -e "${RED}RETRYING DEPLOYMENT:${NC}"
           echo -e "${RED}======================================================${NC}"
           echo
-          ./teardown.sh && ./deploy.sh && ./wait.sh;
+          ./teardown.sh && ./deploy.sh && ./wait.sh 'final-attempt';
         }
 
     - name: "Create post run teardown script"
