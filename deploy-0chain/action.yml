@@ -186,7 +186,7 @@ runs:
         counter=0;
         while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
 
-          if ( kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ); then
+          if ( echo error | grep -i Error ); then
             echo "::warning ::Blobber stake failed."
             exit 1
           fi
