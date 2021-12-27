@@ -220,6 +220,7 @@ runs:
             echo TESTS_PASSED=true >> $GITHUB_ENV
           else
             echo TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches before attempting a re-run"
         fi
 
         exit $exit_code
@@ -289,8 +290,10 @@ runs:
         echo
         echo "System tests report:"
         echo "https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html"
+        echo "::notice title=System tests report::System test report can be found at: [https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html]"
         if [ "${{ env.FLAKY_TESTS_RAN }}" == "true" ];
            then
               echo "Flaky system tests report:"
               echo "https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html"
+              echo "::notice title=Flaky system tests report::Flaky system test report can be found at: [https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html]"
         fi
