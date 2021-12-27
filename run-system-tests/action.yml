@@ -121,27 +121,21 @@ runs:
       with:
         go-version: 1.17.2
 
-    - name: "Download youtube-dl"
+    - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
         echo "======================================================"
-        echo "Installing youtube-dl"
+        echo "INSTALL REQUIRED DEPENDENCIES"
         echo "======================================================"
         echo
-        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && exit 1; }
+        echo "install youtube-dl"
+        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         sudo chmod a+rx /usr/local/bin/youtube-dl
-
-    - name: "Donwload ffmpeg"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        echo
-        echo "======================================================"
-        echo "Installing ffmpeg"
-        echo "======================================================"
-        echo
+        echo "install ffmpeg"
         sudo apt update > build.log 2>&1 || { cat build.log && exit 1; }
-        sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && exit 1; }
+        sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }
+        echo "Test dependencies install SUCCESS!"
 
     - name: "Build CLI Binaries"
 #      if: steps.cli-cache.outputs.cache-hit != 'true'
@@ -157,20 +151,20 @@ runs:
         if [ -n "${{ inputs.custom_go_sdk_version }}" ];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || exit 1
-          go mod tidy
+          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1
+          go mod tidy || echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1
         fi
-        make install > build.log 2>&1 || { cat build.log && exit 1; }
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ../tests/cli_tests
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         if [ -n "${{ inputs.custom_go_sdk_version }}" ];
         then
           echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || exit 1
-          go mod tidy
+          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1
+          go mod tidy || echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1
         fi
-        make install > build.log 2>&1 || { cat build.log && exit 1; }
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ../tests/cli_tests
         echo "CLI build SUCCESS!"
 
