@@ -1,0 +1,61 @@
+name: "Notify PR"
+description: "Notify PR of all branches involved in this workflow run"
+inputs:
+  system_tests_branch:
+    required: false
+    description: 'System tests branch or SHA of PR to notify'
+  zbox_cli_branch:
+    required: true
+    description: '0Box CLI branch or SHA of PR to notify'
+    default: 'staging'
+  zwallet_cli_branch:
+    required: true
+    description: '0Wallet CLI branch or SHA of PR to notify'
+    default: 'staging'
+  gosdk_branch:
+    required: true
+    description: '0Wallet CLI branch or SHA of PR to notify'
+    default: 'staging'
+  zerochain_branch:
+    required: true
+    description: '0Wallet CLI branch or SHA of PR to notify'
+    default: 'staging'
+  blobber_branch:
+    required: true
+    description: '0Wallet CLI branch or SHA of PR to notify'
+    default: 'staging'
+  state:
+    required: true
+    description: "PR Status"
+    default: "pending"
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Get commit SHAs"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo SYSTEM_TEST_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/system_test/git/refs/heads/${{ inputs.system_tests_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
+#        echo ZBOX_CLI_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/zboxcli/git/refs/heads/${{ inputs.zbox_cli_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
+#        echo ZWALLET_CLI_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/zwalletcli/git/refs/heads/${{ inputs.zwallet_cli_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
+#        echo GOSDK_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ inputs.gosdk_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
+#        echo ZEROCHAIN_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/0chain/git/refs/heads/${{ inputs.zerochain_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
+#        echo BLOBBER_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/blobber/git/refs/heads/${{ inputs.blobber_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
+
+    - name: "Get system tests branch PR"
+      uses: jwalton/gh-find-current-pr@v1
+      with:
+        sha: ${{ env.SYSTEM_TEST_SHA }}
+      id: system_tests
+
+    - name: "Set system tests PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.findPr.outputs.number
+      with:
+        pr_number: ${{ steps.system_tests.outputs.pr }}
+        description: "Manual System tests ${{ inputs.state }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/system_test"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
