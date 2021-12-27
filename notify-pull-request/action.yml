@@ -44,9 +44,11 @@ runs:
 #        echo BLOBBER_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/blobber/git/refs/heads/${{ inputs.blobber_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
 
     - name: "Get system tests branch PR"
-      uses: jwalton/gh-find-current-pr@v1
+      uses: stewartie4/gh-find-current-pr@master
       with:
         sha: ${{ env.SYSTEM_TEST_SHA }}
+        owner: "0chain"
+        repo: "system_test"
       id: system_tests
 
     - name: "Set system tests PR status"
