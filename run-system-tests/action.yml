@@ -129,10 +129,10 @@ runs:
         echo "INSTALL REQUIRED DEPENDENCIES"
         echo "======================================================"
         echo
-        echo "install youtube-dl"
+        echo "installing youtube-dl..."
         sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         sudo chmod a+rx /usr/local/bin/youtube-dl
-        echo "install ffmpeg"
+        echo "installing ffmpeg..."
         sudo apt update > build.log 2>&1 || { cat build.log && exit 1; }
         sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }
         echo "Test dependencies install SUCCESS!"
