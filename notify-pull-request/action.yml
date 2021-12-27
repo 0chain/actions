@@ -61,3 +61,5 @@ runs:
         repository: "0chain/system_test"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
