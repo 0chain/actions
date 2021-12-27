@@ -28,9 +28,10 @@ inputs:
     required: true
     description: "PR Status"
     default: "pending"
-  token:
+  github_token:
     required: true
     description: "github token"
+    default: "default"
 
 
 runs:
@@ -65,4 +66,4 @@ runs:
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
-        GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
