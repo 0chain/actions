@@ -57,7 +57,6 @@ runs:
 
     - name: "Set system tests PR status"
       uses: niteoweb/pull_request_status_action@v1.0.0
-      continue-on-error: true
       if: steps.system_tests.outputs.number
       with:
         pr_number: ${{ steps.system_tests.outputs.pr }}
