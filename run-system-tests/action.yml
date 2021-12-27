@@ -288,12 +288,8 @@ runs:
         echo "SYSTEM TESTS HTML REPORTS:"
         echo "======================================================"
         echo
-        echo "System tests report:"
-        echo "https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html"
-        echo "::notice title=System tests report::System test report can be found at: [https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html]"
+        echo "::notice title=System tests report::System tests report: https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/index.html"
         if [ "${{ env.FLAKY_TESTS_RAN }}" == "true" ];
            then
-              echo "Flaky system tests report:"
-              echo "https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html"
-              echo "::notice title=Flaky system tests report::Flaky system test report can be found at: [https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html]"
+              echo "::notice title=Flaky system tests report::Flaky system tests report: https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH }}/${GITHUB_SHA}/flaky/index.html"
         fi
