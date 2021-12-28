@@ -41,10 +41,10 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo '#!/bin/bash
-        if [[ '$2' =~ ^[^\/]*-[a-f0-9]{6,40}$ ]]; then
+        if [[ "$2" =~ ^[^\/]*-[a-f0-9]{6,40}$ ]]; then
           EXTRACTED_SHORT_SHA=$(echo $2 | cut -f2 -d"-")
           echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/commits/$EXTRACTED_SHORT_SHA | jq --raw-output .sha)
-        elif [[ '$2' =~ ^[a-f0-9]{6,40}$ ]]; then
+        elif [[ "$2" =~ ^[a-f0-9]{6,40}$ ]]; then
           echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/commits/$2 | jq --raw-output .sha)
         else
           echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
