@@ -49,7 +49,7 @@ runs:
         else
           echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
         fi
-        ' > ./teardown.sh;
+        ' > ./get_sha.sh;
         chmod 777 ./get_sha.sh;
 
         echo SYSTEM_TEST_SHA=$(./get_sha.sh system_test ${{ inputs.system_tests_branch }}) >> $GITHUB_ENV
