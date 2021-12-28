@@ -74,7 +74,7 @@ runs:
         pr_number: ${{ steps.system_tests.outputs.pr }}
         description: "Manual System tests ${{ inputs.state }}"
         state: ${{ inputs.state }}
-        repository: "0chain/zboxcli"
+        repository: "0chain/system_test"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
@@ -96,7 +96,7 @@ runs:
         pr_number: ${{ steps.zbox_cli.outputs.pr }}
         description: "Manual System tests ${{ inputs.state }}"
         state: ${{ inputs.state }}
-        repository: "0chain/system_test"
+        repository: "0chain/zboxcli"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
@@ -118,7 +118,7 @@ runs:
         pr_number: ${{ steps.zwallet_cli.outputs.pr }}
         description: "Manual System tests ${{ inputs.state }}"
         state: ${{ inputs.state }}
-        repository: "0chain/system_test"
+        repository: "0chain/zwalletcli"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
@@ -140,7 +140,7 @@ runs:
         pr_number: ${{ steps.gosdk.outputs.pr }}
         description: "Manual System tests ${{ inputs.state }}"
         state: ${{ inputs.state }}
-        repository: "0chain/system_test"
+        repository: "0chain/gosdk"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
@@ -162,7 +162,7 @@ runs:
         pr_number: ${{ steps.zerochain.outputs.pr }}
         description: "Manual System tests ${{ inputs.state }}"
         state: ${{ inputs.state }}
-        repository: "0chain/system_test"
+        repository: "0chain/0chain"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
@@ -184,7 +184,7 @@ runs:
         pr_number: ${{ steps.blobber.outputs.pr }}
         description: "Manual System tests ${{ inputs.state }}"
         state: ${{ inputs.state }}
-        repository: "0chain/system_test"
+        repository: "0chain/blobber"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
