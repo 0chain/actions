@@ -28,6 +28,10 @@ inputs:
     required: true
     description: "PR Status"
     default: "pending"
+  message:
+    required: false
+    description: "additional message to be added to PR status"
+    default: ""
   github_token:
     required: true
     description: "github token"
@@ -43,11 +47,11 @@ runs:
         echo '#!/bin/bash
         if [[ "$2" =~ ^[^\/]*-[a-f0-9]{6,40}$ ]]; then
           EXTRACTED_SHORT_SHA=$(echo $2 | cut -f2 -d"-")
-          echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/commits/$EXTRACTED_SHORT_SHA | jq --raw-output .sha)
+          echo $(curl --silent https://api.github.com/repos/0chain/$1/commits/$EXTRACTED_SHORT_SHA | jq --raw-output .sha)
         elif [[ "$2" =~ ^[a-f0-9]{6,40}$ ]]; then
-          echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/commits/$2 | jq --raw-output .sha)
+          echo $(curl --silent https://api.github.com/repos/0chain/$1/commits/$2 | jq --raw-output .sha)
         else
-          echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
+          echo $(curl --silent https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
         fi
         ' > ./get_sha.sh;
         chmod 777 ./get_sha.sh;
@@ -72,7 +76,7 @@ runs:
       if: steps.system_tests.outputs.number
       with:
         pr_number: ${{ steps.system_tests.outputs.pr }}
-        description: "Manual System tests ${{ inputs.state }}"
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/system_test"
         context: ${{ github.workflow }}
@@ -94,7 +98,7 @@ runs:
       if: steps.zbox_cli.outputs.number
       with:
         pr_number: ${{ steps.zbox_cli.outputs.pr }}
-        description: "Manual System tests ${{ inputs.state }}"
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/zboxcli"
         context: ${{ github.workflow }}
@@ -116,7 +120,7 @@ runs:
       if: steps.zwallet_cli.outputs.number
       with:
         pr_number: ${{ steps.zwallet_cli.outputs.pr }}
-        description: "Manual System tests ${{ inputs.state }}"
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/zwalletcli"
         context: ${{ github.workflow }}
@@ -138,7 +142,7 @@ runs:
       if: steps.gosdk.outputs.number
       with:
         pr_number: ${{ steps.gosdk.outputs.pr }}
-        description: "Manual System tests ${{ inputs.state }}"
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/gosdk"
         context: ${{ github.workflow }}
@@ -160,7 +164,7 @@ runs:
       if: steps.zerochain.outputs.number
       with:
         pr_number: ${{ steps.zerochain.outputs.pr }}
-        description: "Manual System tests ${{ inputs.state }}"
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/0chain"
         context: ${{ github.workflow }}
@@ -182,7 +186,7 @@ runs:
       if: steps.blobber.outputs.number
       with:
         pr_number: ${{ steps.blobber.outputs.pr }}
-        description: "Manual System tests ${{ inputs.state }}"
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/blobber"
         context: ${{ github.workflow }}
