@@ -45,7 +45,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo '#!/bin/bash
-        echo $(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
+        echo $(curl --silent -u ${{ inputs.github_token }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
         ' > ./get_sha.sh;
         chmod 777 ./get_sha.sh;
 
