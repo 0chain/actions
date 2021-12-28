@@ -40,12 +40,25 @@ runs:
     - name: "Get commit SHAs"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo SYSTEM_TEST_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/system_test/git/refs/heads/${{ inputs.system_tests_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
-#        echo ZBOX_CLI_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/zboxcli/git/refs/heads/${{ inputs.zbox_cli_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
-#        echo ZWALLET_CLI_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/zwalletcli/git/refs/heads/${{ inputs.zwallet_cli_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
-#        echo GOSDK_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ inputs.gosdk_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
-#        echo ZEROCHAIN_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/0chain/git/refs/heads/${{ inputs.zerochain_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
-#        echo BLOBBER_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/blobber/git/refs/heads/${{ inputs.blobber_branch }} | jq --raw-output .object.sha) >> $GITHUB_ENV
+        echo '#!/bin/bash
+        if [[ '$2' =~ ^[^\/]*-[a-f0-9]{6,40}$ ]]; then
+          EXTRACTED_SHORT_SHA=$(echo $2 | cut -f2 -d"-")
+          echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/commits/$EXTRACTED_SHORT_SHA | jq --raw-output .sha)
+        elif [[ '$2' =~ ^[a-f0-9]{6,40}$ ]]; then
+          echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/commits/$2 | jq --raw-output .sha)
+        else
+          echo $(curl --silent --fail https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
+        fi
+        ' > ./teardown.sh;
+        chmod 777 ./get_sha.sh;
+
+        echo SYSTEM_TEST_SHA=$(./get_sha.sh system_test ${{ inputs.system_tests_branch }}) >> $GITHUB_ENV
+        echo ZBOX_CLI_SHA=$(./get_sha.sh zboxcli ${{ inputs.zbox_cli_branch }}) >> $GITHUB_ENV
+        echo ZWALLET_CLI_SHA=$(./get_sha.sh zwalletcli ${{ inputs.zwallet_cli_branch }}) >> $GITHUB_ENV
+        echo GOSDK_SHA=$(./get_sha.sh gosdk ${{ inputs.gosdk_branch }}) >> $GITHUB_ENV
+        echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
+        echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
+
 
     - name: "Get system tests branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -54,16 +67,125 @@ runs:
         owner: "0chain"
         repo: "system_test"
       id: system_tests
-
-    - name: "Set system tests PR status"
+    - name: "Set zbox cli PR status"
       uses: niteoweb/pull_request_status_action@v1.0.0
       if: steps.system_tests.outputs.number
       with:
         pr_number: ${{ steps.system_tests.outputs.pr }}
         description: "Manual System tests ${{ inputs.state }}"
         state: ${{ inputs.state }}
+        repository: "0chain/zboxcli"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+
+
+
+    - name: "Get zbox cli branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.ZBOX_CLI_SHA }}
+        owner: "0chain"
+        repo: "zboxcli"
+      id: zbox_cli
+    - name: "Set zbox cli PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.zbox_cli.outputs.number
+      with:
+        pr_number: ${{ steps.zbox_cli.outputs.pr }}
+        description: "Manual System tests ${{ inputs.state }}"
+        state: ${{ inputs.state }}
         repository: "0chain/system_test"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
-        GITHUB_TOKEN: ${{ inputs.system_tests_branch }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+
+
+
+    - name: "Get zwallet cli branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.ZWALLET_CLI_SHA }}
+        owner: "0chain"
+        repo: "zwalletcli"
+      id: zwallet_cli
+    - name: "Set zwallet cli PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.zwallet_cli.outputs.number
+      with:
+        pr_number: ${{ steps.zwallet_cli.outputs.pr }}
+        description: "Manual System tests ${{ inputs.state }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/system_test"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+
+
+
+    - name: "Get gosdk branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.GOSDK_SHA }}
+        owner: "0chain"
+        repo: "gosdk"
+      id: gosdk
+    - name: "Set gosdk PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.gosdk.outputs.number
+      with:
+        pr_number: ${{ steps.gosdk.outputs.pr }}
+        description: "Manual System tests ${{ inputs.state }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/system_test"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+
+
+
+    - name: "Get 0chain branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.ZEROCHAIN_SHA }}
+        owner: "0chain"
+        repo: "0chain"
+      id: zerochain
+    - name: "Set 0chain branch PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.zerochain.outputs.number
+      with:
+        pr_number: ${{ steps.zerochain.outputs.pr }}
+        description: "Manual System tests ${{ inputs.state }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/system_test"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+
+
+
+    - name: "Get blobber branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.BLOBBER_SHA }}
+        owner: "0chain"
+        repo: "blobber"
+      id: blobber
+    - name: "Set blobber PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.blobber.outputs.number
+      with:
+        pr_number: ${{ steps.blobber.outputs.pr }}
+        description: "Manual System tests ${{ inputs.state }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/system_test"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
