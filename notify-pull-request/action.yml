@@ -45,14 +45,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo '#!/bin/bash
-        if [[ "$2" =~ ^[^\/]*-[a-f0-9]{6,40}$ ]]; then
-          EXTRACTED_SHORT_SHA=$(echo $2 | cut -f2 -d"-")
-          echo $(curl --silent https://api.github.com/repos/0chain/$1/commits/$EXTRACTED_SHORT_SHA | jq --raw-output .sha)
-        elif [[ "$2" =~ ^[a-f0-9]{6,40}$ ]]; then
-          echo $(curl --silent https://api.github.com/repos/0chain/$1/commits/$2 | jq --raw-output .sha)
-        else
-          echo $(curl --silent https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
-        fi
+        echo $(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha)
         ' > ./get_sha.sh;
         chmod 777 ./get_sha.sh;
 
@@ -62,7 +55,6 @@ runs:
         echo GOSDK_SHA=$(./get_sha.sh gosdk ${{ inputs.gosdk_branch }}) >> $GITHUB_ENV
         echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
-
 
     - name: "Get system tests branch PR"
       uses: stewartie4/gh-find-current-pr@master
