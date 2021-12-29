@@ -202,7 +202,7 @@ jobs:
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Set PR Status"
-      if: ${{ success() || failure() }}
+      if: ${{ success() || failure() || cancelled() }}
       uses: 0chain/actions/notify-pull-request@feature/notify-PR-convenience
       continue-on-error: true
       with:

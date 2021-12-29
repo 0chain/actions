@@ -108,21 +108,21 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
-        skip: ${{ inputs.state == 'pending' }}
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "system_test"
         pr-number: ${{ steps.system_tests.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
-          | repo  | value |
+          | config  | value |
           | ------------- | ------------- |
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
           | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -154,21 +154,21 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
-        skip: ${{ inputs.state == 'pending' }}
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "zboxcli"
         pr-number: ${{ steps.zbox_cli.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
-          | repo  | value |
+          | config  | value |
           | ------------- | ------------- |
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
           | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -200,21 +200,21 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
-        skip: ${{ inputs.state == 'pending' }}
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "zwalletcli"
         pr-number: ${{ steps.zwallet_cli.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
-          | repo  | value |
+          | config  | value |
           | ------------- | ------------- |
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
           | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -246,21 +246,21 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
-        skip: ${{ inputs.state == 'pending' }}
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "0chain"
         pr-number: ${{ steps.zerochain.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
-          | repo  | value |
+          | config  | value |
           | ------------- | ------------- |
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
           | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -292,21 +292,21 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
-        skip: ${{ inputs.state == 'pending' }}
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "blobber"
         pr-number: ${{ steps.blobber.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
-          | repo  | value |
+          | config  | value |
           | ------------- | ------------- |
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
           | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -338,21 +338,21 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
-        skip: ${{ inputs.state == 'pending' }}
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "gosdk"
         pr-number: ${{ steps.gosdk.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
-          | repo  | value |
+          | config  | value |
           | ------------- | ------------- |
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
           | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | gosdk  | ${{ inputs.gosdk_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
