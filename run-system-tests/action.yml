@@ -158,7 +158,7 @@ runs:
         mv zwallet ../tests/cli_tests
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
-        if [ -n "${{ inputs.custom_go_sdk_version }}" ];
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
