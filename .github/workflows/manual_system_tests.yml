@@ -140,7 +140,7 @@ jobs:
         ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
         ./get_tag.sh 0block ${{ inputs.zblock_branch }} 0block
         ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
-        ./get_tag.sh explorer ${{ inputs.explorer_branch }} explorer
+        ./get_tag.sh block-explorer ${{ inputs.explorer_branch }} explorer
         ./get_tag.sh 0proxy ${{ inputs.zproxy_branch }} 0proxy
         ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
 
