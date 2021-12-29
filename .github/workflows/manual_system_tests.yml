@@ -208,7 +208,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@master
+      uses: 0chain/actions/run-system-tests@feature/notify-PR-convenience
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
