@@ -201,23 +201,6 @@ jobs:
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
-
-    - name: "Run System tests"
-      if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@feature/notify-PR-convenience
-      with:
-        system_tests_branch: ${{ inputs.system_tests_branch }}
-        network: ${{ env.NETWORK_URL }}
-        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
-        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        smart_contract_owner_wallet_json: ${{ secrets.SMART_CONTRACT_OWNER_WALLET_JSON }}
-        svc_account_secret: ${{ github.token }}
-        deploy_report_page: false
-        archive_results: true
-        run_flaky_tests: false
-        retry_failures: true
-
     - name: "Set PR Status"
       if: ${{ success() || failure() }}
       uses: 0chain/actions/notify-pull-request@feature/notify-PR-convenience
