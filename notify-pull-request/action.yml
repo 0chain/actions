@@ -127,7 +127,7 @@ runs:
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
           | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
           | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -173,7 +173,7 @@ runs:
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
           | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
           | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -219,7 +219,7 @@ runs:
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
           | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
           | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -265,7 +265,7 @@ runs:
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
           | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
           | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -311,7 +311,7 @@ runs:
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
           | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
           | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -357,6 +357,6 @@ runs:
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
           | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
           | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
