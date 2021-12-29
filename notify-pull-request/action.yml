@@ -87,16 +87,9 @@ runs:
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | miner  | ${{ inputs.miner_branch }}  |
-          | sharder  | ${{ inputs.sharder_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | validator  | ${{ inputs.validator_branch }}  |
-          | zbox  | ${{ inputs.zbox_branch }}  |
-          | zblock  | ${{ inputs.zblock_branch }}  |
-          | zdns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
-          | zsearch  | ${{ inputs.zsearch_branch }}  |
+          | go-sdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -132,16 +125,9 @@ runs:
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | miner  | ${{ inputs.miner_branch }}  |
-          | sharder  | ${{ inputs.sharder_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | validator  | ${{ inputs.validator_branch }}  |
-          | zbox  | ${{ inputs.zbox_branch }}  |
-          | zblock  | ${{ inputs.zblock_branch }}  |
-          | zdns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
-          | zsearch  | ${{ inputs.zsearch_branch }}  |
+          | go-sdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -177,16 +163,9 @@ runs:
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | miner  | ${{ inputs.miner_branch }}  |
-          | sharder  | ${{ inputs.sharder_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | validator  | ${{ inputs.validator_branch }}  |
-          | zbox  | ${{ inputs.zbox_branch }}  |
-          | zblock  | ${{ inputs.zblock_branch }}  |
-          | zdns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
-          | zsearch  | ${{ inputs.zsearch_branch }}  |
+          | go-sdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -222,16 +201,9 @@ runs:
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | miner  | ${{ inputs.miner_branch }}  |
-          | sharder  | ${{ inputs.sharder_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | validator  | ${{ inputs.validator_branch }}  |
-          | zbox  | ${{ inputs.zbox_branch }}  |
-          | zblock  | ${{ inputs.zblock_branch }}  |
-          | zdns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
-          | zsearch  | ${{ inputs.zsearch_branch }}  |
+          | go-sdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -267,16 +239,9 @@ runs:
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | miner  | ${{ inputs.miner_branch }}  |
-          | sharder  | ${{ inputs.sharder_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | validator  | ${{ inputs.validator_branch }}  |
-          | zbox  | ${{ inputs.zbox_branch }}  |
-          | zblock  | ${{ inputs.zblock_branch }}  |
-          | zdns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
-          | zsearch  | ${{ inputs.zsearch_branch }}  |
+          | go-sdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -312,14 +277,7 @@ runs:
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | miner  | ${{ inputs.miner_branch }}  |
-          | sharder  | ${{ inputs.sharder_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | validator  | ${{ inputs.validator_branch }}  |
-          | zbox  | ${{ inputs.zbox_branch }}  |
-          | zblock  | ${{ inputs.zblock_branch }}  |
-          | zdns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
-          | zsearch  | ${{ inputs.zsearch_branch }}  |
+          | go-sdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
