@@ -89,7 +89,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | go-sdk  | ${{ inputs.gosdk_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -127,7 +127,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | go-sdk  | ${{ inputs.gosdk_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -165,7 +165,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | go-sdk  | ${{ inputs.gosdk_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -203,7 +203,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | go-sdk  | ${{ inputs.gosdk_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -241,7 +241,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | go-sdk  | ${{ inputs.gosdk_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -279,5 +279,5 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
-          | go-sdk  | ${{ inputs.gosdk_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
         repo-token: ${{ inputs.github_token }}
