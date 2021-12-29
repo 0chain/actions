@@ -1,7 +1,7 @@
 name: "0Chain System Tests"
 
 concurrency:
-  group: "${{ github.ref }}"
+  group: "manual-system-tests-${{ github.ref }}"
   cancel-in-progress: true
 
 on:
@@ -228,7 +228,7 @@ jobs:
       continue-on-error: true
       with:
         state: ${{ job.status }}
-        message: "manual tests success"
+        message: "manual tests passed against [${{ inputs.system_tests_branch }}] system_tests"
         system_tests_branch: ${{ inputs.system_tests_branch }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
