@@ -15,7 +15,7 @@ inputs:
   gosdk_branch:
     required: true
     description: '0Wallet CLI branch or SHA of PR to notify'
-    default: 'staging'
+    default: 'NOT SUPPLIED'
   zerochain_branch:
     required: true
     description: '0Wallet CLI branch or SHA of PR to notify'
