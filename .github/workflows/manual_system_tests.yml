@@ -10,6 +10,24 @@ on:
       SVC_ACCOUNT_SECRET:
         description: 'A token used for cross-repo actions'
         required: true
+      DEV1KC:
+        description: 'dev-1 k8s config'
+        required: true
+      DEV2KC:
+        description: 'dev-2 k8s config'
+        required: true
+      DEV3KC:
+        description: 'dev-3 k8s config'
+        required: true
+      DEV4KC:
+        description: 'dev-4 k8s config'
+        required: true
+      DEV5KC:
+        description: 'dev-5 k8s config'
+        required: true
+      SMART_CONTRACT_OWNER_WALLET_JSON:
+        description: 'Smart contract owner wallet'
+        required: true
     inputs:
        system_tests_branch:
         description: 'system_tests branch containing the tests you wish to run'
