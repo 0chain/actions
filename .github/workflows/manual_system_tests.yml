@@ -185,7 +185,7 @@ jobs:
       continue-on-error: true
       with:
         state: "pending"
-        message: "manually running against system_test branch [${{ inputs.system_tests_branch }}]"
+        message: "manual run against [${{ inputs.system_tests_branch }}] tests"
         system_tests_branch: ${{ inputs.system_tests_branch }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
@@ -241,7 +241,7 @@ jobs:
       continue-on-error: true
       with:
         state: ${{ job.status }}
-        message: "manually ran against system_test branch [${{ inputs.system_tests_branch }}]"
+        message: "manual run against [${{ inputs.system_tests_branch }}] tests"
         system_tests_branch: ${{ inputs.system_tests_branch }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
