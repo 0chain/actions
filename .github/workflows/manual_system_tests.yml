@@ -115,8 +115,11 @@ jobs:
       run: |
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
-        echo "GOSDK_SHA=$(curl --silent --fail -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ inputs.gosdk_branch }} | jq --raw-output .object.sha || echo 'NONE')" >> $GITHUB_ENV
 
+        echo "GOSDK_SHA=NONE" >> $GITHUB_ENV
+        if [ "${{ inputs.gosdk_branch }}" != "NOT OVERRIDDEN" ]; then
+           echo "GOSDK_SHA=$(curl --silent --fail -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ inputs.gosdk_branch }} | jq --raw-output .object.sha)" >> $GITHUB_ENV
+        fi
         echo '#!/bin/bash
 
         echo
