@@ -201,6 +201,40 @@ jobs:
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
+    - name: "Deploy 0Chain"
+      if: ${{ inputs.skip_tests == 'FALSE' }}
+      uses: 0chain/actions/deploy-0chain@master
+      with:
+        kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
+        teardown_condition: "TESTS_PASSED"
+        miner_image:  ${{ env.MINER_TAG }}
+        sharder_image: ${{ env.SHARDER_TAG }}
+        blobber_image: ${{ env.BLOBBER_TAG }}
+        validator_image: ${{ env.VALIDATOR_TAG }}
+        zbox_image: ${{ env.ZBOX_TAG }}
+        zblock_image: ${{ env.ZBLOCK_TAG }}
+        zdns_image: ${{ env.ZDNS_TAG }}
+        explorer_image: ${{ env.EXPLORER_TAG }}
+        zproxy_image: ${{ env.ZPROXY_TAG }}
+        zsearch_image: ${{ env.ZSEARCH_TAG }}
+        blobber_stake_image: latest
+
+    - name: "Run System tests"
+      if: ${{ inputs.skip_tests == 'FALSE' }}
+      uses: 0chain/actions/run-system-tests@feature/notify-PR-convenience
+      with:
+        system_tests_branch: ${{ inputs.system_tests_branch }}
+        network: ${{ env.NETWORK_URL }}
+        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+        custom_go_sdk_version: ${{ env.GOSDK_SHA }}
+        smart_contract_owner_wallet_json: ${{ secrets.SMART_CONTRACT_OWNER_WALLET_JSON }}
+        svc_account_secret: ${{ github.token }}
+        deploy_report_page: false
+        archive_results: true
+        run_flaky_tests: false
+        retry_failures: true
+
     - name: "Set PR Status"
       if: ${{ success() || failure() || cancelled() }}
       uses: 0chain/actions/notify-pull-request@feature/notify-PR-convenience
