@@ -169,45 +169,6 @@ runs:
         repo-token: ${{ inputs.github_token }}
 
 
-
-    - name: "Get gosdk branch PR"
-      uses: stewartie4/gh-find-current-pr@master
-      with:
-        sha: ${{ env.GOSDK_SHA }}
-        owner: "0chain"
-        repo: "gosdk"
-      id: gosdk
-    - name: "Set gosdk PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
-      if: steps.gosdk.outputs.number
-      with:
-        pr_number: ${{ steps.gosdk.outputs.pr }}
-        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
-        state: ${{ inputs.state }}
-        repository: "0chain/gosdk"
-        context: ${{ github.workflow }}
-        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
-      with:
-        owner: "0chain"
-        repo: "gosdk"
-        pr-number: ${{ steps.gosdk.outputs.pr }}
-        message: |
-          Manual system tests [${{ inputs.state }}] with the following config
-          | repo  | value |
-          | ------------- | ------------- |
-          | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | 0chain  | ${{ inputs.zerochain_branch }}  |
-          | blobber  | ${{ inputs.blobber_branch }}  |
-          | go-sdk  | ${{ inputs.gosdk_branch }}  |
-        repo-token: ${{ inputs.github_token }}
-
-
-
     - name: "Get 0chain branch PR"
       uses: stewartie4/gh-find-current-pr@master
       with:
@@ -270,6 +231,44 @@ runs:
         owner: "0chain"
         repo: "blobber"
         pr-number: ${{ steps.blobber.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | repo  | value |
+          | ------------- | ------------- |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | go-sdk  | ${{ inputs.gosdk_branch }}  |
+        repo-token: ${{ inputs.github_token }}
+
+
+
+    - name: "Get gosdk branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.GOSDK_SHA }}
+        owner: "0chain"
+        repo: "gosdk"
+      id: gosdk
+    - name: "Set gosdk PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.gosdk.outputs.number
+      with:
+        pr_number: ${{ steps.gosdk.outputs.pr }}
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/gosdk"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        owner: "0chain"
+        repo: "gosdk"
+        pr-number: ${{ steps.gosdk.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
           | repo  | value |
