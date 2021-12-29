@@ -3,27 +3,55 @@ description: "Notify PR of all branches involved in this workflow run"
 inputs:
   system_tests_branch:
     required: false
-    description: 'System tests branch or SHA of PR to notify'
+    description: 'System tests branch to notify'
   zbox_cli_branch:
     required: true
-    description: '0Box CLI branch or SHA of PR to notify'
+    description: '0Box CLI branch to notify'
     default: 'staging'
   zwallet_cli_branch:
     required: true
-    description: '0Wallet CLI branch or SHA of PR to notify'
+    description: '0Wallet CLI branch to notify'
     default: 'staging'
   gosdk_branch:
     required: true
-    description: '0Wallet CLI branch or SHA of PR to notify'
+    description: '0Wallet CLI branch to notify'
     default: 'NOT OVERRIDDEN'
   zerochain_branch:
     required: true
-    description: '0Wallet CLI branch or SHA of PR to notify'
+    description: '0Wallet CLI branch to notify'
     default: 'staging'
   blobber_branch:
     required: true
-    description: '0Wallet CLI branch or SHA of PR to notify'
+    description: '0Wallet CLI branch to notify'
     default: 'staging'
+  zbox_branch:
+    description: '0box branch to notify'
+    default: 'staging'
+    required: true
+  zblock_branch:
+    description: '0block branch to notify'
+    default: 'staging'
+    required: true
+  zdns_branch:
+    description: '0dns branch to notify'
+    default: 'staging'
+    required: true
+  explorer_branch:
+    description: 'explorer branch to notify'
+    default: 'staging'
+    required: true
+  zproxy_branch:
+    description: '0proxy branch to notify'
+    default: 'staging'
+    required: true
+  zsearch_branch:
+    description: '0search branch to notify'
+    default: 'staging'
+    required: true
+  skip_tests:
+    description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
+    default: 'FALSE'
+    required: true
   state:
     required: true
     description: "PR Status"
@@ -52,7 +80,10 @@ runs:
         echo SYSTEM_TEST_SHA=$(./get_sha.sh system_test ${{ inputs.system_tests_branch }}) >> $GITHUB_ENV
         echo ZBOX_CLI_SHA=$(./get_sha.sh zboxcli ${{ inputs.zbox_cli_branch }}) >> $GITHUB_ENV
         echo ZWALLET_CLI_SHA=$(./get_sha.sh zwalletcli ${{ inputs.zwallet_cli_branch }}) >> $GITHUB_ENV
-        echo GOSDK_SHA=$(./get_sha.sh gosdk ${{ inputs.gosdk_branch }}) >> $GITHUB_ENV
+        echo GOSDK_SHA=NONE >> $GITHUB_ENV
+        if [ "${{ inputs.gosdk_branch }}" != "NOT OVERRIDDEN" ]; then
+          echo GOSDK_SHA=$(./get_sha.sh gosdk ${{ inputs.gosdk_branch }}) >> $GITHUB_ENV
+        fi
         echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
 
@@ -85,12 +116,19 @@ runs:
           Manual system tests [${{ inputs.state }}] with the following config
           | repo  | value |
           | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -124,12 +162,19 @@ runs:
           Manual system tests [${{ inputs.state }}] with the following config
           | repo  | value |
           | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -163,12 +208,19 @@ runs:
           Manual system tests [${{ inputs.state }}] with the following config
           | repo  | value |
           | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -202,12 +254,19 @@ runs:
           Manual system tests [${{ inputs.state }}] with the following config
           | repo  | value |
           | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -241,12 +300,19 @@ runs:
           Manual system tests [${{ inputs.state }}] with the following config
           | repo  | value |
           | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -280,10 +346,17 @@ runs:
           Manual system tests [${{ inputs.state }}] with the following config
           | repo  | value |
           | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}

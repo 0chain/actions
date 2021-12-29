@@ -192,7 +192,15 @@ jobs:
         zerochain_branch: ${{ inputs.miner_branch }}
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
+        zbox_branch: ${{ inputs.zbox_branch }}
+        zblock_branch: ${{ inputs.zblock_branch }}
+        zdns_branch: ${{ inputs.zdns_branch }}
+        explorer_branch: ${{ inputs.explorer_branch }}
+        zproxy_branch: ${{ inputs.zproxy_branch }}
+        zsearch_branch: ${{ inputs.zsearch_branch }}
+        skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
@@ -223,4 +231,11 @@ jobs:
         zerochain_branch: ${{ inputs.miner_branch }}
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
+        zbox_branch: ${{ inputs.zbox_branch }}
+        zblock_branch: ${{ inputs.zblock_branch }}
+        zdns_branch: ${{ inputs.zdns_branch }}
+        explorer_branch: ${{ inputs.explorer_branch }}
+        zproxy_branch: ${{ inputs.zproxy_branch }}
+        zsearch_branch: ${{ inputs.zsearch_branch }}
+        skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
