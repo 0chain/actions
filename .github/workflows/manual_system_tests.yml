@@ -117,15 +117,23 @@ jobs:
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
         echo '#!/bin/bash
-        exit_code=0
-        SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
-        PR_ID=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/search/issues?q=sha:$SHORT_SHA | jq --raw-output .items[0].number)
-        TAG=$(echo $2 | sed '"'"'s/\//-/g'"'"')
 
         echo
         echo "========================================================================"
         echo "Finding [$3] docker image for branch [$2]..."
         echo "========================================================================"
+
+        if [[ "$3" == "master" ]]; then
+          echo "Docker image [latest] found"
+          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=latest" >> $GITHUB_ENV
+          exit 0
+        fi
+
+        exit_code=0
+        SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
+        PR_ID=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/search/issues?q=sha:$SHORT_SHA | jq --raw-output .items[0].number)
+        TAG=$(echo $2 | sed '"'"'s/\//-/g'"'"')
+
         echo "Searching for image [${TAG}-${SHORT_SHA}]..."
         docker pull 0chaindev/$3:${TAG}-${SHORT_SHA} > /dev/null 2>&1 || exit_code=$?
 
