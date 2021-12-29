@@ -202,24 +202,3 @@ jobs:
         zerochain_branch: ${{ inputs.miner_branch }}
         blobber_branch: ${{ inputs.blobber_branch }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
-    - uses: mshick/add-pr-comment@v1
-      if: ${{ success() || failure() }}
-      with:
-        message: |
-          Manual system tests [${{ job.status }}] with the following config
-          | repo  | value |
-          | ------------- | ------------- |
-          | system-tests  | ${{ inputs.system_tests_branch }}  |
-          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
-          | miner  | ${{ inputs.miner_branch }}  |
-          | sharder  | ${{ inputs.sharder_branch }}  |
-          | blobber  | ${{ inputs.blobber_branch }}  |
-          | validator  | ${{ inputs.validator_branch }}  |
-          | zbox  | ${{ inputs.zbox_branch }}  |
-          | zblock  | ${{ inputs.zblock_branch }}  |
-          | zdns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | zproxy  | ${{ inputs.zproxy_branch }}  |
-          | zsearch  | ${{ inputs.zsearch }}  |
-        repo-token: ${{ secrets.GITHUB_TOKEN }}

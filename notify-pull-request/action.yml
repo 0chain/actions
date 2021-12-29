@@ -75,6 +75,29 @@ runs:
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        owner: "0chain"
+        repo: "system_test"
+        pr-number: ${{ steps.system_tests.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | repo  | value |
+          | ------------- | ------------- |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | miner  | ${{ inputs.miner_branch }}  |
+          | sharder  | ${{ inputs.sharder_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | validator  | ${{ inputs.validator_branch }}  |
+          | zbox  | ${{ inputs.zbox_branch }}  |
+          | zblock  | ${{ inputs.zblock_branch }}  |
+          | zdns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | zsearch  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
 
 
 
@@ -97,6 +120,29 @@ runs:
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        owner: "0chain"
+        repo: "zboxcli"
+        pr-number: ${{ steps.zbox_cli.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | repo  | value |
+          | ------------- | ------------- |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | miner  | ${{ inputs.miner_branch }}  |
+          | sharder  | ${{ inputs.sharder_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | validator  | ${{ inputs.validator_branch }}  |
+          | zbox  | ${{ inputs.zbox_branch }}  |
+          | zblock  | ${{ inputs.zblock_branch }}  |
+          | zdns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | zsearch  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
 
 
 
@@ -119,6 +165,29 @@ runs:
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        owner: "0chain"
+        repo: "zwalletcli"
+        pr-number: ${{ steps.zwallet_cli.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | repo  | value |
+          | ------------- | ------------- |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | miner  | ${{ inputs.miner_branch }}  |
+          | sharder  | ${{ inputs.sharder_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | validator  | ${{ inputs.validator_branch }}  |
+          | zbox  | ${{ inputs.zbox_branch }}  |
+          | zblock  | ${{ inputs.zblock_branch }}  |
+          | zdns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | zsearch  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
 
 
 
@@ -141,6 +210,29 @@ runs:
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        owner: "0chain"
+        repo: "gosdk"
+        pr-number: ${{ steps.gosdk.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | repo  | value |
+          | ------------- | ------------- |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | miner  | ${{ inputs.miner_branch }}  |
+          | sharder  | ${{ inputs.sharder_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | validator  | ${{ inputs.validator_branch }}  |
+          | zbox  | ${{ inputs.zbox_branch }}  |
+          | zblock  | ${{ inputs.zblock_branch }}  |
+          | zdns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | zsearch  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
 
 
 
@@ -163,6 +255,29 @@ runs:
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        owner: "0chain"
+        repo: "0chain"
+        pr-number: ${{ steps.zerochain.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | repo  | value |
+          | ------------- | ------------- |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | miner  | ${{ inputs.miner_branch }}  |
+          | sharder  | ${{ inputs.sharder_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | validator  | ${{ inputs.validator_branch }}  |
+          | zbox  | ${{ inputs.zbox_branch }}  |
+          | zblock  | ${{ inputs.zblock_branch }}  |
+          | zdns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | zsearch  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
 
 
 
@@ -185,3 +300,26 @@ runs:
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        owner: "0chain"
+        repo: "blobber"
+        pr-number: ${{ steps.blobber.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | repo  | value |
+          | ------------- | ------------- |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | miner  | ${{ inputs.miner_branch }}  |
+          | sharder  | ${{ inputs.sharder_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | validator  | ${{ inputs.validator_branch }}  |
+          | zbox  | ${{ inputs.zbox_branch }}  |
+          | zblock  | ${{ inputs.zblock_branch }}  |
+          | zdns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | zproxy  | ${{ inputs.zproxy_branch }}  |
+          | zsearch  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
