@@ -64,6 +64,7 @@ runs:
         echo "0Chain network URL:     [${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:        [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:     [${{ env.ZWALLET_BRANCH }}]"
+        echo "Custom gosdk version:   [${{ inputs.custom_go_sdk_version }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v2
@@ -148,7 +149,7 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-        if [ -n "${{ inputs.custom_go_sdk_version }}" ];
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
@@ -158,7 +159,7 @@ runs:
         mv zwallet ../tests/cli_tests
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
-        if [ -n "${{ inputs.custom_go_sdk_version }}" ];
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
