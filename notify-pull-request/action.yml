@@ -121,8 +121,8 @@ runs:
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
-          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
@@ -167,8 +167,8 @@ runs:
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
-          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
@@ -213,8 +213,8 @@ runs:
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
-          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
@@ -259,8 +259,8 @@ runs:
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
-          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
@@ -305,8 +305,8 @@ runs:
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
-          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
@@ -351,8 +351,8 @@ runs:
           | tests skipped  | ${{ inputs.skip_tests }}  |
           | system-tests  | ${{ inputs.system_tests_branch }}  |
           | gosdk  | ${{ inputs.gosdk_branch }}  |
-          | 0boxcli  | ${{ inputs.zbox_cli_branch }}  |
-          | 0walletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
