@@ -157,8 +157,7 @@ jobs:
           exit 1
         fi
 
-        #MERGE_SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/pulls/$PR_ID | jq --raw-output .merge_commit_sha | head -c 8)
-
+        
         exit_code=0
        
         echo "Searching for image [pr-$PR_ID-$SHORT_SHA]..."
@@ -170,7 +169,8 @@ jobs:
         fi
 
         exit_code=0
-      
+        MERGE_SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/pulls/$PR_ID | jq --raw-output .merge_commit_sha | head -c 8)
+
         echo "Searching for image [merge-$MERGE_SHORT_SHA]..."
         docker pull 0chaindev/$3:merge-$MERGE_SHORT_SHA > /dev/null 2>&1 || exit_code=$?
         if [[ $exit_code == 0 ]];then
