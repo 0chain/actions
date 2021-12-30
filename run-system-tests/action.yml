@@ -64,6 +64,7 @@ runs:
         echo "0Chain network URL:     [${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:        [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:     [${{ env.ZWALLET_BRANCH }}]"
+        echo "Custom gosdk version:   [${{ inputs.custom_go_sdk_version }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v2
