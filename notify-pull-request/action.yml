@@ -87,6 +87,11 @@ runs:
         echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
 
+        echo STATE=${{ inputs.state }} >> $GITHUB_ENV
+        if [ "${{ inputs.state }}" == "cancelled" ]; then
+            echo STATE=failure >> $GITHUB_ENV
+        fi
+
     - name: "Get system tests branch PR"
       uses: stewartie4/gh-find-current-pr@master
       with:
@@ -100,7 +105,7 @@ runs:
       with:
         pr_number: ${{ steps.system_tests.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
-        state: ${{ inputs.state }}
+        state: ${{ env.STATE }}
         repository: "0chain/system_test"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -146,7 +151,7 @@ runs:
       with:
         pr_number: ${{ steps.zbox_cli.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
-        state: ${{ inputs.state }}
+        state: ${{ env.STATE }}
         repository: "0chain/zboxcli"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -192,7 +197,7 @@ runs:
       with:
         pr_number: ${{ steps.zwallet_cli.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
-        state: ${{ inputs.state }}
+        state: ${{ env.STATE }}
         repository: "0chain/zwalletcli"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -238,7 +243,7 @@ runs:
       with:
         pr_number: ${{ steps.zerochain.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
-        state: ${{ inputs.state }}
+        state: ${{ env.STATE }}
         repository: "0chain/0chain"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -284,7 +289,7 @@ runs:
       with:
         pr_number: ${{ steps.blobber.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
-        state: ${{ inputs.state }}
+        state: ${{ env.STATE }}
         repository: "0chain/blobber"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -330,7 +335,7 @@ runs:
       with:
         pr_number: ${{ steps.gosdk.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
-        state: ${{ inputs.state }}
+        state: ${{ env.STATE }}
         repository: "0chain/gosdk"
         context: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
