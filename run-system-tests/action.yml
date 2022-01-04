@@ -51,6 +51,7 @@ runs:
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
+        echo "BRANCH=$([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF)" >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -183,12 +184,12 @@ runs:
           else
               echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
         fi
-        echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
+  
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
         go get gotest.tools/gotestsum
         go get github.com/vakenbolt/go-test-report
         cd tests/cli_tests
-        mkdir -p $(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')/${GITHUB_SHA}/flaky
+        mkdir -p $(echo ${{ env.BRANCH }} | sed 's/\//_/g')/${GITHUB_SHA}/flaky
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./config/zbox_config.yaml
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
