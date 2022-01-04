@@ -68,8 +68,9 @@ jobs:
 
       - name: Setup kubeconfig
         run: |
-          mkdir -p ./kube          
-          echo "${{ secrets.${{ github.event.inputs.network }} }}" | base64 -d > ./kube/${{ github.event.inputs.network }}-config
+          mkdir -p ./kube
+          echo "NETWORK=${{ github.event.inputs.network }}" >> $GITHUB_ENV          
+          echo "${{ env.NETWORK }}" | base64 -d > ./kube/${{ github.event.inputs.network }}-config
           
       - name: Cleanup
         if: ${{ github.event.inputs.reset == 'yes' }}
