@@ -45,7 +45,7 @@ on:
 
       stakeimage:
         description: 'Blobber stake DOCKER IMAGE to deploy'
-        default: staging
+        default: latest
 
 jobs:
   deploy:
