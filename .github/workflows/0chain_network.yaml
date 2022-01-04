@@ -37,7 +37,7 @@ on:
 
       explorer_image:
         description: 'Explorer DOCKER IMAGE to deploy'
-        default: 'latest'
+        default: 'staging'
 
       zproxy_image:
         description: '0Proxy DOCKER IMAGE to deploy'
@@ -70,7 +70,7 @@ jobs:
         run: |
           mkdir -p ./kube
           NETWORK=${{ github.event.inputs.network }}          
-          echo "${{ secrets.$NETWORK }}" | base64 -d > ./kube/${{ github.event.inputs.network }}-config
+          echo "${{ secrets[NETWORK] }}" | base64 -d > ./kube/${{ github.event.inputs.network }}-config
           
       - name: Cleanup
         if: ${{ github.event.inputs.reset == 'yes' }}
