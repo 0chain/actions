@@ -50,6 +50,8 @@ on:
 jobs:
   deploy:
     runs-on: [self-hosted, testnet]
+    env:
+      NETWORK=${{ github.event.inputs.network }}
     steps:
       - uses: actions/checkout@v2
 
@@ -69,8 +71,7 @@ jobs:
       - name: Setup kubeconfig
         run: |
           mkdir -p ./kube
-          NETWORK=${{ github.event.inputs.network }}          
-          echo "${{ secrets[NETWORK] }}" | base64 -d > ./kube/${{ github.event.inputs.network }}-config
+          echo "${{ secrets[env.NETWORK] }}" | base64 -d > ./kube/${{ github.event.inputs.network }}-config
           
       - name: Cleanup
         if: ${{ github.event.inputs.reset == 'yes' }}
