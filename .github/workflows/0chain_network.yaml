@@ -51,7 +51,7 @@ jobs:
   deploy:
     runs-on: [self-hosted, testnet]
     env:
-      NETWORK=${{ github.event.inputs.network }}
+      NETWORK: ${{ github.event.inputs.network }}
     steps:
       - uses: actions/checkout@v2
 
