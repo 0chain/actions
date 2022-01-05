@@ -1,0 +1,642 @@
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+sharder:
+  sharderCount: 2
+  replicaCount: 1
+
+  # namespace: helm
+  # host: 0chain.net
+
+  minioConfig:
+    bucketUrl: s3.amazonaws.com
+    accessKeyId: ajkfjasdfsdv
+    secretAccessKey: davddcasdc
+    bucketName: sharder
+    bucketRegion: us-east-2
+
+  image:
+    repository: 0chaindev/sharder
+    pullPolicy: Always
+    tag: fix-stuck-after-restarting-e626b569
+
+  imagePullSecrets: 
+    - name: regcred
+
+  nameOverride: ""
+
+  fullnameOverride: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  env:
+    DOCKER: "true"
+  
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "750Mi"
+    limits:
+      cpu: "1500m"
+      memory: "1500Mi"
+
+  service:
+    type: NodePort
+    port: 311
+    nodePort: 311
+
+  ############## Sharder FileBeat ################
+  promtailImage:
+    repository: grafana/promtail
+    tag: master
+
+  promtailResources:
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+    limits:
+      cpu: "100m"
+      memory: "100Mi"
+
+  ################# Cassandra ################
+  cassandraImage:
+    repository: cassandra
+    tag: "3.11.4"
+
+  cassandraResources:
+    requests:
+      cpu: "50m"
+      memory: "500Mi"
+    limits:
+      cpu: "500m"
+      memory: "1.5Gi"
+
+  cassandraEnv:
+    MAX_HEAP_SIZE: "512M"
+    HEAP_NEWSIZE: "100M"
+
+  cassandraService:
+    port: 9042
+    targetPort: 9042
+    protocol: TCP
+
+  ################# Cassandra Init ################
+  cassandraInitImage:
+    repository: cassandra
+    tag: latest
+
+  cassandraInitResources:
+    requests:
+      cpu: "50m"
+      memory: "100Mi"
+    limits:
+      cpu: "400m"
+      memory: "1Gi"
+
+  ################# PV & PVC ################
+  persistence:
+    enabled: false
+
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+    storageClassName: openebs-hostpath
+    ## rabbitmq data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    
+    ######### PV HostPath ###########
+    pvHostPath: "/mnt/kubernetes/"
+
+    ####### PV #######
+    storageClassNameData: sharder-data-pv-
+    accessModeDataPv: ReadWriteOnce
+    storageData: 30Gi
+
+    storageClassNameLog: sharder-log-pv-
+    accessModeLogPv: ReadWriteOnce
+    storageLog: 3Gi
+
+    storageClassNameProm: sharder-promtail-run-
+    accessModePromPv: ReadWriteOnce
+    storageProm: 3Gi
+
+  # autoscaling:
+  #   enabled: false
+  #   minReplicas: 1
+  #   maxReplicas: 100
+  #   targetCPUUtilizationPercentage: 80
+  #   # targetMemoryUtilizationPercentage: 80
+
+  # nodeSelector: {}
+
+  # tolerations: []
+
+  # affinity: {}
+
+  config:
+    sc:
+      smartContracts:
+        faucetsc:
+          pourLimit: "1"
+          pourAmount: "1"
+          maxPourAmount: "10"
+          periodicLimit: "1000000"
+          globalLimit: "100000000"
+          individualReset: "3h" # in hours
+          globalReset: "48h" # in hours
+        interestpoolsc:
+          minLock: "10" 
+          interestRate: "0.0"
+          apr: "0.1"
+          minLockPeriod: "1m"
+          maxLockPeriod: "8760h"
+          maxMint: "1500000.0"
+        minersc:
+          # miners
+          maxN: "7" # 100
+          minN: "3" # 3
+          # sharders
+          maxS: "2" # 30
+          minS: "1" # 1
+          # max delegates allowed by SC
+          maxDelegates: "200" #
+          # DKG
+          tPercent: ".66" # of active
+          kPercent: ".75" # of registered
+          xPercent: "0.70" # percentage of prev mb miners required to be part of next mb
+          # etc
+          minStake: "0.0" # min stake can be set by a node (boundary for all nodes)
+          maxStake: "100.0" # max stake can be set by a node (boundary for all nodes)
+          startRounds: "50"
+          contributeRounds: "50"
+          shareRounds: "50"
+          publishRounds: "50"
+          waitRounds: "50"
+          # stake interests, will be declined every epoch
+          interestRate: "0.0" # [0; 1)
+          # reward rate for generators, will be declined every epoch
+          rewardRate: "1.0" # [0; 1)
+          # share ratio is miner/block sharders rewards ratio, for example 0.1
+          # gives 10% for miner and rest for block sharders
+          shareRatio: "0.8" # [0; 1)
+          # reward for a block
+          blockReward: "0.21" # tokens
+          # max service charge can be set by a generator
+          maxCharge: "0.5" # %
+          # epoch is number of rounds before rewards and interest are decreased
+          epoch: "15000000" # rounds
+          # decline rewards every new epoch by this value (the block_reward)
+          rewardDeclineRate: "0.1" # [0; 1), 0.1 = 10%
+          # decline interests every new epoch by this value (the interest_rate)
+          interestDeclineRate: "0.1" # [0; 1), 0.1 = 10%
+          # no mints after miner SC total mints reaches this boundary
+          maxMint: "1500000.0" # tokens
+          # if view change is false then reward round frequency is used to send rewards and interests
+          rewardRoundFrequency: "250"
+        storagesc:
+          # max_mint
+          maxMint: "1500000.0" # tokens, max amount of tokens can be minted by SC
+          # the time_unit is a duration used as divider for a write price; a write
+          # price measured in tok / GB / time_unit, where the time_unit is this
+          # configuration; for example 1h, 24h (a day), 720h (a month -- 30 days);
+          timeUnit: "720h"
+          minStake: "0.01" # min stake can be set by a node (boundary for all nodes)
+          maxStake: "100.0" # max stake can be set by a node (boundary for all nodes)
+          # max_mint
+          maxMint: "1500000.0" # tokens, max amount of tokens can be minted by SC
+          # min possible allocations size in bytes allowed by the SC
+          minAllocSize: "1024"
+          # min possible allocation duration allowed by the SC
+          minAllocDuration: "5m"
+          # max challenge completion time of a blobber allowed by the SC
+          maxChallengeCompletionTime: "30m"
+          # min blobber's offer duration allowed by the SC
+          minOfferDuration: "10h"
+          # min blobber capacity allowed by the SC
+          minBlobberCapacity: "1024"
+          # users' read pool related configurations
+          readpool:
+            minLock: "0.1" # tokens
+            minLockPeriod: "1m"
+            maxLockPeriod: "8760h"
+          # users' write pool related configurations
+          writepool:
+            minLock: "0.1" # tokens
+            minLockPeriod: "2m"
+            maxLockPeriod: "8760h"
+          # stake pool configurations
+          stakepool:
+            # minimal lock for a delegate pool
+            minLock: "0.1" # tokens
+            # interest_rate is tokens earned by a blobber for its stake
+            interestRate: "0.0"
+            # interest_interval is interval to pay interests for a stake
+            interestInterval: "1m"
+          # following settings are for free storage rewards
+          #
+          # largest value you can have for the total allowed free storage
+          # that a single user can assign
+          maxTotalFreeAllocation: "10000"
+          # maximum setting for the largest number of tokens permitted in
+          # a free storage allocation
+          maxIndividualFreeAllocation: "100"
+          # allocation settings for free storage
+          # these values are applied to all free allocations
+          freeAllocationSettings:
+            # the free payment is split between read and write pool in the ratio
+            # read_pool_fraction : (1-read_pool_fraction)
+            readPoolFraction: "0.2"
+            dataShards: "10"
+            parityShards: "5"
+            size: "10000000000"
+            duration: "50h"
+            readPriceRange:
+              min: "0.0"
+              max: "0.04"
+            writePriceRange:
+              min: "0.0"
+              max: "0.04"
+            maxChallengeCompletionTime:  "1m"
+          # validator_reward represents part of blobbers' rewards goes to validators
+          validatorReward: "0.025"
+          # blobber_slash represents blobber's stake penalty when a challenge not
+          # passed
+          blobberSlash: "0.10"
+          # max prices for blobbers (tokens per GB)
+          maxReadPrice: "100.0"
+          maxWritePrice: "100.0"
+          #
+          # allocation cancellation
+          #
+          # failed_challenges_to_cancel is number of failed challenges of an
+          # allocation to be able to cancel an allocation
+          failedChallengesToCancel: "20"
+          # failed_challenges_to_revoke_min_lock is number of failed challenges
+          # of a blobber to revoke its min_lock demand back to user; only part
+          # not paid yet can go back
+          failedChallengesToRevokeMinLock: "10"
+          #
+          # challenges
+          #
+          # enable challenges
+          challengeEnabled: "true"
+          # number of challenges for MB per minute
+          challengeRatePerMbMin: "1"
+          # max number of challenges can be generated at once
+          maxChallengesPerGeneration: "100"
+          # max delegates per stake pool allowed by SC
+          maxDelegates: "200"
+          # max_charge allowed for blobbers; the charge is part of blobber rewards
+          # goes to blobber's delegate wallets, other part goes to related stake
+          # holders
+          maxCharge: "0.50"
+          # reward paid out every block
+          blockReward:
+            blockReward: "1"
+            qualifyingStake: "1"
+            sharderRatio: "10"
+            minerRatio: "40"
+            blobberCapacityRatio: "10"
+            blobberUsageRatio: "40"
+          exposeMpt: "true"
+        vestingsc:
+          minLock: "0.01"
+          minDuration: "2m"
+          maxDuration: "2h"
+          maxDestinations: "3"
+          maxDescriptionLength: "20"
+
+    zchain:
+      version: "1.0"
+      logging:
+        level: "debug"
+        console: "false" # printing log to console is only supported in development mode
+        goroutines: "false"
+        memlog: "false"
+      development:
+        state: "true"
+        dkg: "true"
+        viewChange: "false"
+        blockRewards: "false"
+        smartContract:
+          storage: "true"
+          faucet: "true"
+          zrc20: "true"
+          interest: "true"
+          fee: "false"
+          miner: "true"
+          multisig: "true"
+          vesting: "true"
+          magma: "false" #set true to enable magma
+        txnGeneration:
+          wallets: "50"
+          transactions: "70"
+          pourPoint: "100"
+          pourAmount: "10000"
+          maxTransactions: "0"
+          maxTxnFee: "1000"
+          minTxnFee: "0"
+          maxTxnValue: "10000000000"
+          minTxnValue: "100"
+        faucet:
+          refillAmount: "1000000000000000"
+      zerochain:
+        id: "0afc093ffb509f059c55478bc1a60351cef7b4e9c008a53a6cc8241ca8617dfe"
+        decimals: "10"
+        genesisBlock:
+          id: "ed79cae70d439c11258236da1dfa6fc550f7cc569768304623e8fbd7d70efae4"
+      serverChain:
+        id: "0afc093ffb509f059c55478bc1a60351cef7b4e9c008a53a6cc8241ca8617dfe"
+        owner: "edb90b850f2e7e7cbd0a1fa370fdcc5cd378ffbec95363a7bc0e5a98b8ba5759"
+        decimals: "10"
+        tokens: "200000000"
+        genesisBlock:
+          id: "ed79cae70d439c11258236da1dfa6fc550f7cc569768304623e8fbd7d70efae4"
+        block:
+          minBlockSize: "1"
+          maxBlockSize: "10000"
+          maxByteSize: "1638400"
+          generators: "2"
+          minGenerators: "2"
+          generatorsPercent: "0.2"
+          replicators: "0"
+          generation:
+            timeout: "15"
+            retryWaitTime: "5" #milliseconds
+          proposal:
+            maxWaitTime: "180ms" # milliseconds
+            waitMode: "static" # static or dynamic
+          consensus:
+            thresholdByCount: "66" # percentage (registration)
+            thresholdByStake: "0" # percent
+          sharding:
+            minActiveSharders: "25" # percentage
+            minActiveReplicators: "25" # percentage
+          validation:
+            batchSize: "1000"
+          reuseTxns: "false"
+          storage:
+            provider: "blockstore.FSBlockStore" # blockstore.FSBlockStore or blockstore.BlockDBStore
+        roundRange: "10000000"
+        roundTimeouts:
+          softtoMin: "1500" #in miliseconds
+          softtoMult: "1" #multiples of mean network time (mnt)  softto = max{softo_min, softto_mult * mnt}
+          roundRestartMult: "10" #number of soft timeouts before round is restarted
+          timeoutCap: "1" # 0 indicates no cap
+          vrfsTimeoutMismatchTolerance: "5"
+        transaction:
+          payload:
+            maxSize: "98304" # bytes
+          timeout: "30" # seconds
+          minFee: "0"
+        client:
+          signatureScheme: "bls0chain" # ed25519 or bls0chain
+          discover: true
+        messages:
+          verificationTicketsTo: "all_miners" # generator or all_miners
+        state:
+          pruneBelowCount: "100" # rounds
+          sync:
+            timeout: "10" # seconds
+        stuck:
+          checkInterval: "10" # seconds
+          timeThreshold: "60" #seconds
+        smartContract:
+          timeout: "8000ms" # milliseconds
+        healthCheck:
+          showCounters: "true"
+          deepScan:
+            enabled: "false"
+            settleSecs: "30s"
+            window: "0" #Full scan till round 0
+            repeatIntervalMins: "3m" #minutes
+            reportStatusMins: "1m" #minutes
+            batchSize: "50"
+          proximityScan:
+            enabled: "true"
+            settleSecs: "30s"
+            window: "100000" #number of blocks, Do not make 0 with minio ON, Should be less than minio old block round range
+            repeatIntervalMins: "1m" #minutes
+            reportStatusMins: "1m" #minutes
+            batchSize: "50"
+        lfbTicket:
+          rebroadcastTimeout: "15s"  #
+          ahead: "5"                    # should be >= 5
+          fbFetchingLifetime: "10s" #
+        asyncBlocksFetching:
+          maxSimultaneousFromMiners: "100"
+          maxSimultaneousFromSharders: "30"
+      network:
+        nodesFile: config/single_machine_3_nodes.yaml
+        magicBlockfile: "config/magicBlock.json"
+        initialStates: "config/initial-state.yaml"
+        genesisDkg: "0"
+        dnsUrl: "" # http://198.18.0.98:9091
+        relayTime: "200" # milliseconds
+        maxConcurrentRequests: "40"
+        timeout:
+          smallMessage: "1000" # milliseconds
+          largeMessage: "3000" # milliseconds
+        largeMessageThSize: "5120" # anything greater than this size in bytes
+        userHandlers:
+          rateLimit: "100000000" # 1 per second
+        n2nHandlers:
+          rateLimit: "10000000000" # 10000 per second
+      # delegate wallet is wallet that used to configure node in Miner SC; if its
+      # empty, then node ID used
+      delegateWallet: ''
+      # % of fees and rewards for generator
+      serviceCharge: "0.10 "     # [0; 1) of all fees
+      # max number of delegate pools allowed by a node in miner SC
+      numberOfDelegates: "10"   # max number of delegate pools
+      # min stake pool amount allowed by node; should not conflict with
+      # SC min_stake 
+      minStake: "0.0"    # tokens
+      # max stake pool amount allowed by node; should not conflict with
+      # SC max_stake 
+      maxStake: "100.0"  # tokens
+      minio:
+        enabled: "false" # Enable or disable minio backup, Do not enable with deep scan ON
+        workerFrequency: "1800" # In Seconds, The frequency at which the worker should look for files, Ex: 3600 means it will run every 3600 seconds
+        numWorkers: "5" # Number of workers to run in parallel, Just to make execution faster we can have mutiple workers running simultaneously
+        useSsl: false # Use SSL for connection or not
+        oldBlockRoundRange: "250000" # How old the block should be to be considered for moving to cloud
+        deleteLocalCopy: "true" # Delete local copy of block once it's moved to cloud
+      cassandra:
+        connection:
+          delay: "10" # in seconds
+          retries: "10"
+      # integration tests related configurations
+      integrationTests:
+        # address of the server
+        address: "host.docker.internal:15210"
+        # lock_interval used by nodes to request server to connect to blockchain
+        # after start
+        lockInterval: "1s"
+
+miner:
+  minerCount: 3
+  replicaCount: 1
+
+  # namespace: helm
+  # host: 0chain.net
+
+  image:
+    repository: 0chaindev/miner
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: fix-stuck-after-restarting-e626b569
+
+  imagePullSecrets: 
+    - name: regcred
+
+  nameOverride: ""
+
+  fullnameOverride: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  env:
+    DOCKER: "true"
+  
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "500Mi"
+    limits:
+      cpu: "1250m"
+      memory: "1000Mi"
+
+  service:
+    port: 312
+    targetPort: 312
+    nodePort: 312
+    type: NodePort
+
+  ############## Miner PromTail ################
+  promtailImage:
+    repository: grafana/promtail
+    tag: master
+
+  promtailResources:
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+    limits:
+      cpu: "100m"
+      memory: "100Mi"
+
+  ################# Redis ################
+  redisImage:
+    repository: redis
+    tag: alpine
+
+  redisResources:
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+    limits:
+      cpu: "100m"
+      memory: "100Mi"
+
+  redisService:
+    protocol: TCP
+    port: 6379
+    targetPort: 6379
+
+  ################# redis TXN ################
+  redisTxnImage:
+    repository: redis
+    tag: alpine
+
+  redisTxnResources:
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+    limits:
+      cpu: "100m"
+      memory: "100Mi"
+
+  redisTxnService:
+    protocol: TCP
+    port: 6379
+    targetPort: 6379
+
+  # autoscaling:
+  #   enabled: false
+  #   minReplicas: 1
+  #   maxReplicas: 100
+  #   targetCPUUtilizationPercentage: 80
+  #   # targetMemoryUtilizationPercentage: 80
+
+  # nodeSelector: {}
+
+  # tolerations: []
+
+  # affinity: {}
+
+  ################# PV & PVC ################
+  persistence:
+    enabled: false
+
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+    storageClassName: openebs-hostpath
+
+    ## rabbitmq data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+
+    ######### PV HostPath ###########
+    pvHostPath: "/mnt/kubernetes/"
+
+    ############### PV ##############
+    storageClassNameData: miner-data-pv-
+    accessModeDataPv: ReadWriteOnce
+    storageData: 30Gi
+
+    storageClassNameLog: miner-log-pv-
+    accessModeLogPv: ReadWriteOnce
+    storageLog: 3Gi
+
+    storageClassNameProm: miner-promtail-run-
+    accessModePromPv: ReadWriteOnce
+    storageProm: 3Gi
