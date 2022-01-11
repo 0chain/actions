@@ -171,7 +171,7 @@ runs:
         helm upgrade --install 0box --wait --set zbox.host=devnet-0chain.net --set zbox.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0search --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install blobber-stake --wait -n ${{ env.NAMESPACE }} --set blobberStake.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobberStake.blobberCount=6 --set blobberStake.host=devnet-0chain.net --set blobberStake.image.tag=${{ env.BLOBBER_STAKE_TAG }} 0chain-helm/blobberStake --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install --wait -n ${{ env.NAMESPACE }} authorizer --set authorizer.authorizerCount=3 --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=staging --set authorizer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install -n ${{ env.NAMESPACE }} authorizer --set authorizer.authorizerCount=3 --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=staging --set authorizer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
