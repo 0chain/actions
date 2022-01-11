@@ -251,6 +251,7 @@ runs:
         rm -rf ./config/sc_owner_wallet.json || true
         rm -rf ./config/blobber_owner_wallet.json || true
         rm -rf ./config/miner_node_delegate_wallet.json || true
+        rm -rf ./config/sharder_node_delegate_wallet.json || true
         cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA} ./${{ env.BRANCH_DIR }}/latest
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
