@@ -64,8 +64,8 @@ on:
         default: 'staging'
         required: true
         type: string
-       authorizor_branch:
-         description: 'authorizor branch to deploy'
+       authorizer_branch:
+         description: 'authorizer branch to deploy'
          default: 'staging'
          required: true
          type: string
@@ -202,7 +202,7 @@ jobs:
         ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
         ./get_tag.sh blobber ${{ inputs.blobber_branch }} blobber
         ./get_tag.sh blobber ${{ inputs.validator_branch }} validator
-        ./get_tag.sh token_bridge_authserver ${{ inputs.authorizor_branch }} authorizor
+        ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
         ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
         ./get_tag.sh 0block ${{ inputs.zblock_branch }} 0block
         ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
@@ -211,7 +211,7 @@ jobs:
         ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@feature/add-configurable-authorizor
+      uses: 0chain/actions/notify-pull-request@feature/add-configurable-authorizer
       continue-on-error: true
       with:
         state: "pending"
@@ -228,13 +228,13 @@ jobs:
         explorer_branch: ${{ inputs.explorer_branch }}
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
-        authorizor_branch: ${{ inputs.authorizor_branch }}
+        authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@feature/add-configurable-authorizor
+      uses: 0chain/actions/deploy-0chain@feature/add-configurable-authorizer
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -242,7 +242,7 @@ jobs:
         sharder_image: ${{ env.SHARDER_TAG }}
         blobber_image: ${{ env.BLOBBER_TAG }}
         validator_image: ${{ env.VALIDATOR_TAG }}
-        authorizor_image: ${{ env.AUTHORIZOR_TAG }}
+        authorizer_image: ${{ env.AUTHORIZER_TAG }}
         zbox_image: ${{ env.ZBOX_TAG }}
         zblock_image: ${{ env.ZBLOCK_TAG }}
         zdns_image: ${{ env.ZDNS_TAG }}
@@ -253,7 +253,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@feature/add-configurable-authorizor
+      uses: 0chain/actions/run-system-tests@feature/add-configurable-authorizer
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
@@ -269,7 +269,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ success() || failure() || cancelled() }}
-      uses: 0chain/actions/notify-pull-request@feature/add-configurable-authorizor
+      uses: 0chain/actions/notify-pull-request@feature/add-configurable-authorizer
       continue-on-error: true
       with:
         state: ${{ job.status }}
@@ -286,6 +286,6 @@ jobs:
         explorer_branch: ${{ inputs.explorer_branch }}
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
-        authorizor_branch: ${{ inputs.authorizor_branch }}
+        authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
