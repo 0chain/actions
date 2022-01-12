@@ -64,6 +64,11 @@ on:
         default: 'staging'
         required: true
         type: string
+       authorizor_branch:
+         description: 'authorizor branch to deploy'
+         default: 'staging'
+         required: true
+         type: string
        zbox_branch:
         description: '0box branch to deploy'
         default: 'staging'
@@ -192,6 +197,7 @@ jobs:
         ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
         ./get_tag.sh blobber ${{ inputs.blobber_branch }} blobber
         ./get_tag.sh blobber ${{ inputs.validator_branch }} validator
+        ./get_tag.sh token_bridge_authserver ${{ inputs.authorizor_branch }} authorizor
         ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
         ./get_tag.sh 0block ${{ inputs.zblock_branch }} 0block
         ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
@@ -217,6 +223,7 @@ jobs:
         explorer_branch: ${{ inputs.explorer_branch }}
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
+        authorizor_branch: ${{ inputs.authorizor_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
@@ -230,6 +237,7 @@ jobs:
         sharder_image: ${{ env.SHARDER_TAG }}
         blobber_image: ${{ env.BLOBBER_TAG }}
         validator_image: ${{ env.VALIDATOR_TAG }}
+        authorizor_image: ${{ env.AUTHORIZOR_TAG }}
         zbox_image: ${{ env.ZBOX_TAG }}
         zblock_image: ${{ env.ZBLOCK_TAG }}
         zdns_image: ${{ env.ZDNS_TAG }}
@@ -273,5 +281,6 @@ jobs:
         explorer_branch: ${{ inputs.explorer_branch }}
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
+        authorizor_branch: ${{ inputs.authorizor_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}

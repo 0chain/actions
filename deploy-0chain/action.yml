@@ -20,6 +20,10 @@ inputs:
     description: 'validator DOCKER IMAGE to deploy'
     default: 'staging'
     required: true
+  authorizor_image:
+    description: 'authorizer DOCKER IMAGE to deploy'
+    default: 'staging'
+    required: true
   zbox_image:
     description: '0box DOCKER IMAGE to deploy'
     default: 'staging'
@@ -69,6 +73,7 @@ runs:
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
         echo "BLOBBER_TAG=$(echo '${{inputs.blobber_image}}')" >> $GITHUB_ENV
         echo "VALIDATOR_TAG=$(echo '${{inputs.validator_image}}')" >> $GITHUB_ENV
+        echo "AUTHORIZOR_TAG=$(echo '${{inputs.authorizor_image}}')" >> $GITHUB_ENV
         echo "ZBOX_TAG=$(echo '${{inputs.zbox_image}}')" >> $GITHUB_ENV
         echo "ZDNS_TAG=$(echo '${{inputs.zdns_image}}')" >> $GITHUB_ENV
         echo "ZBLOCK_TAG=$(echo '${{inputs.zblock_image}}')" >> $GITHUB_ENV
@@ -91,18 +96,19 @@ runs:
         echo "DEPLOYING 0CHAIN WITH THE FOLLOWING CONFIGURATION:"
         echo "=================================================="
         echo
-        echo "0Chain network URL:     [${{ env.NETWORK_URL }}]"
-        echo "Miner docker image:     [${{ env.MINER_TAG }}]"
-        echo "Sharder docker image:   [${{ env.SHARDER_TAG }}]"
-        echo "Blobber docker image:   [${{ env.BLOBBER_TAG }}]"
-        echo "Validator docker image: [${{ env.VALIDATOR_TAG }}]"
-        echo "0box docker image:      [${{ env.ZBOX_TAG }}]"
-        echo "0dns docker image:      [${{ env.ZDNS_TAG }}]"
-        echo "0block docker image:    [${{ env.ZBLOCK_TAG }}]"
-        echo "0Proxy docker image:    [${{ env.ZPROXY_TAG }}]"
-        echo "0Search docker image:   [${{ env.ZSEARCH_TAG }}]"
-        echo "Explorer docker image:  [${{ env.EXPLORER_TAG }}]"
-        echo "Stake docker image:     [${{ env.BLOBBER_STAKE_TAG }}]"
+        echo "0Chain network URL:      [${{ env.NETWORK_URL }}]"
+        echo "Miner docker image:      [${{ env.MINER_TAG }}]"
+        echo "Sharder docker image:    [${{ env.SHARDER_TAG }}]"
+        echo "Blobber docker image:    [${{ env.BLOBBER_TAG }}]"
+        echo "Validator docker image:  [${{ env.VALIDATOR_TAG }}]"
+        echo "Authorizor docker image: [${{ env.AUTHORIZOR_TAG }}]"
+        echo "0box docker image:       [${{ env.ZBOX_TAG }}]"
+        echo "0dns docker image:       [${{ env.ZDNS_TAG }}]"
+        echo "0block docker image:     [${{ env.ZBLOCK_TAG }}]"
+        echo "0Proxy docker image:     [${{ env.ZPROXY_TAG }}]"
+        echo "0Search docker image:    [${{ env.ZSEARCH_TAG }}]"
+        echo "Explorer docker image:   [${{ env.EXPLORER_TAG }}]"
+        echo "Stake docker image:      [${{ env.BLOBBER_STAKE_TAG }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -171,7 +177,7 @@ runs:
         helm upgrade --install 0box --wait --set zbox.host=devnet-0chain.net --set zbox.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0search --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install blobber-stake --wait -n ${{ env.NAMESPACE }} --set blobberStake.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobberStake.blobberCount=6 --set blobberStake.host=devnet-0chain.net --set blobberStake.image.tag=${{ env.BLOBBER_STAKE_TAG }} 0chain-helm/blobberStake --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install -n ${{ env.NAMESPACE }} authorizer --set authorizer.authorizerCount=3 --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=staging --set authorizer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZOR_TAG }} --set authorizer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
