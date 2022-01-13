@@ -24,6 +24,10 @@ inputs:
     required: true
     description: '0Wallet CLI branch to notify'
     default: 'staging'
+  authorizer_branch:
+    required: true
+    description: 'Authorizer branch to notify'
+    default: 'staging'
   zbox_branch:
     description: '0box branch to notify'
     default: 'staging'
@@ -86,6 +90,7 @@ runs:
         fi
         echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
+        echo AUTHORIZER_SHA=$(./get_sha.sh token_bridge_authserver ${{ inputs.authorizer_branch }}) >> $GITHUB_ENV
 
 
 
@@ -125,6 +130,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -171,6 +177,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -217,6 +224,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -263,6 +271,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -309,6 +318,54 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
+
+
+
+    - name: "Get authorizer branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.AUTHORIZER_SHA }}
+        owner: "0chain"
+        repo: "token_bridge_authserver"
+      id: authorizer
+    - name: "Set authorizer PR status"
+      uses: niteoweb/pull_request_status_action@v1.0.0
+      if: steps.authorizer.outputs.number
+      with:
+        pr_number: ${{ steps.authorizer.outputs.pr }}
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/token_bridge_authserver"
+        context: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
+        owner: "0chain"
+        repo: "token_bridge_authserver"
+        pr-number: ${{ steps.authorizer.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | config  | value |
+          | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
@@ -355,6 +412,7 @@ runs:
           | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
           | 0chain  | ${{ inputs.zerochain_branch }}  |
           | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
