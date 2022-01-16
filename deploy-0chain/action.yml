@@ -7,55 +7,55 @@ inputs:
   miner_image:
     description: 'miner DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   sharder_image:
     description: 'sharder DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   blobber_image:
     description: 'blobber DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   validator_image:
     description: 'validator DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   authorizer_image:
     description: 'authorizer DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   zbox_image:
     description: '0box DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   zblock_image:
     description: '0block DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   zdns_image:
     description: '0dns DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   explorer_image:
     description: 'Explorer DOCKER IMAGE to deploy'
     default: 'latest'
-    required: true
+    required: false
   zproxy_image:
     description: '0Proxy DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   zsearch_image:
     description: '0Search DOCKER IMAGE to deploy'
     default: 'staging'
-    required: true
+    required: false
   blobber_stake_image:
     description: 'Blobber stake DOCKER IMAGE to deploy'
     default: 'latest'
-    required: true
+    required: false
   teardown_condition:
     description: 'Variable on which to teardown network'
     default: 'ALWAYS_TEARDOWN'
-    required: true
+    required: false
   miner_fee:
     description: 'Miner fee per transaction'
     default: '0'
