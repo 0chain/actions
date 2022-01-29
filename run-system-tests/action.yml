@@ -247,10 +247,7 @@ runs:
 
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./TEST_RUNNER_COMMAND.sh || exit_code=$?
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-        rm -rf ./config/sc_owner_wallet.json || true
-        rm -rf ./config/blobber_owner_wallet.json || true
-        rm -rf ./config/miner_node_delegate_wallet.json || true
-        rm -rf ./config/sharder_node_delegate_wallet.json || true
+
         cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA} ./${{ env.BRANCH_DIR }}/latest
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
@@ -275,7 +272,7 @@ runs:
           ./tests/cli_tests/${{ env.BRANCH_DIR }}/latest/index.html
 
     - name: "Run Flaky CLI System Tests"
-      if:  ${{ always() && env.TESTS_RAN == 'true' && inputs.run_flaky_tests == 'true' }}
+      if:  ${{ env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
