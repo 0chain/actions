@@ -179,7 +179,7 @@ runs:
         echo
         if [ "${{ inputs.retry_failures }}" == "true" ];
            then
-              echo SHOULD_RETRY_FAILURES=--rerun-fails >> $GITHUB_ENV
+              echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=15' >> $GITHUB_ENV
           else
               echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
         fi
