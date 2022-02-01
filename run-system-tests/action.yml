@@ -140,7 +140,7 @@ runs:
         wait
         end=`date +%s`
         runtime=$((end - start))
-        echo "Runtime of installing required binaries was: $runtime"
+        echo "Runtime of installing required dependencies was: $runtime"
         echo "Test dependencies install SUCCESS!"
 
     - name: "Build CLI Binaries"
@@ -152,6 +152,7 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
+        start=`date +%s`
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
@@ -160,9 +161,9 @@ runs:
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
-        mv zwallet ../tests/cli_tests
-        echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; } && \
+        mv zwallet ../tests/cli_tests &
+        echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..." 
         cd ../zboxcli
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
@@ -170,8 +171,12 @@ runs:
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
-        mv zbox ../tests/cli_tests
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; } && \
+        mv zbox ../tests/cli_tests &
+        wait
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Runtime of building CLI binaries was: $runtime"
         echo "CLI build SUCCESS!"
 
     - name: "Set up system tests"
