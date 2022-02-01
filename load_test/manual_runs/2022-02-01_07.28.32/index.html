@@ -1,0 +1,565 @@
+
+<!DOCTYPE html>
+<html lang="en" style="overflow-y: scroll;">
+<head>
+    <meta charset="UTF-8">
+    <title>0Chain load test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+<body class="">
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-summary" role="tabcard" aria-labelledby="pills-summary-tab">
+                    <div class="row">
+                        <div class="col-md-9 col-lg-12 main">
+                            <h1 class="display-2 text-center">0Chain Load Tests</h1>
+
+                             
+                            <div class="tab-content" id="myTabContent">
+                                
+                                <div class="tab-pane fade show active" id="res0" role="tabpanel" aria-labelledby="res0-tab">
+                                    <br>
+                                    <h5 class="text-center"><span><i class="fas fa-server"></i></span> Network: https://alpha.devnet-0chain.net/dns</h5>
+                                    <h5 class="text-center"><span><i class="fas fa-running"></i></span> Time: 2022-02-01T07:28:32Z - 2022-02-01T08:10:04Z</h5>
+                                    <h5 class="text-center"><span><i class="fas fa-stopwatch"></i></span> Duration: 41m31s</h5>
+                                    <h5 class="text-center"><span><i class="fas"></i></span> Result: COMPLETED SUCCESSFULLY</h5>
+                                    <br>
+
+                                    <h3 class="display-5 text-center">Phases results</h3>
+                                    <h6 class="display-5">Error threshold: 25.00%</h6>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="row">
+                                                <div class="col-sm-12 mb-3">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-striped table-bordered">
+                                                            <thead class="thead-inverse">
+                                                            <tr class="text-center">
+                                                                <th class="text-uppercase">Phase</th>
+                                                                <th class="text-uppercase">Success</th>
+                                                                <th class="text-uppercase">Target</th>
+                                                                <th class="text-uppercase">Failures</th>
+                                                                <th class="text-uppercase">Duration</th>
+                                                                <th class="text-uppercase">Result</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td>Phase 1: Wallet Creations<br>&nbsp;&nbsp;<small>Concurrency: 400, TPS: 400 </small></td>
+                                                                <td class="text-center">4401</td>
+                                                                <td class="text-center">4000</td>
+                                                                <td class="text-center">1</td>
+                                                                <td class="text-center">5m42s</td>
+                                                                <td class="text-center">completed with acceptable errors</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Phase 2: Transaction Creations<br>&nbsp;&nbsp;<small>Concurrency: 400, TPS: 400 </small></td>
+                                                                <td class="text-center">4397</td>
+                                                                <td class="text-center">4000</td>
+                                                                <td class="text-center">74</td>
+                                                                <td class="text-center">7m11s</td>
+                                                                <td class="text-center">completed with acceptable errors</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Phase 3: Allocation Creations<br>&nbsp;&nbsp;<small>Concurrency: 400, TPS: 400 </small></td>
+                                                                <td class="text-center">4847</td>
+                                                                <td class="text-center">4000</td>
+                                                                <td class="text-center">607</td>
+                                                                <td class="text-center">9m26s</td>
+                                                                <td class="text-center">completed with acceptable errors</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Phase 4: Storage Allocation Preparations<br>&nbsp;&nbsp;<small>Concurrency: 100, TPS: 100 </small></td>
+                                                                <td class="text-center">497</td>
+                                                                <td class="text-center">400</td>
+                                                                <td class="text-center">5</td>
+                                                                <td class="text-center">5m20s</td>
+                                                                <td class="text-center">completed with acceptable errors</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Phase 5: Storage Transactions<br>&nbsp;&nbsp;<small>Concurrency: 100, TPS: 100 </small></td>
+                                                                <td class="text-center">563</td>
+                                                                <td class="text-center">500</td>
+                                                                <td class="text-center">89</td>
+                                                                <td class="text-center">11m11s</td>
+                                                                <td class="text-center">completed with acceptable errors</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <h3 class="display-5 text-center">Transactions executed</h3>
+                                    <h6 class="display-5">Retry count per transaction: 3</h6>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="row">
+                                                <div class="col-sm-12 mb-3">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-striped table-bordered">
+                                                            <thead class="thead-inverse">
+                                                            <tr class="text-center">
+                                                                <th class="text-uppercase">Transaction</th>
+                                                                <th class="text-uppercase">Total</th>
+                                                                <th class="text-uppercase">Success</th>
+                                                                <th class="text-uppercase">Failed</th>
+                                                                <th class="text-uppercase">Duration</th>
+                                                                <th class="text-uppercase">File Size</th>
+                                                                <th class="text-uppercase">Challenges</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td>Register Wallets</td>
+                                                                <td class="text-center">4418<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">4418</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 10.021s<br><small>Min: 1.169s, Max: 1m0.027s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Faucet Pour</td>
+                                                                <td class="text-center">5329<br><small>Retries: 223</small></td>
+                                                                <td class="text-center">5051</td>
+                                                                <td class="text-center">55</td>
+                                                                <td class="text-center">Avg: 5.86s<br><small>Min: 1.142s, Max: 57.792s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Send</td>
+                                                                <td class="text-center">803<br><small>Retries: 97</small></td>
+                                                                <td class="text-center">703</td>
+                                                                <td class="text-center">3</td>
+                                                                <td class="text-center">Avg: 6.55s<br><small>Min: 1.359s, Max: 41.82s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Interest Pool Lock</td>
+                                                                <td class="text-center">805<br><small>Retries: 140</small></td>
+                                                                <td class="text-center">651</td>
+                                                                <td class="text-center">14</td>
+                                                                <td class="text-center">Avg: 6.076s<br><small>Min: 1.338s, Max: 44.872s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Interest Pool Unlock</td>
+                                                                <td class="text-center">113<br><small>Retries: 43</small></td>
+                                                                <td class="text-center">70</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 3.873s<br><small>Min: 2.282s, Max: 25.428s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Miner Stake Lock</td>
+                                                                <td class="text-center">50<br><small>Retries: 10</small></td>
+                                                                <td class="text-center">40</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 6.749s<br><small>Min: 1.881s, Max: 33.082s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Miner Stake Unlock</td>
+                                                                <td class="text-center">46<br><small>Retries: 6</small></td>
+                                                                <td class="text-center">39</td>
+                                                                <td class="text-center">1</td>
+                                                                <td class="text-center">Avg: 5.896s<br><small>Min: 2.551s, Max: 22.517s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Sharder Stake Lock</td>
+                                                                <td class="text-center">27<br><small>Retries: 7</small></td>
+                                                                <td class="text-center">20</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 5.609s<br><small>Min: 2.854s, Max: 18.783s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Sharder Stake Unlock</td>
+                                                                <td class="text-center">22<br><small>Retries: 2</small></td>
+                                                                <td class="text-center">20</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 4.823s<br><small>Min: 2.022s, Max: 14.203s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Blobber Stake Lock</td>
+                                                                <td class="text-center">269<br><small>Retries: 48</small></td>
+                                                                <td class="text-center">219</td>
+                                                                <td class="text-center">2</td>
+                                                                <td class="text-center">Avg: 5.847s<br><small>Min: 1.733s, Max: 39.654s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Blobber Stake Unlock</td>
+                                                                <td class="text-center">237<br><small>Retries: 47</small></td>
+                                                                <td class="text-center">187</td>
+                                                                <td class="text-center">3</td>
+                                                                <td class="text-center">Avg: 5.206s<br><small>Min: 1.234s, Max: 35.46s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Create Read Pool</td>
+                                                                <td class="text-center">4464<br><small>Retries: 53</small></td>
+                                                                <td class="text-center">4410</td>
+                                                                <td class="text-center">1</td>
+                                                                <td class="text-center">Avg: 10.619s<br><small>Min: 1.792s, Max: 1m8.916s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>New Allocations</td>
+                                                                <td class="text-center">5508<br><small>Retries: 2455</small></td>
+                                                                <td class="text-center">2444</td>
+                                                                <td class="text-center">609</td>
+                                                                <td class="text-center">Avg: 3.69s<br><small>Min: 1.303s, Max: 45.264s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Update Allocations</td>
+                                                                <td class="text-center">793<br><small>Retries: 170</small></td>
+                                                                <td class="text-center">610</td>
+                                                                <td class="text-center">13</td>
+                                                                <td class="text-center">Avg: 5.973s<br><small>Min: 1.666s, Max: 43.719s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Read Pool Lock</td>
+                                                                <td class="text-center">1287<br><small>Retries: 212</small></td>
+                                                                <td class="text-center">1063</td>
+                                                                <td class="text-center">12</td>
+                                                                <td class="text-center">Avg: 5.485s<br><small>Min: 1.225s, Max: 37.344s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Write Pool Lock</td>
+                                                                <td class="text-center">711<br><small>Retries: 131</small></td>
+                                                                <td class="text-center">572</td>
+                                                                <td class="text-center">8</td>
+                                                                <td class="text-center">Avg: 5.93s<br><small>Min: 1.111s, Max: 43.052s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Upload File</td>
+                                                                <td class="text-center">135<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">112</td>
+                                                                <td class="text-center">23</td>
+                                                                <td class="text-center">Avg: 1m43.679s<br><small>Min: 11.559s, Max: 3m55.29s</small></td>
+                                                                <td class="text-center">Avg: 1240 KB<br><small>Min: 1999 KB, Max: 1031 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Upload Encrypted File</td>
+                                                                <td class="text-center">126<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">99</td>
+                                                                <td class="text-center">27</td>
+                                                                <td class="text-center">Avg: 1m34.356s<br><small>Min: 29.797s, Max: 3m43.622s</small></td>
+                                                                <td class="text-center">Avg: 1158 KB<br><small>Min: 1993 KB, Max: 1038 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Update File</td>
+                                                                <td class="text-center">43<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">29</td>
+                                                                <td class="text-center">14</td>
+                                                                <td class="text-center">Avg: 1m16.283s<br><small>Min: 19.735s, Max: 3m9.824s</small></td>
+                                                                <td class="text-center">Avg: 1093 KB<br><small>Min: 1986 KB, Max: 1059 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Download By Remote Path</td>
+                                                                <td class="text-center">42<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">40</td>
+                                                                <td class="text-center">2</td>
+                                                                <td class="text-center">Avg: 20.265s<br><small>Min: 8.263s, Max: 1m5.681s</small></td>
+                                                                <td class="text-center">Avg: 1344 KB<br><small>Min: 1999 KB, Max: 1050 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Download By Blocks</td>
+                                                                <td class="text-center">38<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">38</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 5.308s<br><small>Min: 2.096s, Max: 18.734s</small></td>
+                                                                <td class="text-center">Avg: 320 KB<br><small>Min: 320 KB, Max: 320 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Download By Authticket</td>
+                                                                <td class="text-center">21<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">21</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 23.041s<br><small>Min: 5.652s, Max: 56.687s</small></td>
+                                                                <td class="text-center">Avg: 1290 KB<br><small>Min: 1999 KB, Max: 1050 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Copy File</td>
+                                                                <td class="text-center">34<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">29</td>
+                                                                <td class="text-center">5</td>
+                                                                <td class="text-center">Avg: 6.842s<br><small>Min: 2.469s, Max: 26.877s</small></td>
+                                                                <td class="text-center">Avg: 1305 KB<br><small>Min: 1887 KB, Max: 1056 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Delete File</td>
+                                                                <td class="text-center">29<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">24</td>
+                                                                <td class="text-center">5</td>
+                                                                <td class="text-center">Avg: 4.395s<br><small>Min: 1.579s, Max: 38.7s</small></td>
+                                                                <td class="text-center">Avg: 1249 KB<br><small>Min: 1887 KB, Max: 1077 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Move File</td>
+                                                                <td class="text-center">45<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">36</td>
+                                                                <td class="text-center">9</td>
+                                                                <td class="text-center">Avg: 9.005s<br><small>Min: 5.289s, Max: 32.543s</small></td>
+                                                                <td class="text-center">Avg: 1170 KB<br><small>Min: 1999 KB, Max: 1044 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Rename File</td>
+                                                                <td class="text-center">45<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">41</td>
+                                                                <td class="text-center">4</td>
+                                                                <td class="text-center">Avg: 5.237s<br><small>Min: 2.086s, Max: 26.42s</small></td>
+                                                                <td class="text-center">Avg: 1306 KB<br><small>Min: 1999 KB, Max: 1073 KB</small></td>
+                                                                <td class="text-center">Success: 0<br> Failed: 0</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Share File to Public</td>
+                                                                <td class="text-center">22<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">22</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 3.002s<br><small>Min: 571ms, Max: 28.694s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Share File to Third Party</td>
+                                                                <td class="text-center">22<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">22</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 1.723s<br><small>Min: 892ms, Max: 10.037s</small></td>
+                                                                <td class="text-center">Avg: 1433 KB<br><small>Min: 1986 KB, Max: 1044 KB</small></td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Add File Collab</td>
+                                                                <td class="text-center">38<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">38</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 782ms<br><small>Min: 577ms, Max: 1.508s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Delete File Collab</td>
+                                                                <td class="text-center">12<br><small>Retries: 0</small></td>
+                                                                <td class="text-center">12</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">Avg: 816ms<br><small>Min: 571ms, Max: 2.105s</small></td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-center">-</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <h3 class="display-5 text-center">Total Allocation Challenges</h3>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="row">
+                                                <div class="col-sm-12 mb-3">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-striped table-bordered">
+                                                            <thead class="thead-inverse">
+                                                            <tr class="text-center">
+                                                                <th class="text-uppercase">Total</th>
+                                                                <th class="text-uppercase">Open</th>
+                                                                <th class="text-uppercase">Successful</th>
+                                                                <th class="text-uppercase">Failed</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td class="text-center">89</td>
+                                                                <td class="text-center">89</td>
+                                                                <td class="text-center">0</td>
+                                                                <td class="text-center">0</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <h3 class="display-5 text-center">Config used</h3>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="row">
+                                                <div class="col-sm-12 mb-3">
+                                                    <pre>wallets:
+  count: 4000
+  max_concurrency: 400
+  max_qps: 400
+transactions:
+  count: 4000
+  max_concurrency: 400
+  max_qps: 400
+allocations:
+  count: 4000
+  max_concurrency: 400
+  max_qps: 400
+storage_wallets:
+  count: 400
+  max_concurrency: 100
+  max_qps: 100
+storage_txns:
+  count: 500
+  max_concurrency: 100
+  max_qps: 100
+settings:
+  min_submit: 50
+  min_confirmation: 50
+  confirmation_chain_length: 3
+  send_txn_retries: 3
+  error_threshold_percentage: 0.25
+  request_timeout: 1m0s
+  exponential_wait_on_txn_verify: true
+  balance_check_timeout: 5s
+  lock_duration_min: 1
+  wait_after_lock: 30s
+  wait_after_stake: 30s
+  small_file_max_size: 2048576
+  small_file_min_size: 1048576
+  allocation_storage_size: 104857600
+  allocation_new_size: 102400
+  allocation_update_size: 102500
+  allocation_data_shards: 1
+  allocation_parity_shards: 1
+  storage_stake_lock: 1000000000
+  allocation_new_lock: 5000000000
+  allocation_update_lock: 100000000
+  read_pool_lock: 1000000000
+  write_pool_lock: 1000000000
+server_chain:
+  id: 0afc093ffb509f059c55478bc1a60351cef7b4e9c008a53a6cc8241ca8617dfe
+  block_worker: https://alpha.devnet-0chain.net/dns
+  signature_scheme: bls0chain
+  blobbers:
+  - id: 078df0eb224f18fc6f6f0f2d237cd1c1eb5ef0f664a5faec9ed959a1a54f495d
+    host: alpha.devnet-0chain.net/blobber01
+    port: 0
+    protocol: https
+  - id: 3bbcd526d08e19d0dd043b9192c1960b67875b0d0548e813e8e5a3ba2cb1465c
+    host: alpha.devnet-0chain.net/blobber06
+    port: 0
+    protocol: https
+  - id: 419769a500ae5ac737788b55f8acba1fe432eda9305cbc4ef3561774fc1500cf
+    host: alpha.devnet-0chain.net/blobber05
+    port: 0
+    protocol: https
+  - id: 5589ba00bba58ade7107c7340bed820b798e9429444f74a76684b6526c0d56a2
+    host: alpha.devnet-0chain.net/blobber02
+    port: 0
+    protocol: https
+  - id: cbe4c971b0f22ffeb9c5bf93fe74e4f0348cf5786aca5d58ab4910c3726ca4da
+    host: alpha.devnet-0chain.net/blobber04
+    port: 0
+    protocol: https
+  - id: e043834a99f0bd442569747a9fca3d7d498a91124606e9ce95c38d371a010a3d
+    host: alpha.devnet-0chain.net/blobber03
+    port: 0
+    protocol: https
+  miners:
+  - id: 4ab5feb5ba87acd2c60814461e309e3250b4514cdbd66bf9e4db8fb8f16c94f1
+    host: alpha.devnet-0chain.net
+    port: 31204
+    protocol: http
+  - id: 49b215e2095c1c86db5944c8b80b94b2edbd2de67c8437982f5ce4a8b8d70a80
+    host: alpha.devnet-0chain.net
+    port: 31203
+    protocol: http
+  - id: 3c49c10abff1adb1b559716ff3f8f98b938080588a7f6e595c50b5d739198b2b
+    host: alpha.devnet-0chain.net
+    port: 31201
+    protocol: http
+  - id: 7bf92da6a3121d10ad71af378f7b9c12947832eecbbd77f3222b6b13c6d0d90a
+    host: alpha.devnet-0chain.net
+    port: 31202
+    protocol: http
+  sharders:
+  - id: 0ad959f710edfc6c3294db993392d540cca24d71111e7e84150b4352f1b6d4db
+    host: alpha.devnet-0chain.net
+    port: 31101
+    protocol: http
+  - id: 6e939c4d42d7050bdb52424bc39286a109b3bd23cfcb2d0d868d9da017142f3f
+    host: alpha.devnet-0chain.net
+    port: 31102
+    protocol: http
+reporting:
+  interval: 15s
+  outputReportFile: /repo/output-report.html
+  templateFile: ./config/report-template.html
+logging:
+  level: info
+  verbose: false
+</pre>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+
