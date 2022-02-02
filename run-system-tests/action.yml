@@ -131,16 +131,12 @@ runs:
         echo "======================================================"
         echo
         echo "installing youtube-dl..."
-        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
-        sudo chmod a+rx /usr/local/bin/youtube-dl
+        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; } && \
+        sudo chmod a+rx /usr/local/bin/youtube-dl &
         echo "installing ffmpeg..."
-        start=`date +%s`
-        sudo apt update > build.log 2>&1 || { cat build.log && exit 1; } &
+        sudo apt update > build.log 2>&1 || { cat build.log && exit 1; } && \
         sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; } &
         wait
-        end=`date +%s`
-        runtime=$((end - start))
-        echo "Runtime of installing required dependencies was: $runtime"
         echo "Test dependencies install SUCCESS!"
 
     - name: "Build CLI Binaries"
@@ -152,7 +148,6 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
-        start=`date +%s`
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
@@ -174,9 +169,6 @@ runs:
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; } && \
         mv zbox ../tests/cli_tests &
         wait
-        end=`date +%s`
-        runtime=$((end-start))
-        echo "Runtime of building CLI binaries was: $runtime"
         echo "CLI build SUCCESS!"
 
     - name: "Set up system tests"
@@ -197,8 +189,9 @@ runs:
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
-        go get gotest.tools/gotestsum
-        go get github.com/vakenbolt/go-test-report
+        go get gotest.tools/gotestsum &
+        go get github.com/vakenbolt/go-test-report &
+        wait
         cd tests/cli_tests
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./config/zbox_config.yaml
@@ -291,8 +284,9 @@ runs:
         echo "======================================================"
         echo
         cd tests/cli_tests
-        rm -rf cmdlog.log || true
-        rm -rf test-output.json || true
+        rm -rf cmdlog.log || true &
+        rm -rf test-output.json || true &
+        wait
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname --raw-command -- ./FLAKY_TEST_RUNNER_COMMAND.sh || true
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky/index.html --title "0Chain Flaky system test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
         cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky ./${{ env.BRANCH_DIR }}/latest/flaky

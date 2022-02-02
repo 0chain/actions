@@ -181,11 +181,7 @@ runs:
         wait
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
-        start=`date +%s`
         ./deploy.sh
-        end=`date +%s`
-        runtime=$((end - start))
-        echo "Runtime of deploy.sh was: $runtime"
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
