@@ -133,11 +133,22 @@ runs:
         echo "installing youtube-dl..."
         sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; } && \
         sudo chmod a+rx /usr/local/bin/youtube-dl &
+        pids+=( "$!" )
         echo "installing ffmpeg..."
         sudo apt update > build.log 2>&1 || { cat build.log && exit 1; } && \
         sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; } &
-        wait
-        echo "Test dependencies install SUCCESS!"
+        pids+=( "$!" )
+        exit_status=0
+        for pid in "${pids[@]}"; do
+          wait "$pid"; (( exit_status |= $? ))
+        done
+
+        if [[ $exit_status -eq 0 ]];
+        then
+          echo "Test dependencies install SUCCESS!"
+        else
+          exit "$exit_status"
+        fi
 
     - name: "Build CLI Binaries"
 #      if: steps.cli-cache.outputs.cache-hit != 'true'
@@ -158,6 +169,7 @@ runs:
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; } && \
         mv zwallet ../tests/cli_tests &
+        pids+=( "$!" )
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..." 
         cd ../zboxcli
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
@@ -168,8 +180,19 @@ runs:
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; } && \
         mv zbox ../tests/cli_tests &
-        wait
-        echo "CLI build SUCCESS!"
+        pids+=( "$!" )
+        
+        exit_status=0
+        for pid in "${pids[@]}"; do
+          wait "$pid"; (( exit_status |= $? ))
+        done
+
+        if [[ $exit_status -eq 0 ]];
+        then
+          echo "CLI build SUCCESS!"
+        else
+          exit "$exit_status"
+        fi
 
     - name: "Set up system tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -284,9 +307,8 @@ runs:
         echo "======================================================"
         echo
         cd tests/cli_tests
-        rm -rf cmdlog.log || true &
-        rm -rf test-output.json || true &
-        wait
+        rm -rf cmdlog.log || true
+        rm -rf test-output.json || true
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname --raw-command -- ./FLAKY_TEST_RUNNER_COMMAND.sh || true
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky/index.html --title "0Chain Flaky system test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
         cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky ./${{ env.BRANCH_DIR }}/latest/flaky
