@@ -62,9 +62,9 @@ inputs:
     required: false
   dev_server:
     description: 'Deploy applications on  dev server: [1-5]'
-    default: ''
+    default: 0
     required: false
-
+    type: integer
 
 runs:
   using: "composite"
@@ -74,7 +74,7 @@ runs:
       run: |
         RUNNER_NUMBER=${RUNNER_NAME:(-1)}
 
-        if [[ ! z "${{inputs.server}}" ]]; then
+        if [[ "${{inputs.dev_server}}" == "0" ]]; then
           RUNNER_NUMBER=${{inputs.server}}
         fi
 

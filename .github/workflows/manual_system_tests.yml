@@ -105,10 +105,15 @@ on:
          required: false
          type: string
        skip_tests:
-        description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
-        default: 'FALSE'
-        required: false
-        type: string
+         description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
+         default: 'FALSE'
+         required: false
+         type: string
+       dev_server:
+         description: 'Deploy applications on dev server: [1-5].'
+         default: 0
+         type: integer
+         required: false
 jobs:
   system-tests:
     timeout-minutes: 90
@@ -124,8 +129,13 @@ jobs:
         unset TAG
         unset MERGE_SHORT_SHA
 
-        echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-        echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
+        RUNNER_NUMBER=${RUNNER_NAME:(-1)}
+        if [[ "${{inputs.dev_server}}" != "0" ]]; then
+          RUNNER_NUMBER=${{inputs.server}}
+        fi
+
+        echo "NETWORK_URL=$(echo dev-${RUNNER_NUMBER}.devnet-0chain.net)" >> $GITHUB_ENV
+        echo "RUNNER_NUMBER=${RUNNER_NUMBER}" >> $GITHUB_ENV
 
         echo "GOSDK_SHA=NONE" >> $GITHUB_ENV
         if [ "${{ inputs.gosdk_branch }}" != "NOT OVERRIDDEN" ]; then
