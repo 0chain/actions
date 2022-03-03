@@ -60,6 +60,10 @@ inputs:
     description: 'Miner fee per transaction'
     default: '0'
     required: false
+  dev_server:
+    description: 'Deploy applications on  dev server: [1-5]'
+    default: ''
+    required: false
 
 
 runs:
@@ -68,7 +72,13 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
+        RUNNER_NUMBER=${RUNNER_NAME:(-1)}
+
+        if [[ ! z "${{inputs.server}}" ]]; then
+          RUNNER_NUMBER=${{inputs.server}}
+        fi
+
+        echo "NETWORK_URL=$(echo dev-${RUNNER_NUMBER}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
         echo "BLOBBER_TAG=$(echo '${{inputs.blobber_image}}')" >> $GITHUB_ENV
@@ -84,9 +94,9 @@ runs:
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
-
-        echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
-        echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
+        echo "RUNNER_NUMBER=${RUNNER_NUMBER}" >> $GITHUB_ENV
+        echo "NAMESPACE=dev-${RUNNER_NUMBER}" >> $GITHUB_ENV
+       
 
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
