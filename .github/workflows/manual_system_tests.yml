@@ -1,4 +1,4 @@
-blobber_stake_imagename: "0Chain System Tests"
+name: "0Chain System Tests"
 
 concurrency:
   group: "manual-system-tests-${{ github.ref }}"
