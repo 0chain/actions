@@ -250,7 +250,6 @@ jobs:
         explorer_image: ${{ env.EXPLORER_TAG }}
         zproxy_image: ${{ env.ZPROXY_TAG }}
         zsearch_image: ${{ env.ZSEARCH_TAG }}
-        blobber_stake_image: latest
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}

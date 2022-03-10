@@ -48,10 +48,6 @@ inputs:
     description: '0Search DOCKER IMAGE to deploy'
     default: 'staging'
     required: false
-  blobber_stake_image:
-    description: 'Blobber stake DOCKER IMAGE to deploy'
-    default: 'latest'
-    required: false
   teardown_condition:
     description: 'Variable on which to teardown network'
     default: 'ALWAYS_TEARDOWN'
@@ -78,7 +74,6 @@ runs:
         echo "ZDNS_TAG=$(echo '${{inputs.zdns_image}}')" >> $GITHUB_ENV
         echo "ZBLOCK_TAG=$(echo '${{inputs.zblock_image}}')" >> $GITHUB_ENV
         echo "EXPLORER_TAG=$(echo '${{inputs.explorer_image}}')" >> $GITHUB_ENV
-        echo "BLOBBER_STAKE_TAG=$(echo '${{inputs.blobber_stake_image}}')" >> $GITHUB_ENV
         echo "ZPROXY_TAG=$(echo '${{inputs.zproxy_image}}')" >> $GITHUB_ENV
         echo "ZSEARCH_TAG=$(echo '${{inputs.zsearch_image}}')" >> $GITHUB_ENV
         ALWAYS_TEARDOWN=true
@@ -108,7 +103,6 @@ runs:
         echo "0Proxy docker image:     [${{ env.ZPROXY_TAG }}]"
         echo "0Search docker image:    [${{ env.ZSEARCH_TAG }}]"
         echo "Explorer docker image:   [${{ env.EXPLORER_TAG }}]"
-        echo "Stake docker image:      [${{ env.BLOBBER_STAKE_TAG }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -176,60 +170,10 @@ runs:
         helm upgrade --install 0proxy --set zproxy.hostName=${{ env.NAMESPACE }} --set zproxy.host=devnet-0chain.net --set zproxy.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zproxy.image.tag=${{ env.ZPROXY_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zproxy --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0search --set zsearch.hostName=${{ env.NAMESPACE }} --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install blobber-stake --wait -n ${{ env.NAMESPACE }} --set blobberStake.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobberStake.blobberCount=6 --set blobberStake.hostName=${{ env.NAMESPACE }} --set blobberStake.host=devnet-0chain.net --set blobberStake.image.tag=${{ env.BLOBBER_STAKE_TAG }} 0chain-helm/blobberStake --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
-
-    - name: "Wait for 0Chain network deployment to complete"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        cd ..
-        echo '#!/bin/bash
-
-        RETRY_ATTEMPT=$1
-        ANNOTATION_LEVEL="warning"
-        if [ "$1" == "final" ]; then
-            ANNOTATION_LEVEL="error"
-        fi
-
-        echo "Waiting for 0Chain deployment to finish..."
-        sleep 70
-        counter=0;
-        while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
-
-          if ( kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ); then
-            echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed on $RETRY_ATTEMPT attempt::blobber stake failed on $RETRY_ATTEMPT attempt"
-            exit 1
-          fi
-
-          sleep 10
-          echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
-        done
-
-        if [ $counter -eq 30 ]; then
-          echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed on $RETRY_ATTEMPT attempt::Chain setup did not complete within the time limit on $RETRY_ATTEMPT attempt"
-          exit 1
-        fi
-
-        echo "::notice title=0Chain network deployment was successful on $RETRY_ATTEMPT attempt::0Chain was successfully deployed to [${{ env.NETWORK_URL }}]"
-        ' > ./wait.sh;
-        chmod 777 ./wait.sh;
-        ./wait.sh "first" || {
-          echo '#!/bin/bash
-          RED="\033[0;31m"
-          NC="\033[0m"
-          echo
-          echo -e "${RED}======================================================${NC}"
-          echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
-          echo -e "${RED}======================================================${NC}"
-          echo
-          ./teardown.sh && ./deploy.sh && ./wait.sh $1;
-          ' > ./retry.sh;
-          chmod 777 ./retry.sh;
-          ./retry.sh "second" || ./retry.sh "final"
-        }
 
     - name: "Create post run teardown script"
       shell: 'script --return --quiet --command "bash {0}"'
