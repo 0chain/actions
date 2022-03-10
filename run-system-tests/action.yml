@@ -169,6 +169,30 @@ runs:
         mv zbox ../tests/cli_tests
         echo "CLI build SUCCESS!"
 
+    - name: "Stake blobbers using zwalletCLI"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo '#!/bin/bash
+        echo
+        echo "==========================================================="
+        echo "STAKING BLOBBERS USING ZWALLETCLI & ZBOXCLI BINARIES"
+        echo "==========================================================="
+        echo
+        ./zwallet register --silent > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
+        for i in {1..6}
+        do
+        ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --silent > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
+        done
+
+        blobber_ids=( $(./zwallet getblobbers --silent | grep -o '[a-z0-9]\{64\}') )
+        for id in "${blobber_ids[@]}"
+        do
+          ./zbox sp-lock --blobber_id $id --tokens 2 --silent > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
+        done
+        ' > ./stake_blobbers.sh;
+        chmod 777 ./stake_blobbers.sh;
+        ./stake_blobbers.sh
+
     - name: "Set up system tests"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
