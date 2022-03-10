@@ -161,7 +161,6 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
-
         echo "BEFORE CONFIG VIEW"
         kubectl config view
         echo "AFTER CONFIG VIEW"
@@ -169,24 +168,6 @@ runs:
         echo "BEFORE CONFIG VIEW --kubeconfig"
         kubectl config view --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         echo "AFTER CONFIG VIEW--kubeconfig"
-
-
-#        echo "BEFORE LS KUBE"
-#        ls -l ./kube/${{ env.NAMESPACE }}-config
-#        echo "AFTER LS KUBE"
-#
-#        export KUBECONFIG=./kube/${{ env.NAMESPACE }}-config
-#        echo "BEFORE CAT"
-#        cat $KUBECONFIG
-#        echo "AFTER CAT"
-#
-#        echo "BEFORE ENV"
-#        env
-#        echo "AFTER ENV"
-
-
-
-        echo "DONE"
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
