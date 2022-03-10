@@ -160,14 +160,22 @@ runs:
     - name: "Deploy 0Chain network"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        echo "DEPLOY"
         cd ..
+        echo "AFTER CD"
         ls -l ./kube/${{ env.NAMESPACE }}-config
+        echo "AFTER LS -L"
         export KUBECONFIG=./kube/${{ env.NAMESPACE }}-config
+        echo "AFTER EXPORT"
         echo $KUBECONFIG
+        echo "AFTER ECHO"
         pwd
+        echo "AFTER PWD"
         ls -l
+        echo "AFTER LS"
         kubectl config view
-        echo "done"
+        echo "AFTER KUBECTL"
+        echo "DONE"
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
