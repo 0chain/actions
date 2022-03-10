@@ -15,9 +15,6 @@ inputs:
     required: true
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: 'staging'
-  smart_contract_owner_wallet_json:
-    required: true
-    description: 'smart contract owner wallet, used in smart contract config tests'
   deploy_report_page:
     required: true
     default: "true"
@@ -199,8 +196,6 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      env:
-        SMART_CONTRACT_OWNER_WALLET_JSON: ${{ inputs.smart_contract_owner_wallet_json }}
       run: |
         echo
         echo "======================================================"
@@ -209,65 +204,6 @@ runs:
         echo
         cd tests/cli_tests
         exit_code=0
-
-        echo '::echo::off'
-         if [[ "${{ env.NETWORK_URL }}" == "dev-3.devnet-0chain.net" || "${{ env.NETWORK_URL }}" == "dev-4.devnet-0chain.net" || "${{ env.NETWORK_URL }}" == "dev-5.devnet-0chain.net" || "${{ env.NETWORK_URL }}" == "dev-1.devnet-0chain.net" || "${{ env.NETWORK_URL }}" == "dev-2.devnet-0chain.net" ]];
-          then
-            echo "$SMART_CONTRACT_OWNER_WALLET_JSON" >> ./config/sc_owner_wallet.json
-            echo '{"client_id": "591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8","client_key": "ac8798bcadd5ce5ea14f4745850eec61aa080e6fedc1d769af95c42e0079ba03ee9710e9dc966f7c5eb9cd6ef9184af51869d5a345b9520e507aa55ba22bf902","keys": [{"public_key": "ac8798bcadd5ce5ea14f4745850eec61aa080e6fedc1d769af95c42e0079ba03ee9710e9dc966f7c5eb9cd6ef9184af51869d5a345b9520e507aa55ba22bf902","private_key": "fbdc0bcc12168588e2def826b7ee9d8b4c6f1fbacf22ee5064b7db49482b8f0d"}],"mnemonics": "economy day fan flower between rebuild valid bid catch bargain vivid hybrid room permit check manage mean twelve damage summer close churn boat either","version": "1.0","date_created": "2021-12-04T17:03:37Z"}' >> ./config/blobber_owner_wallet.json
-        fi
-
-        if [[ "${{ env.NETWORK_URL }}" == "dev-3.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "90a3252fb495771c859b951f129ae5ddd255d71098a2ac109e9a1b13c1940882","client_key": "7dc49bb802e255b0d081b2d8ad6b12a650fd00995ff396c77a5fa4cbec82a112ecf191ecd0b3010bc97cb57ae7862cae13cc5ed39459df00ea808030656f860b","keys": [{"public_key": "7dc49bb802e255b0d081b2d8ad6b12a650fd00995ff396c77a5fa4cbec82a112ecf191ecd0b3010bc97cb57ae7862cae13cc5ed39459df00ea808030656f860b","private_key": "d7d37f79411008133374479b40c0135c89af36cee60cad48a4a08cf8f8d0e717"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/miner_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-4.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "71153882fcef802ae41ca105a1cded31f1521dd0e5b8aecc696f0f976bd883fd","client_key": "f5ce18aef27a7508e9379e511d58b7526afea854f341dec08c97ebe59bb07a0c49ac7d529e683aa8234a324e9ead924ae62aa5b4c6069b0f9a3015ffeac1b381","keys": [{"public_key": "f5ce18aef27a7508e9379e511d58b7526afea854f341dec08c97ebe59bb07a0c49ac7d529e683aa8234a324e9ead924ae62aa5b4c6069b0f9a3015ffeac1b381","private_key": "1a04676d597e99b1d091b9abe0cb449c2f175fa95ea30eaa020055592528811c"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/miner_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-5.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949","client_key": "257acfae61512fb1f4a886b0dbe949dc94497132448d1674f37f912c00e3ba1c6d4555ac58b44d4f8fe7228fb55c1f888ae3aa7901068eefd022613f05999415","keys": [{"public_key": "257acfae61512fb1f4a886b0dbe949dc94497132448d1674f37f912c00e3ba1c6d4555ac58b44d4f8fe7228fb55c1f888ae3aa7901068eefd022613f05999415","private_key": "80cddf5b463584ed74d3208a3787592e06830ec7130de1df2362167d93563c1b"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/miner_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-1.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "6fec9594da525a7fecad3251da0b25376a9a67dcee0c2b2d00ba23981af2ff61","client_key": "cd59094e90da3665b362e8653071c293afe301d1c63c6767e5b8ff4a17a21c216391179135c20ca8683c12762ecfe23f81002466ed81a225df9141bfaf44390b","keys": [{"public_key": "cd59094e90da3665b362e8653071c293afe301d1c63c6767e5b8ff4a17a21c216391179135c20ca8683c12762ecfe23f81002466ed81a225df9141bfaf44390b","private_key": "bf0a69c8649f155bfab48e070cb41513e830a9f0d7bfc6180f9b6a7eea282301"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/miner_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-2.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "b7db864a8dc1c2ba2fee594ab1c51e80d0973b7c46f8c8a5a5b8c3b5c19d4189","client_key": "e26e272e07d9d1c09607ac9f7377c1971996850e36af8b23428da842fe176015c22f555762417d1a71e88639de53f3c8a73559b777333aead91a02cdc996869b","keys": [{"public_key": "e26e272e07d9d1c09607ac9f7377c1971996850e36af8b23428da842fe176015c22f555762417d1a71e88639de53f3c8a73559b777333aead91a02cdc996869b","private_key": "9e80debedd1e32a39d589c60991afcc259ab4ea4cc46d7bce361d846e1bb4021"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/miner_node_delegate_wallet.json
-        fi
-        if [[ "${{ env.NETWORK_URL }}" == "dev-3.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "b63d778c01c67fc82eefbca7fe1e394d954338a72a4fc449bce9889f9447a0f0","client_key": "31c0e6f4ee8452f4e9b808f2a2c6c9b0d7242c3d8a97b04a7460c6cf3f2f070d9e43cdaafdd57bc647a2cb47140593955f94d7a084cafbda4f2468f4d3c01717","keys": [{"public_key": "31c0e6f4ee8452f4e9b808f2a2c6c9b0d7242c3d8a97b04a7460c6cf3f2f070d9e43cdaafdd57bc647a2cb47140593955f94d7a084cafbda4f2468f4d3c01717","private_key": "f69dd7c71966b66ad10c52f72405dfbff19cec85f26ee31a6c852b736ab0e817"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/sharder_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-4.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "813b581a82f598bbc878e8c89639756586b0035891627414e6af8421960b7d06","client_key": "05e3b9552cab3e0a5034b95e90af9c2017585bf09c34337f259b8134db152509758a80dd10187fb38b6d64bf66baada84ce4a70fcc76ed3c4a194bb0b948e10a","keys": [{"public_key": "05e3b9552cab3e0a5034b95e90af9c2017585bf09c34337f259b8134db152509758a80dd10187fb38b6d64bf66baada84ce4a70fcc76ed3c4a194bb0b948e10a","private_key": "e178cf30e6e2cdc359a9a1115153700e0b165e2f31d70a9c6677808ece48e405"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/sharder_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-5.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "ea26431f8adb7061766f1d6bbcc3b292d70dd59960d857f04b8a75e6a5bbe04f","client_key": "824fb17dd958235a06f4c670b6254a9223ae18dcd2962d088c7054819e9d0f164ac1aa2ad4223a8a42529b7ce9ccb32017771aabdf7aaca2031590fc33882601","keys": [{"public_key": "824fb17dd958235a06f4c670b6254a9223ae18dcd2962d088c7054819e9d0f164ac1aa2ad4223a8a42529b7ce9ccb32017771aabdf7aaca2031590fc33882601","private_key": "6c6f5d1221d27887e7cb6ac880c8618f260d1d27b7e13abd4dac1ef47049d506"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/sharder_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-1.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "7e30803d42bcb617422f0027b72f0f7ad8ba969bb5afc0de3b8aad47a3fd5ef0","client_key": "15f12694de38e76ec60f655770bb453be303793e9a3c1cf7fdeb61ddab92ef1655b11e4c687e8d7a6699f336e5b861fb34a5f220853a77c5587035f780efb581","keys": [{"public_key": "15f12694de38e76ec60f655770bb453be303793e9a3c1cf7fdeb61ddab92ef1655b11e4c687e8d7a6699f336e5b861fb34a5f220853a77c5587035f780efb581","private_key": "e2e1a7d172068a78c4d79194caed7d9d82108af648a607c3b54cd2504244be14"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/sharder_node_delegate_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-2.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "5063a8df7ffb7cb150e51d19b4dd0ac93348ad77d6e994525baddc23ed8a452f","client_key": "e05eea421964033a821ff8008509b6d750ceb6764409c29f542c05bc7c15d30b6edb73e34a5edc250573125808250fbf8eeb5d1c83db76bdb456c763fb831783","keys": [{"public_key": "e05eea421964033a821ff8008509b6d750ceb6764409c29f542c05bc7c15d30b6edb73e34a5edc250573125808250fbf8eeb5d1c83db76bdb456c763fb831783","private_key": "2e6a7571cc31c974fde8a527eb1464cb2db3db3ac63436cb36c3a4084e2bb11a"}],"mnemonics": "ugly train lock tomorrow garden sweet market marble mouse icon visit gather damp hair mother under into robot machine ahead science distance rescue enjoy","version": "1.0","date_created": "2021-12-08 17:58:02.329290633 +0100 CET m=+0.002796956"}' >> ./config/sharder_node_delegate_wallet.json
-        fi
-        echo '::echo::on'
-
-        echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
-        echo
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./TEST_RUNNER_COMMAND.sh || exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-
-        cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA} ./${{ env.BRANCH_DIR }}/latest
-        echo "TESTS_RAN=true" >> $GITHUB_ENV
-
-        if [[ $exit_code == 0 ]];
-          then
-            echo TESTS_PASSED=true >> $GITHUB_ENV
-          else
-            echo TESTS_PASSED=false >> $GITHUB_ENV
-            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
-        fi
-
-        exit $exit_code
 
     - name: "Archive CLI Config & Console Output"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.archive_results == 'true' }}
