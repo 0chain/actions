@@ -138,13 +138,13 @@ jobs:
         echo "Finding [$3] docker image for branch [$2]..."
         echo "========================================================================"
 
-        if [[ "$3" == "master" ]]; then
+        if [[ "$2" == "master" ]]; then
           echo "Docker image [latest] found"
           echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=latest" >> $GITHUB_ENV
           exit 0
         fi
 
-        if [[ "$3" == "staging" ]]; then
+        if [[ "$2" == "staging" ]]; then
           echo "Docker image [staging] found"
           echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=staging" >> $GITHUB_ENV
           exit 0
