@@ -183,7 +183,6 @@ runs:
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
-        cat ./deploy.sh
         ./deploy.sh
 
     - name: "Wait for 0Chain network deployment to complete"
