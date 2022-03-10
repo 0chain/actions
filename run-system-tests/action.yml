@@ -178,6 +178,7 @@ runs:
         echo "STAKING BLOBBERS USING ZWALLETCLI & ZBOXCLI BINARIES"
         echo "==========================================================="
         echo
+        cd tests/cli_tests
         ./zwallet register --silent > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
         for i in {1..6}
         do
