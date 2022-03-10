@@ -165,10 +165,10 @@ runs:
         ls -l ./kube/${{ env.NAMESPACE }}-config
         echo "AFTER LS KUBE"
 
-        echo "BEFORE EXPORT"
         export KUBECONFIG=./kube/${{ env.NAMESPACE }}-config
-        echo $KUBECONFIG
-        echo "AFTER EXPORT"
+        echo "BEFORE CAT"
+        cat $KUBECONFIG
+        echo "AFTER CAT"
 
         echo "BEFORE ENV"
         env
