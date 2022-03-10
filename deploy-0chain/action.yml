@@ -161,18 +161,30 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
-        echo "BEFORE LS KUBE"
-        ls -l ./kube/${{ env.NAMESPACE }}-config
-        echo "AFTER LS KUBE"
 
-        export KUBECONFIG=./kube/${{ env.NAMESPACE }}-config
-        echo "BEFORE CAT"
-        cat $KUBECONFIG
-        echo "AFTER CAT"
+        echo "BEFORE CONFIG VIEW"
+        kubectl config view
+        echo "AFTER CONFIG VIEW"
 
-        echo "BEFORE ENV"
-        env
-        echo "AFTER ENV"
+        echo "BEFORE CONFIG VIEW --kubeconfig"
+        kubectl config view --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        echo "AFTER CONFIG VIEW--kubeconfig"
+
+
+#        echo "BEFORE LS KUBE"
+#        ls -l ./kube/${{ env.NAMESPACE }}-config
+#        echo "AFTER LS KUBE"
+#
+#        export KUBECONFIG=./kube/${{ env.NAMESPACE }}-config
+#        echo "BEFORE CAT"
+#        cat $KUBECONFIG
+#        echo "AFTER CAT"
+#
+#        echo "BEFORE ENV"
+#        env
+#        echo "AFTER ENV"
+
+
 
         echo "DONE"
 
