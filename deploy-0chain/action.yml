@@ -163,10 +163,10 @@ runs:
         cd ..
 
         echo "BEFORE CONFIGMAP DELETE"
-        kubectl --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap delegate-wallet-json
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap delegate-wallet-json
         echo "AFTER CONFIGMAP DELETE"
         echo "BEFORE CONFIGMAP CREATE"
-        kubectl --kubeconfig ./kube/${{ env.NAMESPACE }}-config create configmap delegate-wallet-json --from-literal=${{ env.NAMESPACE }}_blob_keys.json=\'{"client_id":"d2316405046ea7799ffd5c3efe90c80b9673ac1de08a9699fe7e74ec1c0f4aaa","client_key":"595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021","keys":[{"public_key":"595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021","private_key":"314ef3edd1e26478852f47271ff72cc9cd9a0d76c3757bdc49a1ef908d328206"}],"mnemonics":"year curve broccoli kite boil volume clip thunder spread worry achieve civil tower canyon eternal wisdom trumpet absurd ivory magnet other vicious limb fog","version":"1.0","date_created":"2022-03-10 17:05:09.27769643 +0100 CET m=+0.004871479"}\'
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config create configmap delegate-wallet-json --from-literal=${{ env.NAMESPACE }}_blob_keys.json=\'{"client_id":"d2316405046ea7799ffd5c3efe90c80b9673ac1de08a9699fe7e74ec1c0f4aaa","client_key":"595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021","keys":[{"public_key":"595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021","private_key":"314ef3edd1e26478852f47271ff72cc9cd9a0d76c3757bdc49a1ef908d328206"}],"mnemonics":"year curve broccoli kite boil volume clip thunder spread worry achieve civil tower canyon eternal wisdom trumpet absurd ivory magnet other vicious limb fog","version":"1.0","date_created":"2022-03-10 17:05:09.27769643 +0100 CET m=+0.004871479"}\'
         echo "AFTER CONFIGMAP CREATE"
 
     - name: "Wait for 0Chain network deployment to complete"
