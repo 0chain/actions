@@ -144,12 +144,18 @@ jobs:
           exit 0
         fi
 
+        if [[ "$3" == "staging" ]]; then
+          echo "Docker image [staging] found"
+          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=staging" >> $GITHUB_ENV
+          exit 0
+        fi
+
         exit_code=0
         SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
         TAG=$(echo $2 | sed '"'"'s/\//-/g'"'"')
 
         echo "Searching for image [${TAG}-${SHORT_SHA}]..."
-        echo "docker pull 0chaindev/$3:${TAG}-${SHORT_SHA}"
+        echo "docker pull --no-cache 0chaindev/$3:${TAG}-${SHORT_SHA}"
         docker pull 0chaindev/$3:${TAG}-${SHORT_SHA}
         docker pull 0chaindev/$3:${TAG}-${SHORT_SHA} > /dev/null 2>&1 || exit_code=$?
 
