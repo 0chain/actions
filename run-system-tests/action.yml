@@ -207,16 +207,16 @@ runs:
         echo "==========================================================="
         echo
         cd tests/cli_tests
-        ./zwallet register --silent > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
+        ./zwallet register --silent --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
         for i in {1..6}
         do
-        ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --silent > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
+        ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --silent --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
         done
 
-        blobber_ids=( $(./zwallet getblobbers --silent | grep -o '[a-z0-9]\{64\}') )
+        blobber_ids=( $(./zwallet getblobbers --silent --configDir ./config --config ./zbox_config.yaml --wallet ../ignore | grep -o '[a-z0-9]\{64\}') )
         for id in "${blobber_ids[@]}"
         do
-          ./zbox sp-lock --blobber_id $id --tokens 2 --silent > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
+          ./zbox sp-lock --blobber_id $id --tokens 2 --silent --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
         done
         ' > ./stake_blobbers.sh;
         chmod 777 ./stake_blobbers.sh;
