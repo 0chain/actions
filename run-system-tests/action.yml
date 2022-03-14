@@ -223,16 +223,16 @@ runs:
           then
             echo '{"client_id": "d2316405046ea7799ffd5c3efe90c80b9673ac1de08a9699fe7e74ec1c0f4aaa", "client_key": "595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021", "keys": [{"public_key": "595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021", "private_key": "314ef3edd1e26478852f47271ff72cc9cd9a0d76c3757bdc49a1ef908d328206"}], "mnemonics": "year curve broccoli kite boil volume clip thunder spread worry achieve civil tower canyon eternal wisdom trumpet absurd ivory magnet other vicious limb fog", "version": "1.0", "date_created": "2022-03-11 17:05:09.27769643 +0100 CET m=+0.004871479"}' > ./config/blobber_stake_wallet.json
         fi
-        ./zwallet register --configDir ./config --config ./zbox_config.yaml --wallet ./config/blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
+        ./zwallet register --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
         for i in {1..6}
         do
-        ./zwallet faucet --methodName "pour" --input "{}" --tokens 1 --configDir ./config --config ./zbox_config.yaml --wallet ./config/blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
+        ./zwallet faucet --methodName "pour" --input "{}" --tokens 1 --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
         done
 
-        blobber_ids=( $(./zwallet getblobbers --silent --configDir ./config --config ./zbox_config.yaml --wallet ./config/blobber_stake_wallet.json | grep -o '[a-z0-9]\{64\}') )
+        blobber_ids=( $(./zwallet getblobbers --silent --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json | grep -o '[a-z0-9]\{64\}') )
         for id in "${blobber_ids[@]}"
         do
-          ./zbox sp-lock --blobber_id $id --tokens 1 --configDir ./config --config ./zbox_config.yaml --wallet ./config/blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
+          ./zbox sp-lock --blobber_id $id --tokens 1 --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
         done
         ' > ./stake_blobbers.sh;
         chmod 777 ./stake_blobbers.sh;
