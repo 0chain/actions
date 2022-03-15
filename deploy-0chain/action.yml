@@ -168,8 +168,8 @@ runs:
         echo "=================================================="
         echo
 
-        sed -ri s/dev-x/${{ env.NAMESPACE }}/ ../_actions/0chain/actions/feature/add-config-to-repo/values/test/delegate-wallet-json.yaml
-        sed -ri s/dev-x/${{ env.NAMESPACE }}/ ../_actions/0chain/actions/feature/add-config-to-repo/values/test/nodes.yaml
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/feature/add-config-to-repo/values/test/delegate-wallet-json.yaml
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/feature/add-config-to-repo/values/test/nodes.yaml
 
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap delegate-wallet-json
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/feature/add-config-to-repo/values/test/delegate-wallet-json.yaml
