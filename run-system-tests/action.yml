@@ -201,22 +201,22 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd tests/cli_tests
-        if [[ "${{ env.NETWORK_URL }}" == "dev-1.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "7545f58eaa4d09754f25e45c550d6c7cc2f493d819cd9e68a8fb210e765918ba", "client_key": "f96640a02e55e370a1dfd2de93f026c699fb5b1814a802e829e1349b81ce9321a4472717d7bc704035816136c7e11b5c1deff1405aa9ba70ca8878055ba0f404", "keys": [{"public_key": "f96640a02e55e370a1dfd2de93f026c699fb5b1814a802e829e1349b81ce9321a4472717d7bc704035816136c7e11b5c1deff1405aa9ba70ca8878055ba0f404", "private_key": "37a67d6879b2194730b1ca6c9e024e56ad45c090835f84786d15a7c70880e71b"}], "mnemonics": "actor arch wrist key friend extra shoulder tattoo settle fish peasant gown rather erode wrap special dizzy guide march type color problem aware begin", "version": "1.0", "date_created": "2022-02-24 20:26:04.725273643 +0100 CET m=+0.004871009"}' >> ./config/blobber_stake_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-2.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "7be12592206f00a71b5fdd651e785dfacfd48dcd3878afe30b10fd3b2ea05d42", "client_key": "b1b5b301a1cdd3d16ea4049e742cd56f414807c9508c10d0d7ce16f90f937e03b04e3bafd74c54183c27c338929073a84021eb4f000cf7fe0c80e22bd451bc96", "keys": [{"public_key": "b1b5b301a1cdd3d16ea4049e742cd56f414807c9508c10d0d7ce16f90f937e03b04e3bafd74c54183c27c338929073a84021eb4f000cf7fe0c80e22bd451bc96", "private_key": "b8d67f9dac4eb40ab128ad792855f62bd6ac15b14cb5cc8d99f049741346691f"}], "mnemonics": "shock hope join truth alter stove stove wall crazy aisle blouse orient angle toward write faint glow erase shuffle horn jeans weather tiny poet", "version": "1.0", "date_created": "2022-02-24 17:01:37.916650543 +0100 CET m=+0.004149287"}' >> ./config/blobber_stake_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-3.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "fb4ed862b6b6f84f37e86588b1bf92553a51264f9451d74e3121bf12828846b9", "client_key": "42b69a8da34fc085a6d7a9df4623ef02cc77c841a4b4253ba6b54412b2d7900de7fc77f5e69da7c7a3adee9eb46a372a59c40d17a545742d6ac11ae3b2aab303", "keys": [{"public_key": "42b69a8da34fc085a6d7a9df4623ef02cc77c841a4b4253ba6b54412b2d7900de7fc77f5e69da7c7a3adee9eb46a372a59c40d17a545742d6ac11ae3b2aab303", "private_key": "6f675f6c6fc8d54be42794069593ec5ebf823af4b207c7ecfea0b7fc0b596a19"}], "mnemonics": "rely ozone screen amount pilot august cube recipe rapid resemble usage maze submit shuffle tobacco faculty film huge north jealous grow view advance twist", "version": "1.0", "date_created": "2022-03-01 17:01:58.218379047 +0100 CET m=+0.003923781"}' >> ./config/blobber_stake_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-4.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "d5cc64a13174a96d10516b7ba92ccaac84a81fcb46ebfb43124209377cb0a3bd", "client_key": "0c465d0fe5cd14bdfb47a516f10ea8f0dc8eb236a10d46ef530e6eb911679208ccd77a33973eb711d2742a79ee3656320ef79988eba86fdf446730d4a035661e", "keys": [{"public_key": "0c465d0fe5cd14bdfb47a516f10ea8f0dc8eb236a10d46ef530e6eb911679208ccd77a33973eb711d2742a79ee3656320ef79988eba86fdf446730d4a035661e", "private_key": "ef7ea8a33eeb925feb55d20c375e44917eb834d6455d57276c57ace4e45dde05"}], "mnemonics": "enter vague fatal crush thing wage vessel minor small indicate blue universe peace produce mercy edge monkey ketchup toward female word soon twin liar", "version": "1.0", "date_created": "2022-02-24 18:16:45.863374731 +0100 CET m=+0.006221535"}' >> ./config/blobber_stake_wallet.json
-          elif [[ "${{ env.NETWORK_URL }}" == "dev-5.devnet-0chain.net" ]];
-          then
-            echo '{"client_id": "d2316405046ea7799ffd5c3efe90c80b9673ac1de08a9699fe7e74ec1c0f4aaa", "client_key": "595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021", "keys": [{"public_key": "595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021", "private_key": "314ef3edd1e26478852f47271ff72cc9cd9a0d76c3757bdc49a1ef908d328206"}], "mnemonics": "year curve broccoli kite boil volume clip thunder spread worry achieve civil tower canyon eternal wisdom trumpet absurd ivory magnet other vicious limb fog", "version": "1.0", "date_created": "2022-03-11 17:05:09.27769643 +0100 CET m=+0.004871479"}' >> ./config/blobber_stake_wallet.json
-        fi
+        # if [[ "${{ env.NETWORK_URL }}" == "dev-1.devnet-0chain.net" ]];
+        #   then
+        #     echo '{"client_id": "7545f58eaa4d09754f25e45c550d6c7cc2f493d819cd9e68a8fb210e765918ba", "client_key": "f96640a02e55e370a1dfd2de93f026c699fb5b1814a802e829e1349b81ce9321a4472717d7bc704035816136c7e11b5c1deff1405aa9ba70ca8878055ba0f404", "keys": [{"public_key": "f96640a02e55e370a1dfd2de93f026c699fb5b1814a802e829e1349b81ce9321a4472717d7bc704035816136c7e11b5c1deff1405aa9ba70ca8878055ba0f404", "private_key": "37a67d6879b2194730b1ca6c9e024e56ad45c090835f84786d15a7c70880e71b"}], "mnemonics": "actor arch wrist key friend extra shoulder tattoo settle fish peasant gown rather erode wrap special dizzy guide march type color problem aware begin", "version": "1.0", "date_created": "2022-02-24 20:26:04.725273643 +0100 CET m=+0.004871009"}' >> ./config/blobber_stake_wallet.json
+        #   elif [[ "${{ env.NETWORK_URL }}" == "dev-2.devnet-0chain.net" ]];
+        #   then
+        #     echo '{"client_id": "7be12592206f00a71b5fdd651e785dfacfd48dcd3878afe30b10fd3b2ea05d42", "client_key": "b1b5b301a1cdd3d16ea4049e742cd56f414807c9508c10d0d7ce16f90f937e03b04e3bafd74c54183c27c338929073a84021eb4f000cf7fe0c80e22bd451bc96", "keys": [{"public_key": "b1b5b301a1cdd3d16ea4049e742cd56f414807c9508c10d0d7ce16f90f937e03b04e3bafd74c54183c27c338929073a84021eb4f000cf7fe0c80e22bd451bc96", "private_key": "b8d67f9dac4eb40ab128ad792855f62bd6ac15b14cb5cc8d99f049741346691f"}], "mnemonics": "shock hope join truth alter stove stove wall crazy aisle blouse orient angle toward write faint glow erase shuffle horn jeans weather tiny poet", "version": "1.0", "date_created": "2022-02-24 17:01:37.916650543 +0100 CET m=+0.004149287"}' >> ./config/blobber_stake_wallet.json
+        #   elif [[ "${{ env.NETWORK_URL }}" == "dev-3.devnet-0chain.net" ]];
+        #   then
+        #     echo '{"client_id": "fb4ed862b6b6f84f37e86588b1bf92553a51264f9451d74e3121bf12828846b9", "client_key": "42b69a8da34fc085a6d7a9df4623ef02cc77c841a4b4253ba6b54412b2d7900de7fc77f5e69da7c7a3adee9eb46a372a59c40d17a545742d6ac11ae3b2aab303", "keys": [{"public_key": "42b69a8da34fc085a6d7a9df4623ef02cc77c841a4b4253ba6b54412b2d7900de7fc77f5e69da7c7a3adee9eb46a372a59c40d17a545742d6ac11ae3b2aab303", "private_key": "6f675f6c6fc8d54be42794069593ec5ebf823af4b207c7ecfea0b7fc0b596a19"}], "mnemonics": "rely ozone screen amount pilot august cube recipe rapid resemble usage maze submit shuffle tobacco faculty film huge north jealous grow view advance twist", "version": "1.0", "date_created": "2022-03-01 17:01:58.218379047 +0100 CET m=+0.003923781"}' >> ./config/blobber_stake_wallet.json
+        #   elif [[ "${{ env.NETWORK_URL }}" == "dev-4.devnet-0chain.net" ]];
+        #   then
+        #     echo '{"client_id": "d5cc64a13174a96d10516b7ba92ccaac84a81fcb46ebfb43124209377cb0a3bd", "client_key": "0c465d0fe5cd14bdfb47a516f10ea8f0dc8eb236a10d46ef530e6eb911679208ccd77a33973eb711d2742a79ee3656320ef79988eba86fdf446730d4a035661e", "keys": [{"public_key": "0c465d0fe5cd14bdfb47a516f10ea8f0dc8eb236a10d46ef530e6eb911679208ccd77a33973eb711d2742a79ee3656320ef79988eba86fdf446730d4a035661e", "private_key": "ef7ea8a33eeb925feb55d20c375e44917eb834d6455d57276c57ace4e45dde05"}], "mnemonics": "enter vague fatal crush thing wage vessel minor small indicate blue universe peace produce mercy edge monkey ketchup toward female word soon twin liar", "version": "1.0", "date_created": "2022-02-24 18:16:45.863374731 +0100 CET m=+0.006221535"}' >> ./config/blobber_stake_wallet.json
+        #   elif [[ "${{ env.NETWORK_URL }}" == "dev-5.devnet-0chain.net" ]];
+        #   then
+        #     echo '{"client_id": "d2316405046ea7799ffd5c3efe90c80b9673ac1de08a9699fe7e74ec1c0f4aaa", "client_key": "595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021", "keys": [{"public_key": "595a8326d79e08c6d08d16c3c205a3dcdd0a9557be7109a0739f1af36fa90b144c0489f1cba9d8c460ce11bb2c8b561c2b086f195440b46324d9d4790da8d021", "private_key": "314ef3edd1e26478852f47271ff72cc9cd9a0d76c3757bdc49a1ef908d328206"}], "mnemonics": "year curve broccoli kite boil volume clip thunder spread worry achieve civil tower canyon eternal wisdom trumpet absurd ivory magnet other vicious limb fog", "version": "1.0", "date_created": "2022-03-11 17:05:09.27769643 +0100 CET m=+0.004871479"}' >> ./config/blobber_stake_wallet.json
+        # fi
         cd ../..
         echo '#!/bin/bash
         echo
@@ -226,16 +226,16 @@ runs:
         echo
         cd tests/cli_tests
         cat ./config/blobber_stake_wallet.json
-        ./zwallet register --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
+        ./zwallet register --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
         for i in {1..6}
         do
-          ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
+          ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
         done
 
-        blobber_ids=( $(./zwallet getblobbers --silent --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json | grep -o "[a-z0-9]\{64\}") )
+        blobber_ids=( $(./zwallet getblobbers --silent --configDir ./config --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}") )
         for id in "${blobber_ids[@]}"
         do
-          ./zbox sp-lock --blobber_id $id --tokens 1 --configDir ./config --config ./zbox_config.yaml --wallet blobber_stake_wallet.json # > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
+          ./zbox sp-lock --blobber_id $id --tokens 1 --configDir ./config --config ./zbox_config.yaml --wallet ../ignore # > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
         done
         ' > ./stake_blobbers.sh;
         chmod 777 ./stake_blobbers.sh;
