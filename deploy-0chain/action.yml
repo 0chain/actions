@@ -168,17 +168,14 @@ runs:
         echo "=================================================="
         echo
 
-        ls -l ../_actions/0chain/actions/feature
-        ls -l ../_actions/0chain/actions/feature/add-config-to-repo
-         ls -l ../_actions/0chain/actions/feature/add-config-to-repo/actions
-         ls -l ../_actions/0chain/actions/feature/add-config-to-repo/actions/values/test
-         ls -l ../_actions/0chain/actions/feature/add-config-to-repo/values/test
+        sed -ri s/dev-x/${{ env.NAMESPACE }}/ ../_actions/0chain/actions/feature/add-config-to-repo/values/test/delegate-wallet-json.yaml
+        sed -ri s/dev-x/${{ env.NAMESPACE }}/ ../_actions/0chain/actions/feature/add-config-to-repo/values/test/nodes.yaml
 
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap delegate-wallet-json
-        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ./actions/values/test/delegate-wallet-json.yaml
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f .../_actions/0chain/actions/feature/add-config-to-repo/values/test/delegate-wallet-json.yaml
 
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap nodes
-        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ./actions/values/test/nodes.yaml
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/feature/add-config-to-repo/values/test/nodes.yaml
 
         helm upgrade --install 0chain --wait --timeout 10m --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set sharder.config.zchain.server_chain.transaction.min_fee=${{ env.MINER_FEE }} -n ${{ env.NAMESPACE }} 0chain-helm/zchain --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
