@@ -168,10 +168,8 @@ runs:
         echo "=================================================="
         echo
 
-        ls -l
-        ls -l ../
-        ls -l ../../
-        ls -l ../../../
+        ls -l ../_actions
+         ls -l ../_actions/actions
 
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap delegate-wallet-json
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ./actions/values/test/delegate-wallet-json.yaml
