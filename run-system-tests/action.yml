@@ -197,48 +197,6 @@ runs:
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
-    - name: "Stake blobbers using above built binaries"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        echo '#!/bin/bash
-        echo
-        echo "==========================================================="
-        echo "STAKING BLOBBERS USING ZWALLETCLI & ZBOXCLI BINARIES"
-        echo "==========================================================="
-        echo
-        cd tests/cli_tests
-        ./zwallet register --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to register wallet through zwalletCLI built using above branch and goSDK." && exit 1; }
-        for i in {1..6}
-        do
-          ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to execute faucet through zwalletCLI built using above branch and goSDK." && exit 1; }
-        done
-
-        blobber_ids=( $(./zwallet getblobbers --silent --configDir ./config --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}") )
-        for id in "${blobber_ids[@]}"
-        do
-          ./zbox sp-lock --blobber_id $id --tokens 1 --configDir ./config --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1 || { cat build.log && echo "::error title=Failed to stake the blobbers::failed to use sp-lock in zwalletCLI built using above branch and goSDK." && exit 1; }
-        done
-        ' > ./stake_blobbers.sh;
-        chmod 777 ./stake_blobbers.sh;
-
-        ITER=0
-        MAX_RETRIES=3
-        until [[ $ITER -eq $MAX_RETRIES ]]
-        do
-            ./stake_blobbers.sh && break
-            ITER=$((ITER+1))
-            echo "Staking blobbers failed on try $ITER. Retrying in 5 seconds..."
-            sleep 5
-        done
-
-        if [[ $ITER -eq $MAX_RETRIES ]]
-          then
-            echo "Staking blobbers failed after $MAX_RETRIES tries. Exiting run..."
-            exit 1
-          else
-            echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
-        fi
-
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
       env:
