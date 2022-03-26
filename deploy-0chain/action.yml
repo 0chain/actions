@@ -175,8 +175,28 @@ runs:
         chmod 777 ./deploy.sh;
         ./deploy.sh
 
+    - name: "Checkout 0wallet CLI"
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ env.ZWALLET_BRANCH }}
+        repository: 0chain/zwalletcli
+        fetch-depth: 1
+        path: ./zwalletcli
+
+    - name: "Checkout 0box CLI"
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ env.ZBOX_BRANCH }}
+        repository: 0chain/zboxcli
+        fetch-depth: 1
+        path: ./zboxcli
+
+    - name: "Setup Go"
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.2
+
     - name: "Build CLI Binaries"
-#      if: steps.cli-cache.outputs.cache-hit != 'true'
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
