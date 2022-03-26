@@ -206,7 +206,7 @@ runs:
         mv zbox ../tests/cli_tests
         echo "CLI build SUCCESS!"
 
-      - name: "Stake blobbers using above built binaries"
+    - name: "Stake blobbers using above built binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo '#!/bin/bash
