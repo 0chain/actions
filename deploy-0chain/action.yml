@@ -261,7 +261,7 @@ runs:
         exec 6>&1 # Save stdout to file descriptor 6
         function retry {
             local n=1
-            local max=5
+            local max=3
             local delay=5
             while true; do
             "$@" && break || {
@@ -298,17 +298,8 @@ runs:
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        ITER=0
-        MAX_RETRIES=3
-        until [[ $ITER -eq $MAX_RETRIES ]]
-        do
-            ./stake_blobbers.sh && break
-            ITER=$((ITER+1))
-            echo "Staking blobbers failed on try $ITER. Retrying in 5 seconds..."
-            sleep 5
-        done
-
-        if [[ $ITER -eq $MAX_RETRIES ]]
+        ./stake_blobbers.sh
+        if [[ $? -ne 0 ]]
           then
             cd ..
             echo '#!/bin/bash
@@ -319,7 +310,7 @@ runs:
             echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
             echo -e "${RED}======================================================${NC}"
             echo
-            ./teardown.sh && ./deploy.sh && ./system_test/stake_blobbers.sh $1;
+            ./teardown.sh && ./deploy.sh && cd system_test && ./stake_blobbers.sh $1;
             ' > ./retry.sh;
             chmod 777 ./retry.sh;
             ./retry.sh "second" || ./retry.sh "final"
