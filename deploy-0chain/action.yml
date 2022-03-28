@@ -50,7 +50,7 @@ inputs:
     required: false
   blobber_stake_image:
     description: 'Blobber stake DOCKER IMAGE to deploy'
-    default: 'latest'
+    default: 'state-changes-count-block'
     required: false
   teardown_condition:
     description: 'Variable on which to teardown network'

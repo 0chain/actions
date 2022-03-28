@@ -38,12 +38,12 @@ on:
          description: 'miner branch which the tests will use'
          default: 'staging'
          required: false
-         type: string  
+         type: string
        sharder_branch:
          description: 'sharder branch which the tests will use'
          default: 'staging'
          required: false
-         type: string   
+         type: string
        zbox_cli_branch:
         description: '0Box CLI branch which the tests will use'
         default: 'staging'
@@ -256,7 +256,7 @@ jobs:
         explorer_image: ${{ env.EXPLORER_TAG }}
         zproxy_image: ${{ env.ZPROXY_TAG }}
         zsearch_image: ${{ env.ZSEARCH_TAG }}
-        blobber_stake_image: latest
+        blobber_stake_image: "state-changes-count-block"
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
