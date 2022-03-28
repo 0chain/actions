@@ -292,6 +292,7 @@ runs:
             retry ./zbox sp-lock --blobber_id $id --tokens 1 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
         ' > ./stake_blobbers.sh;
+        pwd
         chmod 777 ./stake_blobbers.sh;
 
     - name: "Wait for 0Chain network deployment to complete"
@@ -318,7 +319,7 @@ runs:
             echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
             echo -e "${RED}======================================================${NC}"
             echo
-            ./teardown.sh && ./deploy.sh && ./stake_blobbers.sh $1;
+            ./teardown.sh && ./deploy.sh && ./system_test/stake_blobbers.sh $1;
             ' > ./retry.sh;
             chmod 777 ./retry.sh;
             ./retry.sh "second" || ./retry.sh "final"
