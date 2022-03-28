@@ -56,6 +56,17 @@ inputs:
     description: 'Miner fee per transaction'
     default: '0'
     required: false
+  zbox_cli_branch:
+    required: true
+    description: '0Box CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
+  zwallet_cli_branch:
+    required: true
+    description: '0Wallet CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
+  custom_go_sdk_version:
+    required: false
+    description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
 
 
 runs:
@@ -79,6 +90,8 @@ runs:
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
+        echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
+        echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
