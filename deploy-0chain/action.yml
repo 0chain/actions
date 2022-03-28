@@ -238,7 +238,7 @@ runs:
         max_txn_query: 15
         query_sleep_time: 3
         ' > zbox_config.yaml
-        sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./config/zbox_config.yaml
+        sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./zbox_config.yaml
         echo '#!/bin/bash
         echo
         echo "==========================================================="
