@@ -256,6 +256,9 @@ jobs:
         explorer_image: ${{ env.EXPLORER_TAG }}
         zproxy_image: ${{ env.ZPROXY_TAG }}
         zsearch_image: ${{ env.ZSEARCH_TAG }}
+        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+        custom_go_sdk_version: ${{ env.GOSDK_SHA }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
