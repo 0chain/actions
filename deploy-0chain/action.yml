@@ -285,7 +285,21 @@ runs:
             retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
-        retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
+        # Wait for 6 blobbers to register for 60 seconds...
+        count=0
+        while [[ $count -le 5 ]]
+        do
+          retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
+          num=$(cat build.log | wc -l)
+          [[ $num -eq 6 ]] && break
+          sleep 10
+          ((count++))
+        done
+        if [[ $num -ne 6 ]]
+        then
+          echo "::error title=Number of blobbers registered is less than 6::All blobbers not registered. Exiting run..."
+          exit 1
+        fi
         readarray -t blobber_ids < build.log
         for id in "${blobber_ids[@]}"
         do
