@@ -305,17 +305,13 @@ runs:
         do
             retry ./zbox sp-lock --blobber_id $id --tokens 1 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
-        while true
-        do
-            sleep 100
-        done
         ' > ./stake_blobbers.sh;
         chmod 777 ./stake_blobbers.sh;
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        timeout 600 ./stake_blobbers.sh
+        timeout 300 ./stake_blobbers.sh
         if [[ $? -ne 0 ]]
           then
             cd ..
