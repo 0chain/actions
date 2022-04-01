@@ -306,13 +306,12 @@ runs:
             retry ./zbox sp-lock --blobber_id $id --tokens 1 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
         ' > ./stake_blobbers.sh;
-        pwd
         chmod 777 ./stake_blobbers.sh;
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        ./stake_blobbers.sh
+        timeout 300 ./stake_blobbers.sh
         if [[ $? -ne 0 ]]
           then
             cd ..
@@ -324,7 +323,7 @@ runs:
             echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
             echo -e "${RED}======================================================${NC}"
             echo
-            ./teardown.sh && ./deploy.sh && cd system_test && ./stake_blobbers.sh $1;
+            ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
             ' > ./retry.sh;
             chmod 777 ./retry.sh;
             ./retry.sh "second" || ./retry.sh "final"
