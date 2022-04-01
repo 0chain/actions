@@ -310,8 +310,6 @@ runs:
             sleep 100
         done
         ' > ./stake_blobbers.sh;
-        pwd
-        ls
         chmod 777 ./stake_blobbers.sh;
 
     - name: "Wait for 0Chain network deployment to complete"
@@ -329,7 +327,7 @@ runs:
             echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
             echo -e "${RED}======================================================${NC}"
             echo
-            ./teardown.sh && ./deploy.sh && cd ~/actions-runner${{ env.RUNNER_NUMBER }}/_work/0chain/0chain && ./stake_blobbers.sh $1;
+            ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
             ' > ./retry.sh;
             chmod 777 ./retry.sh;
             ./retry.sh "second" || ./retry.sh "final"
