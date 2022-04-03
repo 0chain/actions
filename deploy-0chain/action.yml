@@ -185,13 +185,25 @@ runs:
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap b0mnode01-keys
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode01-keys.yaml
 
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode01-dkg.yaml
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap b0mnode01-dkg
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode01-dkg.yaml
+
         sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode02-keys.yaml
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap b0mnode02-keys
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode02-keys.yaml
 
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode02-dkg.yaml
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap b0mnode02-dkg
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode02-dkg.yaml
+
         sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode03-keys.yaml
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap b0mnode03-keys
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode03-keys.yaml
+
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode03-dkg.yaml
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap b0mnode03-dkg
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0mnode03-dkg.yaml
 
         sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/b0snode01-keys.yaml
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap b0snode01-keys
