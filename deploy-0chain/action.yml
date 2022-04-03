@@ -48,10 +48,6 @@ inputs:
     description: '0Search DOCKER IMAGE to deploy'
     default: 'staging'
     required: false
-  blobber_stake_image:
-    description: 'Blobber stake DOCKER IMAGE to deploy'
-    default: 'latest'
-    required: false
   teardown_condition:
     description: 'Variable on which to teardown network'
     default: 'ALWAYS_TEARDOWN'
@@ -60,6 +56,17 @@ inputs:
     description: 'Miner fee per transaction'
     default: '0'
     required: false
+  zbox_cli_branch:
+    required: true
+    description: '0Box CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
+  zwallet_cli_branch:
+    required: true
+    description: '0Wallet CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
+  custom_go_sdk_version:
+    required: false
+    description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
 
 
 runs:
@@ -78,12 +85,13 @@ runs:
         echo "ZDNS_TAG=$(echo '${{inputs.zdns_image}}')" >> $GITHUB_ENV
         echo "ZBLOCK_TAG=$(echo '${{inputs.zblock_image}}')" >> $GITHUB_ENV
         echo "EXPLORER_TAG=$(echo '${{inputs.explorer_image}}')" >> $GITHUB_ENV
-        echo "BLOBBER_STAKE_TAG=$(echo '${{inputs.blobber_stake_image}}')" >> $GITHUB_ENV
         echo "ZPROXY_TAG=$(echo '${{inputs.zproxy_image}}')" >> $GITHUB_ENV
         echo "ZSEARCH_TAG=$(echo '${{inputs.zsearch_image}}')" >> $GITHUB_ENV
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
+        echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
+        echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -108,7 +116,6 @@ runs:
         echo "0Proxy docker image:     [${{ env.ZPROXY_TAG }}]"
         echo "0Search docker image:    [${{ env.ZSEARCH_TAG }}]"
         echo "Explorer docker image:   [${{ env.EXPLORER_TAG }}]"
-        echo "Stake docker image:      [${{ env.BLOBBER_STAKE_TAG }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -185,60 +192,153 @@ runs:
         helm upgrade --install 0proxy --set zproxy.hostName=${{ env.NAMESPACE }} --set zproxy.host=devnet-0chain.net --set zproxy.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zproxy.image.tag=${{ env.ZPROXY_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zproxy --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0search --set zsearch.hostName=${{ env.NAMESPACE }} --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install blobber-stake --wait -n ${{ env.NAMESPACE }} --set blobberStake.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobberStake.blobberCount=6 --set blobberStake.hostName=${{ env.NAMESPACE }} --set blobberStake.host=devnet-0chain.net --set blobberStake.image.tag=${{ env.BLOBBER_STAKE_TAG }} 0chain-helm/blobberStake --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
 
+    - name: "Checkout 0wallet CLI"
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ env.ZWALLET_BRANCH }}
+        repository: 0chain/zwalletcli
+        fetch-depth: 1
+        path: ./zwalletcli
+
+    - name: "Checkout 0box CLI"
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ env.ZBOX_BRANCH }}
+        repository: 0chain/zboxcli
+        fetch-depth: 1
+        path: ./zboxcli
+
+    - name: "Setup Go"
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.2
+
+    - name: "Build CLI Binaries"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
+        echo "======================================================"
+        echo
+        echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
+        cd zwalletcli
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
+        then
+          echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
+          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        fi
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
+        mv zwallet ..
+        echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
+        cd ../zboxcli
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
+        then
+          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
+          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        fi
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
+        mv zbox ..
+        echo "CLI build SUCCESS!"
+
+    - name: "Stake blobbers using above built binaries"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo 'block_worker: https://dev.0chain.net/dns
+        signature_scheme: bls0chain
+        min_submit: 50 # in percentage
+        min_confirmation: 50 # in percentage
+        confirmation_chain_length: 3
+        ethereum_node_url: https://ropsten.infura.io/v3/22cb2849f5f74b8599f3dc2a23085bd4
+        max_txn_query: 15
+        query_sleep_time: 3
+        ' > zbox_config.yaml
+        sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./zbox_config.yaml
+        echo '#!/bin/bash
+        echo
+        echo "==========================================================="
+        echo "STAKING BLOBBERS USING ZWALLETCLI & ZBOXCLI BINARIES"
+        echo "==========================================================="
+        echo
+        exec 6>&1 # Save stdout to file descriptor 6
+        function retry {
+            local n=1
+            local max=3
+            local delay=5
+            while true; do
+            "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                    ((n++))
+                    echo "Command failed. Attempt $n/$max:"
+                    sleep $delay;
+                else
+                    exec 1>&6 6>&- # Revert output to stdout instead of build.log and close file descriptor 6
+                    echo "failed to run $@"
+                    cat build.log && echo "::error title=Failed to stake the blobbers";
+                    echo "exiting blobber stake process..."
+                    exit 1
+                fi
+            }
+            done
+        }
+        retry ./zwallet register --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        for i in {1..6}
+        do
+            retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        done
+
+        # Wait for 6 blobbers to register for 60 seconds...
+        count=0
+        while [[ $count -le 5 ]]
+        do
+          retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
+          num=$(cat build.log | wc -l)
+          [[ $num -eq 6 ]] && break
+          sleep 10
+          ((count++))
+        done
+        if [[ $num -ne 6 ]]
+        then
+          echo "::error title=Number of blobbers registered is less than 6::All blobbers not registered. Exiting run..."
+          exit 1
+        fi
+        readarray -t blobber_ids < build.log
+        for id in "${blobber_ids[@]}"
+        do
+            retry ./zbox sp-lock --blobber_id $id --tokens 1 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        done
+        ' > ./stake_blobbers.sh;
+        chmod 777 ./stake_blobbers.sh;
+
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        cd ..
-        echo '#!/bin/bash
-
-        RETRY_ATTEMPT=$1
-        ANNOTATION_LEVEL="warning"
-        if [ "$1" == "final" ]; then
-            ANNOTATION_LEVEL="error"
+        timeout 300 ./stake_blobbers.sh
+        if [[ $? -ne 0 ]]
+          then
+            cd ..
+            echo '#!/bin/bash
+            RED="\033[0;31m"
+            NC="\033[0m"
+            echo
+            echo -e "${RED}======================================================${NC}"
+            echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
+            echo -e "${RED}======================================================${NC}"
+            echo
+            ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
+            ' > ./retry.sh;
+            chmod 777 ./retry.sh;
+            ./retry.sh "second" || ./retry.sh "final"
+          else
+            echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
         fi
-
-        echo "Waiting for 0Chain deployment to finish..."
-        sleep 70
-        counter=0;
-        while [ $counter -lt 30 ] && kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -vi Completed; do
-
-          if ( kubectl -n ${{ env.NAMESPACE }} get pods --kubeconfig ./kube/${{ env.NAMESPACE }}-config | grep blobber-stake | grep -i Error ); then
-            echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed on $RETRY_ATTEMPT attempt::blobber stake failed on $RETRY_ATTEMPT attempt"
-            exit 1
-          fi
-
-          sleep 10
-          echo "Still waiting for 0Chain deployment to finish..." && ((counter=counter+1));
-        done
-
-        if [ $counter -eq 30 ]; then
-          echo "::$ANNOTATION_LEVEL title=0Chain network deployment failed on $RETRY_ATTEMPT attempt::Chain setup did not complete within the time limit on $RETRY_ATTEMPT attempt"
-          exit 1
-        fi
-
-        echo "::notice title=0Chain network deployment was successful on $RETRY_ATTEMPT attempt::0Chain was successfully deployed to [${{ env.NETWORK_URL }}]"
-        ' > ./wait.sh;
-        chmod 777 ./wait.sh;
-        ./wait.sh "first" || {
-          echo '#!/bin/bash
-          RED="\033[0;31m"
-          NC="\033[0m"
-          echo
-          echo -e "${RED}======================================================${NC}"
-          echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
-          echo -e "${RED}======================================================${NC}"
-          echo
-          ./teardown.sh && ./deploy.sh && ./wait.sh $1;
-          ' > ./retry.sh;
-          chmod 777 ./retry.sh;
-          ./retry.sh "second" || ./retry.sh "final"
-        }
 
     - name: "Create post run teardown script"
       shell: 'script --return --quiet --command "bash {0}"'
