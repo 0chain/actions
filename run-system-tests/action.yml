@@ -35,7 +35,8 @@ inputs:
     required: false
     description: 'secret used to publish test results - will use your own credentials if not supplied'
   custom_go_sdk_version:
-    required: false
+    required: true
+    default: "NONE"
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
 
 runs:
