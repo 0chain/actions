@@ -186,7 +186,7 @@ runs:
         echo
 
         ./add-configmap.sh magicblock
-        ./add-configmap.shb b0mnode01-keys
+        ./add-configmap.sh b0mnode01-keys
         ./add-configmap.sh b0mnode01-dkg
         ./add-configmap.sh b0mnode02-keys
         ./add-configmap.sh b0mnode02-dkg
