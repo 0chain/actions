@@ -17,6 +17,6 @@ metadata:
     operation: Update
     time: "2022-03-02T16:03:32Z"
   name: b0snode02-keys
-  namespace: dev-5
+  namespace: dev-x
   resourceVersion: "6351"
   uid: 28f13b0d-67b2-479f-adc8-08b94d1efdd7

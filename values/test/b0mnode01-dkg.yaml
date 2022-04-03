@@ -24,6 +24,6 @@ metadata:
     operation: Update
     time: "2022-03-02T16:04:25Z"
   name: b0mnode01-dkg
-  namespace: dev-5
+  namespace: dev-x
   resourceVersion: "6662"
   uid: a6b12d08-9e05-4404-985d-e9c59fac5d27
