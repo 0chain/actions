@@ -1,0 +1,237 @@
+apiVersion: v1
+data:
+  magicBlock.json: |-
+    {
+     "hash": "cc5b491793ef2bedffcb1df87ad1a53567e30aabef51d93046f0fa85cbfaa572",
+     "previous_hash": "",
+     "magic_block_number": 1,
+     "starting_round": 0,
+     "miners": {
+      "type": 0,
+      "nodes": {
+       "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c": {
+        "id": "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c",
+        "version": "",
+        "creation_date": 1646237048,
+        "public_key": "026f5e3a4a4c08377af76ca72fe0804a03c5437417aea5a6ab2f3d0a0a0ad3150f01c2e68760f9d5a016f9b89fa182157b134d87d1edfa31b462fcfec0d8a81a",
+        "n2n_host": "dev-x.devnet-0chain.net",
+        "host": "dev-x.devnet-0chain.net",
+        "port": 31202,
+        "path": "miner02",
+        "type": 0,
+        "description": "localhost.m02",
+        "set_index": 1,
+        "status": 0,
+        "info": {
+         "build_tag": "",
+         "state_missing_nodes": 0,
+         "miners_median_network_time": 0,
+         "avg_block_txns": 0
+        }
+       },
+       "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949": {
+        "id": "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949",
+        "version": "",
+        "creation_date": 1646237048,
+        "public_key": "257acfae61512fb1f4a886b0dbe949dc94497132448d1674f37f912c00e3ba1c6d4555ac58b44d4f8fe7228fb55c1f888ae3aa7901068eefd022613f05999415",
+        "n2n_host": "dev-x.devnet-0chain.net",
+        "host": "dev-x.devnet-0chain.net",
+        "port": 31201,
+        "path": "miner01",
+        "type": 0,
+        "description": "localhost.m01",
+        "set_index": 0,
+        "status": 0,
+        "info": {
+         "build_tag": "",
+         "state_missing_nodes": 0,
+         "miners_median_network_time": 0,
+         "avg_block_txns": 0
+        }
+       },
+       "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937": {
+        "id": "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937",
+        "version": "",
+        "creation_date": 1646237048,
+        "public_key": "b5b91306a507aa0605be7a42cfc8a3a80e7747a95a9c5fe152836f6ae61666150a2d3f72fbf5368bd088740ae579eece77b798d79c00edc4ad63cdf3095b3424",
+        "n2n_host": "dev-x.devnet-0chain.net",
+        "host": "dev-x.devnet-0chain.net",
+        "port": 31203,
+        "path": "miner03",
+        "type": 0,
+        "description": "localhost.m03",
+        "set_index": 2,
+        "status": 0,
+        "info": {
+         "build_tag": "",
+         "state_missing_nodes": 0,
+         "miners_median_network_time": 0,
+         "avg_block_txns": 0
+        }
+       }
+      }
+     },
+     "sharders": {
+      "type": 1,
+      "nodes": {
+       "30001a01a888584772b7fee13934021ab8557e0ed471c0a3a454e9164180aef1": {
+        "id": "30001a01a888584772b7fee13934021ab8557e0ed471c0a3a454e9164180aef1",
+        "version": "",
+        "creation_date": 1646237048,
+        "public_key": "d0937ef1e7fc2a13524a79bc57d17f94b06bc534b6c3bfa057bd27c2af4db70724ed790e97bc2834b101c96fbefbdc8d6c7effe4b374614813f638f9f8b7f784",
+        "n2n_host": "dev-x.devnet-0chain.net",
+        "host": "dev-x.devnet-0chain.net",
+        "port": 31102,
+        "path": "sharder02",
+        "type": 1,
+        "description": "localhost.s02",
+        "set_index": 0,
+        "status": 0,
+        "info": {
+         "build_tag": "",
+         "state_missing_nodes": 0,
+         "miners_median_network_time": 0,
+         "avg_block_txns": 0
+        }
+       },
+       "ea26431f8adb7061766f1d6bbcc3b292d70dd59960d857f04b8a75e6a5bbe04f": {
+        "id": "ea26431f8adb7061766f1d6bbcc3b292d70dd59960d857f04b8a75e6a5bbe04f",
+        "version": "",
+        "creation_date": 1646237048,
+        "public_key": "824fb17dd958235a06f4c670b6254a9223ae18dcd2962d088c7054819e9d0f164ac1aa2ad4223a8a42529b7ce9ccb32017771aabdf7aaca2031590fc33882601",
+        "n2n_host": "dev-x.devnet-0chain.net",
+        "host": "dev-x.devnet-0chain.net",
+        "port": 31101,
+        "path": "sharder01",
+        "type": 1,
+        "description": "localhost.s01",
+        "set_index": 0,
+        "status": 0,
+        "info": {
+         "build_tag": "",
+         "state_missing_nodes": 0,
+         "miners_median_network_time": 0,
+         "avg_block_txns": 0
+        }
+       }
+      }
+     },
+     "share_or_signs": {
+      "shares": {
+       "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c": {
+        "id": "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c",
+        "share_or_sign": {
+         "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c": {
+          "id": "",
+          "message": "1771a66afb7b3e126a0445c2f38674e9df0b437022e8c2bf1f417b5ef96784db",
+          "share": "",
+          "sign": "1 10f33ce04f8f600c245327612cc35403b75a83c03a78ee93877a8a69e84da7bf 21507185861269b7a382f29f03b7037907464d98d56918a0a16188e3cf05cbaf"
+         },
+         "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949": {
+          "id": "",
+          "message": "fdf72d603d3bb61e1b8e2d9be2125f31465318b95c9b524039c87d64a17d990d",
+          "share": "",
+          "sign": "1 45eec28339d28ab9c46225896f291be01e3c6ed9cb8c04b3cc2ab106f000a77 220f593f5289e104a0b9ddf4950121034b739e77cb747238e33b610d79531dfc"
+         },
+         "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937": {
+          "id": "",
+          "message": "044caec74b65a2c6493acc890e8041351dd6ec5aeb26b598a07f8c7af98efd43",
+          "share": "",
+          "sign": "1 19005fffde528ea924baa730908f55ec79a45af4d2fcb277d0acf21896840483 d6b60b55a71e75e0ec6b9aeb6843b37f093e29ddc97e7a4ef1395874b044fc0"
+         }
+        }
+       },
+       "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949": {
+        "id": "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949",
+        "share_or_sign": {
+         "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c": {
+          "id": "",
+          "message": "6a509d92a1e50c7b264a3f327a997c3bbefe52b63cc6054069dde7ea68e1b9f8",
+          "share": "",
+          "sign": "1 164ad51fcc35f8215cff44bfb33388fd06e5635351c7f6188edc213e888c9366 756c811d11a03ede5bfa31bce41c2f73a23b392991d84b8068f3da04a50e0b6"
+         },
+         "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949": {
+          "id": "",
+          "message": "de4974ef7fc082d0e1be7f783cc07c3528152de0e795dfd625a88b59ea5991a8",
+          "share": "",
+          "sign": "1 11fbacda8ddf6717f8a53f399764d3cd73ed58a58a99d18ee41f5e923b0a7dbc 18ff16a58d87aaefccd67b7d0aad785e243d1eae2b72f89cac7f699ed623d3d"
+         },
+         "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937": {
+          "id": "",
+          "message": "cc0a0608288faa2b903b6d43137273186ce501af946c58d1032cdc42e582cc21",
+          "share": "",
+          "sign": "1 23253142fcf650fb3ff100b23bbb76bd776fcda63a2d6c1e6fd578192e480d9e a08a10dc887afca532e811918d9af8df736854a30a8ef6566011a224dba8637"
+         }
+        }
+       },
+       "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937": {
+        "id": "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937",
+        "share_or_sign": {
+         "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c": {
+          "id": "",
+          "message": "91b0e4f17255376a226f990dc87a2e51fa65c3483083db0a49ed348d79f590fb",
+          "share": "",
+          "sign": "1 1dca10a53f60d341e6845f0b4b3cbe5251abac626e9620f986365989749e14b1 24185c47369dd46a7cc11bc95fa0b46fc4715665f03943adf976a9b8dddb7a10"
+         },
+         "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949": {
+          "id": "",
+          "message": "4ef90c7d84d6828295bdbb2de4b65f968a552a28c0624aafcf9077b146c79803",
+          "share": "",
+          "sign": "1 6d081170f9ab129490093139d7f699beaa695c15c432647edeceae4c9b11ebc 1e891b23ae7fab01a9bb3f6f4be270bbb07b0d3090d66e663b2b5e3825cb30a7"
+         },
+         "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937": {
+          "id": "",
+          "message": "8fb81b1886fafe73d6df78579c719bb98e93c9685246ee7ed5ad51f66c8269ce",
+          "share": "",
+          "sign": "1 437cc82dd1666e38e8cbe0ef8aa38e213078d50f62480eb13ceff5c0bcbc556 c10ec7402908ad4b29b9722dd9afeb4fe5e792ff0f3dcdb05ba7eaf36453800"
+         }
+        }
+       }
+      }
+     },
+     "mpks": {
+      "Mpks": {
+       "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c": {
+        "ID": "3ec9a42db3355f33c35750ce589ed717c08787997b7f34a7f1f9fb0a03f2b17c",
+        "Mpk": [
+         "1 15d79d3055cea9396f8ca56791971f8ff71d44584b05cfe09ea3fcf07cfc856b 6d1a482ce0a795e8177519ac44637ec065a7cb23219d88b989062dc5d15445c 10642a8725e181e05e202ddabba75e2496ef782765550364abd8d56a6b069804 8dbec8a09902830ce44b9d02cf655bfe82db8079cea7bd47522380bd591d3f",
+         "1 40a0b4ac668722707910d6e850c6397ada2a06ec81b61c44371c7b75ec87d6f 2136da08d96f9ca8034839bfd0463083fc0cfc9cdadfb75e898bac3f325047d8 16bd3b0ca2b3272da4de5b1847ea668b0b6ea589eb57f85b8f979f9bf0541a4 215565ce8739bb188a24935e021247dfbff33009eb84c46de0787f4a1e303894"
+        ]
+       },
+       "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949": {
+        "ID": "73ad5727612116c025bb4405bf3adb4a4a04867ae508c51cf885395bffc8a949",
+        "Mpk": [
+         "1 19fb54855969e5b7683a04cae104a7a3fa39d141b3e5de218987124c839d2119 1f86d9b84344a9e63cabba07f553e7bf72cdbfbe453bf8d1769aa9429f78a74 10132dad0edd587f9094cf83fc2e75030563455c37a94cf5dd21809b962f01f0 198e8d6373ae17a78cb6e93d91c244807e0eda4c31cca57bfac10ad128f55e05",
+         "1 1ad332eca7455da7e8e7903771b473b660f372c03287dd51e5259155587cc1cd 54f07fb1f7e199d69fb87c408a41393a8594fbcc4b135ad117598447a3a7579 1a098d1c1b57bde5ec3e2a0db665be1d1bcf0397a8b06cb19929df2052f751ac 12ee3be753924fd5f92be9d64d1b8ecb7488342cbeb971527fbfa01bf751b1da"
+        ]
+       },
+       "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937": {
+        "ID": "c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937",
+        "Mpk": [
+         "1 170b056477fa6d7e51dcb7744598e12221b067c8cac4b8fe510cb146a14fd019 58dc3412639619f3bb22d1514d7c98b8e431f69dabca598b05434226186208e 16c2a997f6358d8ec6bff212637a1e93e3e897d5e35c512ca4adea8a30c39388 19a41e81d2e4ce771b459db0bc4b39e0dfe420dfcf3961a5fffe1b94f1bc858f",
+         "1 1891cb140e4e7609a7504981d067bf19f440eeea78ce8d0a0b166b8b186182b4 d56a9e835cf12bafdda327c2214671d5c3b0e71d9d0f324b0de8196a770b340 226ef6b4a1a539ad9b8eedbb23fe11364e05f08deff3f31600689f1d5e65cc05 8b2e1e96c3f2c5df3b7d1d1b578954f15017959caea8cb7c40ca68f7b47d12c"
+        ]
+       }
+      }
+     },
+     "t": 2,
+     "k": 3,
+     "n": 3
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2022-03-02T16:04:26Z"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:magicBlock.json: {}
+    manager: kubectl-create
+    operation: Update
+    time: "2022-03-02T16:04:26Z"
+  name: magicblock
+  namespace: dev-x
+  resourceVersion: "6668"
+  uid: e271b92e-1a01-4050-a907-94cfe4b2130c
