@@ -76,7 +76,13 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo "ACTIONS_BRANCH=feature/add-config-to-repo" >> $GITHUB_ENV
+#          ================================
+#          *******PLEASE READ*******
+#          THE ACTIONS_BRANCH VARIABLE BELOW *MUST* MATCH THE CURRENT BRANCH NAME FOR THE DEPLOY ACTION TO WORK ON THE CURRENT BRANCH
+#          THIS IS A LIMITATION OF HOW GITHUB USES COMPOSITE ACTIONS WHICH WE ARE TRYING TO ADDRESS IN A LESS MANUAL WAY...
+        echo "ACTIONS_BRANCH=master" >> $GITHUB_ENV
+#          =================================
+
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
