@@ -240,6 +240,8 @@ runs:
       if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        cd tests/cli_tests
+        
         testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
         ls $(echo $testFiles)
 
@@ -255,7 +257,6 @@ runs:
             echo "NO TEST FUNCTIONS FOUND IN FILE" && exit 1
         fi
 
-        cd tests/cli_tests
         printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "'$testFunctions'" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > SUBSET_TEST_RUNNER_COMMAND.sh && chmod 777 SUBSET_TEST_RUNNER_COMMAND.sh
 
         echo
@@ -263,7 +264,7 @@ runs:
         echo "RUNNING [$(echo $testFunctions | awk '{ print toupper($0) }')] SYSTEM TESTS"
         echo "======================================================"
         echo
-        cd tests/cli_tests
+
         exit_code=0
         echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
         echo
