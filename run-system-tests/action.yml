@@ -244,7 +244,10 @@ runs:
         testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
         ls $(echo $testFiles)
 
-        if [ "$?" == "1" ];
+        fileListResult="$?"
+        echo "fileListResult=$fileListResult"
+
+        if [ "$fileListResult" != "0" ];
           then
             echo "::error title=Test files do not exist!::Test files in filter [$testFiles] could not be found" && exit 1
         fi
