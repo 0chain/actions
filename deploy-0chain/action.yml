@@ -202,7 +202,6 @@ runs:
         ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
-        ./add-configmap.sh zdns-settings-01
 
         helm upgrade --install 0chain --wait --timeout 10m --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set sharder.config.zchain.server_chain.transaction.min_fee=${{ env.MINER_FEE }} -n ${{ env.NAMESPACE }} 0chain-helm/zchain --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
