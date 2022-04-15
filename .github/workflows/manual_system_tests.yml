@@ -25,6 +25,19 @@ on:
       DEV5KC:
         description: 'dev-5 k8s config'
         required: true
+      DEV6KC:
+        description: 'dev-6 k8s config'
+        required: true
+      DEV7KC:
+        description: 'dev-7 k8s config'
+        required: true
+      DEV8KC:
+        description: 'dev-8 k8s config'
+        required: true
+      DEV9KC:
+        description: 'dev-9 k8s config'
+        required: true
+
     inputs:
        system_tests_branch:
         description: 'system_tests branch containing the tests you wish to run'
