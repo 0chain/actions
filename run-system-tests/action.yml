@@ -38,6 +38,10 @@ inputs:
     required: true
     default: "NONE"
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+  test_file_filter:
+    required: false
+    default: ""
+    description: 'Subset of system tests to run'
 
 runs:
   using: "composite"
@@ -63,6 +67,7 @@ runs:
         echo "0box CLI branch:        [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:     [${{ env.ZWALLET_BRANCH }}]"
         echo "Custom gosdk version:   [${{ inputs.custom_go_sdk_version }}]"
+        echo "Test file filter:       [${{ inputs.test_file_filter }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v2
@@ -182,6 +187,13 @@ runs:
               echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
         fi
 
+        if [[ -z "${{ inputs.test_file_filter }}" ]];
+           then
+              echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
+           else
+              echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
+        fi
+
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
@@ -197,6 +209,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -222,6 +235,58 @@ runs:
         fi
 
         exit $exit_code
+
+    - name: "Run subset of CLI System Tests"
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd tests/cli_tests
+
+        testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
+        echo "Attempting to resolve filter to test files..."
+        ls $(echo $testFiles)
+
+        fileListResult="$?"
+
+        if [ "$fileListResult" != "0" ];
+          then
+            echo "::error title=Test files do not exist!::One or more of the test files requested [$testFiles] could not be found" && exit 1
+          else
+            echo "SUCCESS!"
+        fi
+
+        testFunctions=$(grep -o '^[^\/]*func Test.*' $(echo $testFiles) | sed 's/^[^/]*func \(Test[A-Za-z0-9_]*\).*$/\1/' | paste -sd "|" -)
+
+        if [ -z "$testFunctions" ];
+          then
+            echo "::error title=Test functions not found!::No test functions found in any of the test files requested [$testFiles]" && exit 1
+        fi
+
+        printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "'$testFunctions'" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > SUBSET_TEST_RUNNER_COMMAND.sh && chmod 777 SUBSET_TEST_RUNNER_COMMAND.sh
+
+        echo
+        echo "======================================================"
+        echo "RUNNING [$(echo $testFunctions | awk '{ print toupper($0) }')] SYSTEM TESTS"
+        echo "======================================================"
+        echo
+
+        exit_code=0
+        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || exit_code=$?
+        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA} ./${{ env.BRANCH_DIR }}/latest
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $exit_code == 0 ]];
+          then
+            echo TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+
+        exit $exit_code
+
 
     - name: "Archive CLI Config & Console Output"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.archive_results == 'true' }}
