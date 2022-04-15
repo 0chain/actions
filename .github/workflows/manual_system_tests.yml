@@ -114,6 +114,11 @@ on:
          default: 'NOT OVERRIDDEN'
          required: false
          type: string
+       test_file_filter:
+        description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
+        default: ''
+        required: false
+        type: string
        skip_tests:
         description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
         default: 'FALSE'
@@ -228,7 +233,8 @@ jobs:
         ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@master
+      uses: 0chain/actions/notify-pull-request@feature/test-subset
+      if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
         state: "pending"
@@ -251,7 +257,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@master
+      uses: 0chain/actions/deploy-0chain@feature/test-subset
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -272,7 +278,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@master
+      uses: 0chain/actions/run-system-tests@feature/test-subset
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
@@ -284,10 +290,11 @@ jobs:
         archive_results: true
         run_flaky_tests: false
         retry_failures: true
+        test_file_filter: ${{ inputs.test_file_filter }}
 
     - name: "Set PR status as ${{ job.status }}"
-      if: ${{ success() || failure() || cancelled() }}
-      uses: 0chain/actions/notify-pull-request@master
+      if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
+      uses: 0chain/actions/notify-pull-request@feature/test-subset
       continue-on-error: true
       with:
         state: ${{ job.status }}
