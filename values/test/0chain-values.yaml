@@ -535,7 +535,7 @@ sharder:
       # % of fees and rewards for generator
       serviceCharge: "0.10 "     # [0; 1) of all fees
       # max number of delegate pools allowed by a node in miner SC
-      numberOfDelegates: "10"   # max number of delegate pools
+      numberOfDelegates: "15"   # max number of delegate pools
       # min stake pool amount allowed by node; should not conflict with
       # SC min_stake 
       minStake: "0.0"    # tokens
