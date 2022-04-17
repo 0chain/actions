@@ -313,23 +313,23 @@ runs:
       run: |
         if [ -n "${{ env.NAMESPACE }}" ];
           then
-            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
+            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizor|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
             echo "Pod status pre test run (some restarts are normal as the network stabilises):"
             cat pod_status_pre_test_run.txt
-            echo "Pod status post test run (no more further restarts should have taken place for the network to be considered stable):"
+            echo "Pod status post test run (no further restarts should have taken place for the network to be considered stable):"
             cat pod_status_post_test_run.txt
+
+            if [[ "$(cat pod_status_pre_test_run.txt | md5sum)" == "$(cat pod_status_post_test_run.txt | md5sum)" ]];
+              then
+                echo "Pods did not crash during test run"
+                echo PODS_CRASHED=false >> $GITHUB_ENV
+              else
+                echo PODS_CRASHED=true >> $GITHUB_ENV
+                echo "::error title=System crashed during test run!::Pods were restarted during the test run. Therefore the build is NOT STABLE. Please investigate whey the system is crashing."
+                exit 1
+            fi
           else
             echo "NOT preforming system stability check because network was not deployed as part of this test run"
-        fi
-
-        if [[ -n "${{ env.NAMESPACE }}" && "$(cat pod_status_pre_test_run.txt | md5sum)" == "$(cat pod_status_post_test_run.txt | md5sum)" ]];
-          then
-            echo PODS_CRASHED=true >> $GITHUB_ENV
-            echo "::error title=System crashed during test run!::Pods were restarted during the test run. Therefore the build is NOT STABLE. Please investigate whey the system is crashing."
-            exit 1
-          else
-            echo "Pods did not crash during test run"
-            echo PODS_CRASHED=false >> $GITHUB_ENV
         fi
 
     - name: "Run Flaky CLI System Tests"
