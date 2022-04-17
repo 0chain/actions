@@ -219,8 +219,6 @@ runs:
 
         if [ -n "${{ env.NAMESPACE }}" ]; then
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
-          echo "Pod status pre test run:"
-          cat pod_status_pre_test_run.txt
         fi
 
         cd tests/cli_tests
@@ -236,12 +234,12 @@ runs:
         if [ -n "${{ env.NAMESPACE }}" ];
           then
             kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
-            echo "Pod status pre test run:"
+            echo "Pod status pre test run (some restarts are normal as the network stabilises):"
             cat pod_status_pre_test_run.txt
-            echo "Pod status post test run:"
-            cat pod_status_pre_test_run.txt
+            echo "Pod status post test run (no more further restarts should have taken place for the network to be considered stable):"
+            cat pod_status_post_test_run.txt
           else
-            echo "NOT preforming pod stability check because network was not deployed as part of this test run"
+            echo "NOT preforming system stability check because network was not deployed as part of this test run"
         fi
 
         if [[ $system_tests_exit_code == 0 ]];
@@ -298,8 +296,6 @@ runs:
 
         if [ -n "${{ env.NAMESPACE }}" ]; then
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
-          echo "Pod status pre test run:"
-          cat pod_status_pre_test_run.txt
         fi
 
         system_tests_exit_code=0
@@ -312,12 +308,12 @@ runs:
         if [ -n "${{ env.NAMESPACE }}" ];
           then
             kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
-            echo "Pod status pre test run:"
+            echo "Pod status pre test run (some restarts are normal as the network stabilises):"
             cat pod_status_pre_test_run.txt
-            echo "Pod status post test run:"
-            cat pod_status_pre_test_run.txt
+            echo "Pod status post test run (no more further restarts should have taken place for the network to be considered stable):"
+            cat pod_status_post_test_run.txt
           else
-            echo "NOT preforming pod stability check because network was not deployed as part of this test run"
+            echo "NOT preforming system stability check because network was not deployed as part of this test run"
         fi
 
         if [[ $system_tests_exit_code == 0 ]];
