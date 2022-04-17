@@ -322,7 +322,7 @@ runs:
             echo "NOT preforming system stability check because network was not deployed as part of this test run"
         fi
 
-        if [[ -n "${{ env.NAMESPACE }}" && "$(md5sum pod_status_pre_test_run.txt | cut -f 1 -d ' ')" == "$(md5sum pod_status_post_test_run.txt | cut -f 1 -d ' ')" ]];
+        if [[ -n "${{ env.NAMESPACE }}" && "$(cat pod_status_pre_test_run.txt | md5sum)" == "$(cat pod_status_post_test_run.txt | md5sum)" ]];
           then
             echo PODS_CRASHED=true >> $GITHUB_ENV
             echo "::error title=System crashed during test run!::Pods were restarted during the test run. Therefore the build is NOT STABLE. Please investigate whey the system is crashing."
