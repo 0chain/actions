@@ -321,11 +321,11 @@ runs:
 
             if [[ "$(cat pod_status_pre_test_run.txt | md5sum)" == "$(cat pod_status_post_test_run.txt | md5sum)" ]];
               then
-                echo "Pods did not crash during test run"
+                echo "0Chain did not crash during system test run"
                 echo PODS_CRASHED=false >> $GITHUB_ENV
               else
                 echo PODS_CRASHED=true >> $GITHUB_ENV
-                echo "::error title=System crashed during test run!::Pods were restarted during the test run. Therefore the build is NOT STABLE. Please investigate whey the system is crashing."
+                echo "::error title=0Chain crashed during test run!::One or more 0Chain component crashed during the test run, therefore the build is NOT STABLE and this should be investigated"
                 exit 1
             fi
           else
