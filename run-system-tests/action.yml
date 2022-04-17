@@ -218,7 +218,7 @@ runs:
         echo
 
         if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
           echo "Pod status pre test run:"
           cat pod_status_pre_test_run.txt
         fi
@@ -235,7 +235,7 @@ runs:
 
         if [ -n "${{ env.NAMESPACE }}" ];
           then
-            kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
+            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
             echo "Pod status pre test run:"
             cat pod_status_pre_test_run.txt
             echo "Pod status post test run:"
@@ -297,7 +297,7 @@ runs:
         echo
 
         if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
           echo "Pod status pre test run:"
           cat pod_status_pre_test_run.txt
         fi
@@ -311,7 +311,7 @@ runs:
 
         if [ -n "${{ env.NAMESPACE }}" ];
           then
-            kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
+            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
             echo "Pod status pre test run:"
             cat pod_status_pre_test_run.txt
             echo "Pod status post test run:"
