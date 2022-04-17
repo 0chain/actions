@@ -216,17 +216,35 @@ runs:
         echo "RUNNING SYSTEM TESTS:"
         echo "======================================================"
         echo
+
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
+          echo "Pod status pre test run:"
+          cat pod_status_pre_test_run.txt
+        fi
+
         cd tests/cli_tests
-        exit_code=0
+        system_tests_exit_code=0
         echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
         echo
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./TEST_RUNNER_COMMAND.sh || exit_code=$?
+        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA} ./${{ env.BRANCH_DIR }}/latest
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
-        if [[ $exit_code == 0 ]];
+        if [ -n "${{ env.NAMESPACE }}" ];
+          then
+            kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
+            echo "Pod status pre test run:"
+            cat pod_status_pre_test_run.txt
+            echo "Pod status post test run:"
+            cat pod_status_pre_test_run.txt
+          else
+            echo "NOT preforming pod stability check because network was not deployed as part of this test run"
+        fi
+
+        if [[ $system_tests_exit_code == 0 ]];
           then
             echo TESTS_PASSED=true >> $GITHUB_ENV
           else
@@ -234,7 +252,15 @@ runs:
             echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
-        exit $exit_code
+        if [[ -n "${{ env.NAMESPACE }}" && "$(md5 -q pod_status_pre_test_run.txt)" == "$(md5 -q pod_status_post_test_run.txt)" ]];
+          then
+            echo PODS_CRASHED=true >> $GITHUB_ENV
+            echo "::error title=System crashed during test run!::Pods were restarted during the test run. Therefore the build is NOT STABLE. Please investigate whey the system is crashing."
+          else
+            echo PODS_CRASHED=false >> $GITHUB_ENV
+        fi
+
+        exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
       if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
@@ -270,14 +296,31 @@ runs:
         echo "======================================================"
         echo
 
-        exit_code=0
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || exit_code=$?
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_pre_test_run.txt
+          echo "Pod status pre test run:"
+          cat pod_status_pre_test_run.txt
+        fi
+
+        system_tests_exit_code=0
+        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA} ./${{ env.BRANCH_DIR }}/latest
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
-        if [[ $exit_code == 0 ]];
+        if [ -n "${{ env.NAMESPACE }}" ];
+          then
+            kubectl get pods -A --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|NAME|RESTARTS.*/' | awk {'print $2" " $5'} > pod_status_post_test_run.txt
+            echo "Pod status pre test run:"
+            cat pod_status_pre_test_run.txt
+            echo "Pod status post test run:"
+            cat pod_status_pre_test_run.txt
+          else
+            echo "NOT preforming pod stability check because network was not deployed as part of this test run"
+        fi
+
+        if [[ $system_tests_exit_code == 0 ]];
           then
             echo TESTS_PASSED=true >> $GITHUB_ENV
           else
@@ -285,7 +328,16 @@ runs:
             echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
-        exit $exit_code
+        if [[ -n "${{ env.NAMESPACE }}" && "$(md5 -q pod_status_pre_test_run.txt)" == "$(md5 -q pod_status_post_test_run.txt)" ]];
+          then
+            echo PODS_CRASHED=true >> $GITHUB_ENV
+            echo "::error title=System crashed during test run!::Pods were restarted during the test run. Therefore the build is NOT STABLE. Please investigate whey the system is crashing."
+            exit 1
+          else
+            echo PODS_CRASHED=false >> $GITHUB_ENV
+        fi
+
+        exit $system_tests_exit_code
 
 
     - name: "Archive CLI Config & Console Output"
