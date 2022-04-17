@@ -325,6 +325,7 @@ runs:
                 echo PODS_CRASHED=false >> $GITHUB_ENV
               else
                 echo PODS_CRASHED=true >> $GITHUB_ENV
+                echo TESTS_PASSED=false >> $GITHUB_ENV
                 echo "::error title=0Chain crashed during test run!::One or more 0Chain component crashed during the test run, therefore the build is NOT STABLE and this should be investigated"
                 exit 1
             fi
