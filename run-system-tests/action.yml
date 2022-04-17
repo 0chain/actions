@@ -321,7 +321,7 @@ runs:
 
             if [[ "$(cat pod_status_pre_test_run.txt | md5sum)" == "$(cat pod_status_post_test_run.txt | md5sum)" ]];
               then
-                echo "0Chain did not crash during system test run"
+                echo "0Chain did not crash during system tests"
                 echo PODS_CRASHED=false >> $GITHUB_ENV
               else
                 echo PODS_CRASHED=true >> $GITHUB_ENV
