@@ -394,7 +394,7 @@ runs:
         fi
 
     - name: "Notify Slack"
-      if: ${{ failure() && contains('refs/heads/master refs/heads/staging', github.ref) && github.event_name != 'workflow_dispatch' && github.event.repository.name != "system_test" }}
+      if: ${{ failure() && contains('refs/heads/master refs/heads/staging', github.ref) && github.event_name != 'workflow_dispatch' && github.event.repository.name != 'system_test' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         curl -X POST -H 'Content-type: application/json' --data '{"text":"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/}! Please investigae. Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"}' ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
