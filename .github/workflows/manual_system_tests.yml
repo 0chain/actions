@@ -25,9 +25,19 @@ on:
       DEV5KC:
         description: 'dev-5 k8s config'
         required: true
-      SMART_CONTRACT_OWNER_WALLET_JSON:
-        description: 'Smart contract owner wallet'
+      DEV6KC:
+        description: 'dev-6 k8s config'
         required: true
+      DEV7KC:
+        description: 'dev-7 k8s config'
+        required: true
+      DEV8KC:
+        description: 'dev-8 k8s config'
+        required: true
+      DEV9KC:
+        description: 'dev-9 k8s config'
+        required: true
+
     inputs:
        system_tests_branch:
         description: 'system_tests branch containing the tests you wish to run'
@@ -104,6 +114,11 @@ on:
          default: 'NOT OVERRIDDEN'
          required: false
          type: string
+       test_file_filter:
+        description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
+        default: ''
+        required: false
+        type: string
        skip_tests:
         description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
         default: 'FALSE'
@@ -112,7 +127,7 @@ on:
 jobs:
   system-tests:
     timeout-minutes: 90
-    runs-on: [ tests-suite ]
+    runs-on: [self-hosted, tests-suite]
     steps:
 
     - uses: actions/checkout@v2
@@ -219,6 +234,7 @@ jobs:
 
     - name: "Set PR status as pending"
       uses: 0chain/actions/notify-pull-request@master
+      if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
         state: "pending"
@@ -256,7 +272,9 @@ jobs:
         explorer_image: ${{ env.EXPLORER_TAG }}
         zproxy_image: ${{ env.ZPROXY_TAG }}
         zsearch_image: ${{ env.ZSEARCH_TAG }}
-        blobber_stake_image: nonce
+        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+        custom_go_sdk_version: ${{ env.GOSDK_SHA }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
@@ -267,15 +285,15 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        smart_contract_owner_wallet_json: ${{ secrets.SMART_CONTRACT_OWNER_WALLET_JSON }}
         svc_account_secret: ${{ github.token }}
         deploy_report_page: false
         archive_results: true
         run_flaky_tests: false
         retry_failures: true
+        test_file_filter: ${{ inputs.test_file_filter }}
 
     - name: "Set PR status as ${{ job.status }}"
-      if: ${{ success() || failure() || cancelled() }}
+      if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
       uses: 0chain/actions/notify-pull-request@master
       continue-on-error: true
       with:
