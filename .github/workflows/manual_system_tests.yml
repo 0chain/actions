@@ -127,7 +127,7 @@ on:
 jobs:
   system-tests:
     timeout-minutes: 90
-    runs-on: [ tests-suite ]
+    runs-on: [self-hosted, tests-suite]
     steps:
 
     - uses: actions/checkout@v2
