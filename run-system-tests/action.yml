@@ -127,7 +127,7 @@ runs:
     - name: "Setup Go"
       uses: actions/setup-go@v2
       with:
-        go-version: 1.17.2
+        go-version: 1.18
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -205,7 +205,7 @@ runs:
         go get github.com/vakenbolt/go-test-report
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,network_entrypoint:.*,network_entrypoint: https://${{ env.NETWORK_URL }}/dns/network," -i ./tests/api_tests/config/api_tests_config.yaml
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
         cd tests/cli_tests
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky
@@ -262,6 +262,9 @@ runs:
 
         cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA} ./${{ env.BRANCH_DIR }}/latest
         echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        echo '{"client_id":"d992f8dd228c8b6f79d3858e93b67d28d1cef3395b2cf831fed77897c21414c8","client_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","keys":[{"public_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","private_key":"f6bf1f7f1e56776425c4e6d83f8f4462d3e27f9d09dd7789061ac9810f359d1b"}],"mnemonics":"angry galaxy sing cause dragon lecture yellow bonus uniform turtle involve fox warrior balcony noble fun era festival express thought marble city cliff size","version":"1.0","date_created":"2022-02-19T18:11:03+03:00"}' >> ./config/miner_node_delegate_wallet.json
+        echo '{"client_id":"d992f8dd228c8b6f79d3858e93b67d28d1cef3395b2cf831fed77897c21414c8","client_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","keys":[{"public_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","private_key":"f6bf1f7f1e56776425c4e6d83f8f4462d3e27f9d09dd7789061ac9810f359d1b"}],"mnemonics":"angry galaxy sing cause dragon lecture yellow bonus uniform turtle involve fox warrior balcony noble fun era festival express thought marble city cliff size","version":"1.0","date_created":"2022-02-19T18:11:03+03:00"}' >> ./config/sharder_node_delegate_wallet.json
 
         if [[ $system_tests_exit_code == 0 ]];
           then
