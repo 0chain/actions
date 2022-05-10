@@ -204,7 +204,8 @@ runs:
         go get gotest.tools/gotestsum
         go get github.com/vakenbolt/go-test-report
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,network_entrypoint:.*,network_entrypoint: https://${{ env.NETWORK_URL }}/dns/network," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,network_entrypoint:.*,network_entrypoint: https://${{ env.NETWORK_URL }}/dns/network" -i ./tests/api_tests/config/api_tests_config.yaml
+        cat ./tests/api_tests/config/api_tests_config.yaml
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
         cd tests/cli_tests
