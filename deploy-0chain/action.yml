@@ -79,11 +79,13 @@ runs:
         cd ../../_actions/0chain/actions/
         echo "ls output:"
         ls -l
+        echo "lower output:
+        ls -al ./feature/add-api-tests-to-ci
         echo "find output:"
         find . -name .git
         echo "grep output:"
         find . -name .git | grep -o -P '(?<=./).*(?=/.git)'
-        
+
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
