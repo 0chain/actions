@@ -79,7 +79,7 @@ runs:
         cd ../../_actions/0chain/actions/
         echo "ls output:"
         ls -l
-        echo "lower output:
+        echo "lower output:"
         ls -al ./feature/add-api-tests-to-ci
         echo "find output:"
         find . -name .git
