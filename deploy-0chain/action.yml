@@ -75,16 +75,9 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .git | grep -o -P '(?<=./).*(?=/.git)')" >> $GITHUB_ENV
-        cd ../../_actions/0chain/actions/
-        echo "ls output:"
-        ls -l
-        echo "lower output:"
-        ls -al ./feature/add-api-tests-to-ci
-        echo "find output:"
-        find . -name .git
+        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
         echo "grep output:"
-        find . -name .git | grep -o -P '(?<=./).*(?=/.git)'
+        find . -name .github | grep -o -P '(?<=./).*(?=/.github)'
 
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
