@@ -463,7 +463,7 @@ sharder:
           payload:
             maxSize: "98304" # bytes
           timeout: "30" # seconds
-          minFee: "0"
+          minFee: "100"
         client:
           signatureScheme: "bls0chain" # ed25519 or bls0chain
           discover: true
