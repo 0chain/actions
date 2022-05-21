@@ -40,7 +40,7 @@ blobber:
     capacity: "107374182400" # 100 GB bytes total blobber capacity
     readPrice: "0.01"     # token / GB for reading
     writePrice: "0.01"    # token / GB / time_unit for writing
-    priceInUsd: "true"
+    priceInUsd: "false"
     priceWorkerInHours: "12"
     # the time_unit configured in Storage SC and can be given using
     #
