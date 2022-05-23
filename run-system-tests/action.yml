@@ -209,14 +209,12 @@ runs:
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
-        cd ../api_tests
+
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli
+
         cd tests/cli_tests
-        mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
-        mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
-        mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
@@ -233,8 +231,9 @@ runs:
         cd tests/api_tests
         api_system_tests_exit_code=0
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/api/latest
         if [[ $api_system_tests_exit_code == 0 ]];
           then
             echo API_TESTS_PASSED=true >> $GITHUB_ENV
@@ -244,6 +243,15 @@ runs:
         fi
 
         exit $api_system_tests_exit_code
+
+    - name: "Archive API Test Config & Console Output"
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: Flaky-System-Test-${{ env.TEST_TIME }}
+        path: |
+          ./tests/api_tests/config
+          ./${{ env.BRANCH_DIR }}/api/latest/index.html
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -264,13 +272,10 @@ runs:
         echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
         echo
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ./${{ env.BRANCH_DIR }}/cli/latest
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/cli/latest
         echo "TESTS_RAN=true" >> $GITHUB_ENV
-
-        echo '{"client_id":"d992f8dd228c8b6f79d3858e93b67d28d1cef3395b2cf831fed77897c21414c8","client_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","keys":[{"public_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","private_key":"f6bf1f7f1e56776425c4e6d83f8f4462d3e27f9d09dd7789061ac9810f359d1b"}],"mnemonics":"angry galaxy sing cause dragon lecture yellow bonus uniform turtle involve fox warrior balcony noble fun era festival express thought marble city cliff size","version":"1.0","date_created":"2022-02-19T18:11:03+03:00"}' >> ./config/miner_node_delegate_wallet.json
-        echo '{"client_id":"d992f8dd228c8b6f79d3858e93b67d28d1cef3395b2cf831fed77897c21414c8","client_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","keys":[{"public_key":"93d431abc3507b25a6c32f8dd6be4980ca1bdc4fc4f79e660641a689957a981f9658361e2c09888d3f92df63f96089f5e421edf29aa38a04924f02a78b960a93","private_key":"f6bf1f7f1e56776425c4e6d83f8f4462d3e27f9d09dd7789061ac9810f359d1b"}],"mnemonics":"angry galaxy sing cause dragon lecture yellow bonus uniform turtle involve fox warrior balcony noble fun era festival express thought marble city cliff size","version":"1.0","date_created":"2022-02-19T18:11:03+03:00"}' >> ./config/sharder_node_delegate_wallet.json
 
         if [[ $system_tests_exit_code == 0 ]];
           then
@@ -322,9 +327,9 @@ runs:
 
         system_tests_exit_code=0
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ./${{ env.BRANCH_DIR }}/cli/latest
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/cli/latest
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
         if [[ $system_tests_exit_code == 0 ]];
@@ -337,7 +342,6 @@ runs:
 
         exit $system_tests_exit_code
 
-
     - name: "Archive CLI Config & Console Output"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.archive_results == 'true' }}
       uses: actions/upload-artifact@v2
@@ -346,7 +350,7 @@ runs:
         path: |
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
-          ./tests/cli_tests/${{ env.BRANCH_DIR }}/cli/latest/index.html
+          ./${{ env.BRANCH_DIR }}/cli/latest/index.html
 
     - name: "System Stability Check"
       if: ${{ always() && env.TESTS_RAN == 'true' }}
@@ -388,8 +392,8 @@ runs:
         rm -rf cmdlog.log || true
         rm -rf test-output.json || true
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname --raw-command -- ../../FLAKY_TEST_RUNNER_COMMAND.sh || true
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli/index.html --title "0Chain Flaky system test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-        cp -R ./${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli ./${{ env.BRANCH_DIR }}/flaky_cli/latest
+        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli/index.html --title "0Chain Flaky system test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli ../../${{ env.BRANCH_DIR }}/flaky_cli/latest
         echo "FLAKY_TESTS_RAN=true" >> $GITHUB_ENV
 
     - name: "Archive Flaky Test CLI Config & Console Output"
@@ -400,7 +404,7 @@ runs:
         path: |
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
-          ./tests/cli_tests/${{ env.BRANCH_DIR }}/flaky_cli/latest/index.html
+          ./${{ env.BRANCH_DIR }}/flaky_cli/latest/index.html
 
     - name: "Deploy report pages"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
@@ -409,7 +413,7 @@ runs:
         publish_branch: test_reports
         keep_files: true
         github_token: "${{ inputs.svc_account_secret }}"
-        publish_dir: "./tests/cli_tests/${{ env.BRANCH_DIR }}"
+        publish_dir: "./${{ env.BRANCH_DIR }}"
         destination_dir: "./${{ env.BRANCH_DIR }}"
         user_name: "github-actions[bot]"
         user_email: "github-actions[bot]@users.noreply.github.com"
