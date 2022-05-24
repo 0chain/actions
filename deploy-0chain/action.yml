@@ -319,7 +319,7 @@ runs:
         done
         if [[ $num -ne 6 ]]
         then
-          echo "::error title= $num blobbers registered is less than 6::All blobbers not registered. Exiting run..."
+          echo "::error title= $num blobbers registered is less than 6::Only $num blobbers registered. Exiting run..."
           exit 1
         fi
         readarray -t blobber_ids < build.log
