@@ -307,19 +307,19 @@ runs:
             retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
-        # Wait for 6 blobbers to register for 60 seconds...
+        # Wait for 6 blobbers to register for 120 seconds...
         count=0
         while [[ $count -le 5 ]]
         do
           retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
           [[ $num -eq 6 ]] && break
-          sleep 10
+          sleep 20
           ((count++))
         done
         if [[ $num -ne 6 ]]
         then
-          echo "::error title=Number of blobbers registered is less than 6::All blobbers not registered. Exiting run..."
+          echo "::error title= $num blobbers registered is less than 6::All blobbers not registered. Exiting run..."
           exit 1
         fi
         readarray -t blobber_ids < build.log
@@ -333,7 +333,7 @@ runs:
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        timeout 300 ./stake_blobbers.sh
+        timeout 360 ./stake_blobbers.sh
         if [[ $? -ne 0 ]]
           then
             cd ..
