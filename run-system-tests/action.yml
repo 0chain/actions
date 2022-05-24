@@ -213,6 +213,9 @@ runs:
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli
+        mkdir -p ${BRANCH_DIR}/latest/api
+        mkdir -p ${BRANCH_DIR}/latest/cli
+        mkdir -p ${BRANCH_DIR}/latest/flaky_cli
 
         cd tests/cli_tests
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
@@ -233,9 +236,7 @@ runs:
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        cd ../../
-        ls -l
-        cp -R ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ${{ env.BRANCH_DIR }}/api/latest
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/api
         if [[ $api_system_tests_exit_code == 0 ]];
           then
             echo API_TESTS_PASSED=true >> $GITHUB_ENV
@@ -253,7 +254,7 @@ runs:
         name: Flaky-System-Test-${{ env.TEST_TIME }}
         path: |
           ./tests/api_tests/config
-          ./${{ env.BRANCH_DIR }}/api/latest/index.html
+          ./${{ env.BRANCH_DIR }}/latest/api/index.html
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -276,9 +277,7 @@ runs:
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        cd ../../
-        ls-l
-        cp -R ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ${{ env.BRANCH_DIR }}/cli/latest
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/cli
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
         if [[ $system_tests_exit_code == 0 ]];
@@ -333,8 +332,7 @@ runs:
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        cd ../../
-        cp -R ${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ${{ env.BRANCH_DIR }}/cli/latest
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/cli
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
         if [[ $system_tests_exit_code == 0 ]];
@@ -355,7 +353,7 @@ runs:
         path: |
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
-          ./${{ env.BRANCH_DIR }}/cli/latest/index.html
+          ./${{ env.BRANCH_DIR }}/latest/cli/index.html
 
     - name: "System Stability Check"
       if: ${{ always() && env.TESTS_RAN == 'true' }}
@@ -398,7 +396,7 @@ runs:
         rm -rf test-output.json || true
         ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname --raw-command -- ../../FLAKY_TEST_RUNNER_COMMAND.sh || true
         cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli/index.html --title "0Chain Flaky system test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli ../../${{ env.BRANCH_DIR }}/flaky_cli/latest
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli ../../${{ env.BRANCH_DIR }}/latest/flaky_cli
         echo "FLAKY_TESTS_RAN=true" >> $GITHUB_ENV
 
     - name: "Archive Flaky Test CLI Config & Console Output"
@@ -409,7 +407,7 @@ runs:
         path: |
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
-          ./${{ env.BRANCH_DIR }}/flaky_cli/latest/index.html
+          ./${{ env.BRANCH_DIR }}/latest/flaky_cli/index.html
 
     - name: "Deploy report pages"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
