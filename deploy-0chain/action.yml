@@ -324,7 +324,7 @@ runs:
         done
         if [[ $num -ne 6 ]]
         then
-          echo "::error title=Number of blobbers registered is less than 6::All blobbers not registered. Exiting run..."
+ echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
           cat build.log
           exit 1
         fi
