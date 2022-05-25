@@ -311,8 +311,9 @@ runs:
         count=0
         while [[ $count -le 5 ]]
         do
-          retry ./zwallet getblobbers --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
-          num=$(cat build.log | grep /blobber0 | wc -l)
+          retry ./zwallet getblobbers --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log
+          cat build.log | grep /blobber0 | grep -o "[a-z0-9]\{64\}" > bobbers.list
+          num=$(cat bobbers.list  | wc -l)
           [[ $num -eq 6 ]] && break
           sleep 20
           ((count++))
@@ -320,9 +321,10 @@ runs:
         if [[ $num -ne 6 ]]
         then
           echo "::error title= $num blobbers registered is less than 6::Only ${num}/6 blobbers registered. Exiting run..."
+          cat build.log
           exit 1
         fi
-        readarray -t blobber_ids < build.log
+        readarray -t blobber_ids < bobbers.list
         for id in "${blobber_ids[@]}"
         do
             retry ./zbox sp-lock --blobber_id $id --tokens 1 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
