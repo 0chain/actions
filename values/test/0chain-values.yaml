@@ -651,7 +651,7 @@ commonConf:
         reward_round_frequency: 250
         cooldown_period: 100
         cost:
-          add_miner: 100
+          add_miner: 123
           add_sharder: 100
           delete_miner: 100
           delete_sharder: 100
