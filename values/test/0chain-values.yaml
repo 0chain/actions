@@ -465,7 +465,7 @@ commonConf:
       transaction:
         payload:
           max_size: 98304 # bytes
-        timeout: 30 # seconds
+        timeout: 600 # seconds
         min_fee: 0
         exempt:
           - add_miner
@@ -548,7 +548,7 @@ commonConf:
     # % of fees and rewards for generator
     service_charge: 0.10       # [0; 1) of all fees
     # max number of delegate pools allowed by a node in miner SC
-    number_of_delegates: 10   # max number of delegate pools
+    number_of_delegates: 20   # max number of delegate pools
     # min stake pool amount allowed by node; should not conflict with
     # SC min_stake 
     min_stake: 0.0    # tokens
