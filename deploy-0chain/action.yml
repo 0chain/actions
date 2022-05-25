@@ -311,8 +311,8 @@ runs:
         count=0
         while [[ $count -le 5 ]]
         do
-          retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
-          num=$(cat build.log | wc -l)
+          retry ./zwallet getblobbers --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
+          num=$(cat build.log | grep /blobber0 | wc -l)
           [[ $num -eq 6 ]] && break
           sleep 20
           ((count++))
