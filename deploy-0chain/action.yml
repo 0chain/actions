@@ -339,9 +339,10 @@ runs:
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        timeout 300 ./stake_blobbers.sh || cat build.log
+        timeout 300 ./stake_blobbers.sh
         if [[ $? -ne 0 ]]
           then
+            cat build.log
             cd ..
             echo '#!/bin/bash
             RED="\033[0;31m"
@@ -351,10 +352,10 @@ runs:
             echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
             echo -e "${RED}======================================================${NC}"
             echo
-            ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
+            ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1 || cat build.log;
             ' > ./retry.sh;
             chmod 777 ./retry.sh;
-            timeout 300 ./retry.sh "second" || cat build.log && timeout 300 ./retry.sh "final" || cat build.log
+            timeout 300 ./retry.sh "second" || timeout 300 ./retry.sh "final"
           else
             echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
         fi
