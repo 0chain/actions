@@ -261,6 +261,37 @@ runs:
         mv zbox ..
         echo "CLI build SUCCESS!"
 
+    - name: "Health Check"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo '#!/bin/bash
+        success=0
+        Green='\033[0;32m'
+        Color_Off='\033[0m'
+        for i in 1..60
+        do
+            echo "checking health: $2 "
+            curl -s https://$1/$2 > build.log && echo -e "[$Green $2 OK $Color_Off]" && success=1 && break || sleep 10
+        done
+        if [ "$success" -ne "1" ]; 
+        then 
+            echo "$2 not healthy.. Exiting..."
+            exit 0;
+        fi
+        ' > check_health.sh
+        chmod 777 ./check_health.sh;
+        ./check_health.sh ${{ env.NETWORK_URL }} "sharder01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "sharder02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner03/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber03/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber04/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber05/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber06/"
+
     - name: "Stake blobbers using above built binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
