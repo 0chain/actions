@@ -264,11 +264,10 @@ runs:
     - name: "Health Check"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        cd ..
         echo '#!/bin/bash
         success=0
-        Green='\033[0;32m'
-        Color_Off='\033[0m'
+        Green="\033[0;32m"
+        Color_Off="\033[0m"
         for i in 1..60
         do
             echo "checking health: $2 "
