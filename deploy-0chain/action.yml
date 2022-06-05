@@ -264,6 +264,11 @@ runs:
     - name: "Health Check"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        echo
+        echo "======================================================"
+        echo "HEALTH CHECK NETWORK COMPONENTS:"
+        echo "======================================================"
+        echo
         echo '#!/bin/bash
         success=0
         Green="\033[0;32m"
