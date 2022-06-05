@@ -264,6 +264,7 @@ runs:
     - name: "Health Check"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        cd ..
         echo '#!/bin/bash
         success=0
         Green='\033[0;32m'
