@@ -197,6 +197,7 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
         
+
         helm upgrade --install 0chain --wait --timeout 10m --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set sharder.config.zchain.number_of_delegates=20 --set sharder.config.zchain01.delegate_wallet="865281aab379bc4f076e028116c9ccf6144e8be2eafca78fae54d2b0c39dd23b" --set sharder.config.zchain02.delegate_wallet="1320115c03aae88285251b1586fbf420764cbce0b058cb1fd444d806d98e1627" --set miner.config.zchain01.delegate_wallet="be284e8726fc5de9b19cb5b3d512226d6c17a82e2792f6e64182ded74c3bd97c" --set miner.config.zchain02.delegate_wallet="d992f8dd228c8b6f79d3858e93b67d28d1cef3395b2cf831fed77897c21414c8" --set miner.config.zchain03.delegate_wallet="0e04879ca724d6e2f7554281cada2cf7e08174454d3798e9fb5beb7067fe8bf2" --set sharder.config.zchain.server_chain.transaction.timeout=600 --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set sharder.config.zchain.server_chain.transaction.min_fee=${{ env.MINER_FEE }} --set sharder.config.zchain.development.state=null --set sharder.config.zchain.development.dkg=null --set sharder.config.zchain.development.view_change=null --set sharder.config.zchain.development.block_rewards=null --set sharder.config.zchain.development.smart_contract.storage=null --set sharder.config.zchain.development.smart_contract.faucet=null --set sharder.config.zchain.development.smart_contract.interest=null --set sharder.config.zchain.development.smart_contract.miner=null --set sharder.config.zchain.development.smart_contract.multisig=null --set sharder.config.zchain.development.smart_contract.vesting=null --set sharder.config.zchain.development.smart_contract.zcn=null --set sharder.config.zchain.server_chain.dkg=true --set sharder.config.zchain.server_chain.view_change=false --set sharder.config.zchain.server_chain.state.enabled=true --set sharder.config.zchain.server_chain.block_rewards=true --set sharder.config.zchain.server_chain.smart_contract.storage=true --set sharder.config.zchain.server_chain.smart_contract.faucet=true --set sharder.config.zchain.server_chain.smart_contract.interest=true --set sharder.config.zchain.server_chain.smart_contract.miner=true --set sharder.config.zchain.server_chain.smart_contract.multisig=true --set sharder.config.zchain.server_chain.smart_contract.vesting=true --set sharder.config.zchain.server_chain.smart_contract.zcn=true -n ${{ env.NAMESPACE }} 0chain-helm/zchain --kubeconfig ./kube/${{ env.NAMESPACE }}-config        
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install blobber --wait --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
@@ -261,6 +262,42 @@ runs:
         mv zbox ..
         echo "CLI build SUCCESS!"
 
+    - name: "Health Check"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "HEALTH CHECK NETWORK COMPONENTS:"
+        echo "======================================================"
+        echo
+        echo '#!/bin/bash
+        success=0
+        Green="\033[0;32m"
+        Color_Off="\033[0m"
+        for i in 1..60
+        do
+            echo "checking health: $2 "
+            curl -s https://$1/$2 > build.log && echo -e "[$Green $2 OK $Color_Off]" && success=1 && break || sleep 10
+        done
+        if [ "$success" -ne "1" ]; 
+        then 
+            echo "$2 not healthy.. Exiting..."
+            exit 0;
+        fi
+        ' > check_health.sh
+        chmod 777 ./check_health.sh;
+        ./check_health.sh ${{ env.NETWORK_URL }} "sharder01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "sharder02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner03/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber03/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber04/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber05/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber06/"
+
     - name: "Stake blobbers using above built binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -313,13 +350,19 @@ runs:
         do
           retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
+
+          echo "Stake [$count] output:"
+          cat build.log
+          echo
+
           [[ $num -eq 6 ]] && break
           sleep 10
           ((count++))
         done
         if [[ $num -ne 6 ]]
         then
-          echo "::error title=Number of blobbers registered is less than 6::All blobbers not registered. Exiting run..."
+          echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
+          cat build.log
           exit 1
         fi
         readarray -t blobber_ids < build.log
@@ -336,6 +379,7 @@ runs:
         timeout 300 ./stake_blobbers.sh
         if [[ $? -ne 0 ]]
           then
+            cat build.log
             cd ..
             echo '#!/bin/bash
             RED="\033[0;31m"
@@ -348,7 +392,7 @@ runs:
             ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
             ' > ./retry.sh;
             chmod 777 ./retry.sh;
-            ./retry.sh "second" || ./retry.sh "final"
+            timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
           else
             echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
         fi
