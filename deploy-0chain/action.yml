@@ -398,7 +398,7 @@ runs:
         fi
 
     - name: "Copy logging from k8s"
-    #  if: ${{ failure()}}
+      if: ${{ always()}}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
