@@ -449,24 +449,24 @@ runs:
         echo "======================================================"
         echo "Copying logging from k8s:"
         echo "======================================================"
-        echo -ne " [+] sharder-01 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
-        echo -ne " [+] sharder-01 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
-        echo -ne " [+] miner-01 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-miner-01 /0chain/log ./logs/miner-01
-        echo -ne " [+] miner-01 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-miner-02 /0chain/log ./logs/miner-02
-        echo -ne " [+] miner-01 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-miner-03 /0chain/log ./logs/miner-03
-        echo -ne " [+] blobber-01 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-01 /blobber/log ./logs/blobber-01
-        echo -ne " [+] blobber-02 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-02 /blobber/log ./logs/blobber-02
-        echo -ne " [+] blobber-03 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-03 /blobber/log ./logs/blobber-03
-        echo -ne " [+] blobber-04 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-04 /blobber/log ./logs/blobber-04
-        echo -ne " [+] blobber-05 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-05 /blobber/log ./logs/blobber-05
-        echo -ne " [+] blobber-06 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-06 /blobber/log ./logs/blobber-06
+        echo -ne " [+] sharder-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
+        echo -ne " [+] sharder-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
+        echo -ne " [+] miner-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-miner-01 /0chain/log ./logs/miner-01
+        echo -ne " [+] miner-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-miner-02 /0chain/log ./logs/miner-02
+        echo -ne " [+] miner-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-miner-03 /0chain/log ./logs/miner-03
+        echo -ne " [+] blobber-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-01 /blobber/log ./logs/blobber-01
+        echo -ne " [+] blobber-02 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-02 /blobber/log ./logs/blobber-02
+        echo -ne " [+] blobber-03 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-03 /blobber/log ./logs/blobber-03
+        echo -ne " [+] blobber-04 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-04 /blobber/log ./logs/blobber-04
+        echo -ne " [+] blobber-05 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-05 /blobber/log ./logs/blobber-05
+        echo -ne " [+] blobber-06 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-blobber-06 /blobber/log ./logs/blobber-06
         
-        echo -ne " [+] validator-01 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-01 /validator/log ./logs/validator-01
-        echo -ne " [+] validator-02 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-02 /validator/log ./logs/validator-02
-        echo -ne " [+] validator-03 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-03 /validator/log ./logs/validator-03
-        echo -ne " [+] validator-04 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-04 /validator/log ./logs/validator-04
-        echo -ne " [+] validator-05 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-05 /validator/log ./logs/validator-05
-        echo -ne " [+] validator-06 " && ../scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-06 /validator/log ./logs/validator-06
+        echo -ne " [+] validator-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-01 /validator/log ./logs/validator-01
+        echo -ne " [+] validator-02 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-02 /validator/log ./logs/validator-02
+        echo -ne " [+] validator-03 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-03 /validator/log ./logs/validator-03
+        echo -ne " [+] validator-04 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-04 /validator/log ./logs/validator-04
+        echo -ne " [+] validator-05 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-05 /validator/log ./logs/validator-05
+        echo -ne " [+] validator-06 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} blobber-validator-06 /validator/log ./logs/validator-06
 
     - name: "Archive pods logging"
       if: ${{ always() && env.FLAKY_TESTS_RAN == 'true' && inputs.archive_results  == 'true'}}
