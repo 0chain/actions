@@ -407,6 +407,7 @@ runs:
         echo "======================================================"
         echo $(pwd)
         ls ./
+        ls ../../_actions/0chain/actions/
         echo -ne " [+] sharder-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
         echo -ne " [+] sharder-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
         echo 
