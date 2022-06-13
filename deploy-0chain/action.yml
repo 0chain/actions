@@ -398,13 +398,15 @@ runs:
         fi
 
     - name: "Copy logging from k8s"
-      if: ${{ failure()}}
+    #  if: ${{ failure()}}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
         echo "======================================================"
         echo "Copying logging from k8s:"
         echo "======================================================"
+        echo $(pwd)
+        ls ./
         echo -ne " [+] sharder-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
         echo -ne " [+] sharder-01 " && ./scripts/logging.sh ${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
         echo 
