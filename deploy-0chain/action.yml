@@ -308,8 +308,8 @@ runs:
         echo "======================================================"
         echo $(pwd)
         ls ./
-        echo actions
-        ls ../_actions/0chain/actions/
+        echo ../../
+        ls ../../_actions/0chain/actions/
 
         echo -ne " [+] sharder-01 " && ../_actions/0chain/actions/scripts/logging.sh dev-${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
         echo -ne " [+] sharder-01 " && ../_actions/0chain/actions/scripts/logging.sh dev-${RUNNER_NAME:(-1)} 0chain-sharder-01 /0chain/log ./logs/sharder-01
