@@ -314,20 +314,23 @@ runs:
         logdir=$2
         output=$3
 
-        echo $app
-        echo $logdir
-        echo $output
+        echo "app=$app"
+        echo "logdir=$logdir"
+        echo "output=$output"
 
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name
         podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
 
-        echo $podname
+        echo "podname=$podname"
 
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output && echo "OK" 
         ' > ./logging.sh
 
         ls 
+        echo config
         cat ../kube/${{ env.NAMESPACE }}-config
 
+        echo logging.sh
         cat ./logging.sh
 
         chmod 777 ./logging.sh;
