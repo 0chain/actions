@@ -302,7 +302,7 @@ runs:
       if: ${{ always()}}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        cd ..
+   
 
         echo
         echo "======================================================"
@@ -318,20 +318,21 @@ runs:
         echo $logdir
         echo $output
 
-        podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
+        podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
 
         echo $podname
 
-        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output && echo "OK" 
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output && echo "OK" 
         ' > ./logging.sh
 
         ls 
+        cat ../kube/${{ env.NAMESPACE }}-config
 
         cat ./logging.sh
 
         chmod 777 ./logging.sh;
 
-        echo -ne " [+] sharder-01 " && ./logging.sh ${{ env.NAMESPACE }} 0chain-sharder-01 /0chain/log ./logs/sharder-01
+        echo -ne " [+] sharder-01 " && ./logging.sh ${{ env.NAMESPACE }} "0chain-sharder-01" "/0chain/log" "./logs/sharder-01"
         echo -ne " [+] sharder-01 " && ./logging.sh ${{ env.NAMESPACE }} 0chain-sharder-01 /0chain/log ./logs/sharder-01
         echo 
         echo -ne " [+] miner-01 " && ./logging.sh ${{ env.NAMESPACE }} 0chain-miner-01 /0chain/log ./logs/miner-01
