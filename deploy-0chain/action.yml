@@ -302,28 +302,39 @@ runs:
       if: ${{ always()}}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        cd ..
+
         echo
         echo "======================================================"
         echo "Copying logging from k8s:"
         echo "======================================================"
+
+
+      
+        echo '#!/bin/bash
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
+        delete configmap $1
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
+        ' > ./add-configmap.sh;
+        chmod 777 ./add-configmap.sh;
        
         echo '#!/bin/bash
-        ns=$1
-        app=$2
-        logdir=$3
-        output=$4
+        app=$1
+        logdir=$2
+        output=$3
 
-        echo $ns
         echo $app
         echo $logdir
         echo $output
 
-        podname=$(kubectl get pods -n $ns --kubeconfig ./kube/$ns-config --no-headers -l app=$app -o custom-columns=:metadata.name)
+        podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
 
         echo $podname
 
-        kubectl -n $ns --kubeconfig ../kube/$ns-config cp $podname:$logdir $output && echo "OK" 
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output && echo "OK" 
         ' > ./logging.sh
+
+        ls 
 
         chmod 777 ./logging.sh;
 
