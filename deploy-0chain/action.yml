@@ -419,7 +419,7 @@ runs:
         chmod 777 ./logging.sh;
 
         echo -ne " [+] sharder-01 " && ./logging.sh 0chain-sharder-01 ./logs/sharder-01
-        echo -ne " [+] sharder-02 " && ./logging.sh 0chain-sharder-02 ./logs/sharder-01
+        echo -ne " [+] sharder-02 " && ./logging.sh 0chain-sharder-02 ./logs/sharder-02
         echo 
         echo -ne " [+] miner-01 " && ./logging.sh 0chain-miner-01 ./logs/miner-01
         echo -ne " [+] miner-02 " && ./logging.sh 0chain-miner-02 ./logs/miner-02
