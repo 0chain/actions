@@ -410,13 +410,13 @@ runs:
           ./${{ env.BRANCH_DIR }}/latest/flaky_cli/index.html
 
 
-    - name: "Copy logging from k8s"
+    - name: "Extract Logging From Pods"
       if: ${{ failure()}}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
         echo "======================================================"
-        echo "Copying logging from k8s:"
+        echo "Extracting Logging From Pods:"
         echo "======================================================"
        
 
@@ -453,13 +453,52 @@ runs:
         echo -ne " [+] validator-05 " && ./logging.sh blobber-validator-05 ./logs/validator-05
         echo -ne " [+] validator-06 " && ./logging.sh blobber-validator-06 ./logs/validator-06
 
-    - name: "Archive pods logging"
+    - name: "Archive Sharder Logging"
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
-        name: logging-pods-tests
+        name: logging-pods-tests-sharder
         path: |
-          ./logs
+          ./logs/sharder-01
+          ./logs/sharder-02
+        retention-days: 5
+    - name: "Archive Miner Logging"
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: logging-pods-tests-miner
+        path: |
+          ./logs/miner-01
+          ./logs/miner-02
+          ./logs/miner-03
+        retention-days: 5
+
+    - name: "Archive Blobber Logging"
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: logging-pods-tests-blobber
+        path: |
+          ./logs/blobber-01
+          ./logs/blobber-01
+          ./logs/blobber-03
+          ./logs/blobber-04
+          ./logs/blobber-05
+          ./logs/blobber-06
+        retention-days: 5
+
+    - name: "Archive Validator Logging"
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: logging-pods-tests-validator
+        path: |
+          ./logs/validator-01
+          ./logs/validator-01
+          ./logs/validator-03
+          ./logs/validator-04
+          ./logs/validator-05
+          ./logs/validator-06
         retention-days: 5
 
     - name: "Deploy report pages"
