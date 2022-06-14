@@ -309,6 +309,9 @@ runs:
         echo "Copying logging from k8s:"
         echo "======================================================"
        
+
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers
+
         echo '#!/bin/bash
         app=$1
         logdir=$2
