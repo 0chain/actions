@@ -310,7 +310,7 @@ runs:
         echo "======================================================"
        
 
-        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers --show-labels
 
         echo '#!/bin/bash
         app=$1
