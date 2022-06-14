@@ -320,7 +320,7 @@ runs:
 
         podname=$(kubectl get pods -n $namespace --no-headers -l app=$app -o custom-columns=:metadata.name)
 
-        kubectl -n $namespace cp $podname:$logdir $output && echo "OK" 
+        kubectl -n $namespace --kubeconfig ./kube/${namespace}-config cp $podname:$logdir $output && echo "OK" 
         ' > ./logging.sh
 
         chmod 777 ./logging.sh;
