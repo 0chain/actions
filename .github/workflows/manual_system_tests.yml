@@ -233,7 +233,7 @@ jobs:
         ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@logging
+      uses: 0chain/actions/notify-pull-request@master
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -257,7 +257,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@logging
+      uses: 0chain/actions/deploy-0chain@master
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -278,7 +278,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@logging
+      uses: 0chain/actions/run-system-tests@master
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
@@ -294,7 +294,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@logging
+      uses: 0chain/actions/notify-pull-request@master
       continue-on-error: true
       with:
         state: ${{ job.status }}
