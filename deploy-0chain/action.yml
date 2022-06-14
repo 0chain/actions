@@ -415,17 +415,18 @@ runs:
       
         podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
 
+        echo "kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output"
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output && echo "OK" | grep -v tar
         ' > ./logging.sh
 
         chmod 777 ./logging.sh;
 
-        echo -ne " [+] sharder-01 " && ./logging.sh "0chain-sharder-01" "/0chain/log" "./logs/sharder-01"
         echo -ne " [+] sharder-01 " && ./logging.sh 0chain-sharder-01 /0chain/log ./logs/sharder-01
+        echo -ne " [+] sharder-02 " && ./logging.sh 0chain-sharder-02 /0chain/log ./logs/sharder-01
         echo 
         echo -ne " [+] miner-01 " && ./logging.sh 0chain-miner-01 /0chain/log ./logs/miner-01
-        echo -ne " [+] miner-01 " && ./logging.sh 0chain-miner-02 /0chain/log ./logs/miner-02
-        echo -ne " [+] miner-01 " && ./logging.sh 0chain-miner-03 /0chain/log ./logs/miner-03
+        echo -ne " [+] miner-02 " && ./logging.sh 0chain-miner-02 /0chain/log ./logs/miner-02
+        echo -ne " [+] miner-03 " && ./logging.sh 0chain-miner-03 /0chain/log ./logs/miner-03
         echo
         echo -ne " [+] blobber-01 " && ./logging.sh blobber-blobber-01 /blobber/log ./logs/blobber-01
         echo -ne " [+] blobber-02 " && ./logging.sh blobber-blobber-02 /blobber/log ./logs/blobber-02
@@ -448,6 +449,7 @@ runs:
         name: logging-pods-deploy
         path: |
           ./logs
+        retention-days: 5
 
     - name: "Create post run teardown script"
       shell: 'script --return --quiet --command "bash {0}"'

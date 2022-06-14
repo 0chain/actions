@@ -427,14 +427,15 @@ runs:
 
       
         podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
-
+        
+        echo "kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output"
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:$logdir $output && echo "OK" | grep -v tar
         ' > ./logging.sh
 
         chmod 777 ./logging.sh;
 
-        echo -ne " [+] sharder-01 " && ./logging.sh "0chain-sharder-01" "/0chain/log" "./logs/sharder-01"
         echo -ne " [+] sharder-01 " && ./logging.sh 0chain-sharder-01 /0chain/log ./logs/sharder-01
+        echo -ne " [+] sharder-02 " && ./logging.sh 0chain-sharder-02 /0chain/log ./logs/sharder-02
         echo 
         echo -ne " [+] miner-01 " && ./logging.sh 0chain-miner-01 /0chain/log ./logs/miner-01
         echo -ne " [+] miner-01 " && ./logging.sh 0chain-miner-02 /0chain/log ./logs/miner-02
@@ -461,6 +462,7 @@ runs:
         name: logging-pods-tests-${{ env.TEST_TIME }}
         path: |
           ./logs
+        retention-days: 5
 
     - name: "Deploy report pages"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
