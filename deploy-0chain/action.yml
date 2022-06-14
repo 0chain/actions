@@ -445,7 +445,7 @@ runs:
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
       with:
-        name: k8s-pods-logging-${{ env.TEST_TIME }}
+        name: logging-pods-deploy
         path: |
           ./logs
 
