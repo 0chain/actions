@@ -20,63 +20,6 @@ affinity:
 nodeCount: 1
 
 sharder:
-  storage:
-    # Cache -> 1, Disk -> 2 and Cold -> 4. So combination would be sum of these value.
-    # For example if storage_type: 3, then it means blockstore initializer will look for
-    # cache and disk config. Similarly if it is 7, it will look for cache, disk and cold
-    # config
-    storage_type: 2
-    # start and recover mode will delete all the existing blocks 
-    # restart will take off from where it last left
-    # start and recover is currently used interchangeably but later on
-    # recover mode should be used to recover meta data record.
-    # When disk that stores block's metadata crashes then sharder is unable to serve
-    # block requests. That is when recover mode is required so it will traverse
-    # all the paths to generate metadata
-    mode: start # start, restart, recover
-    # blocks older than 720 hours will be moved to cold tier if cold tiering is enabled
-    block_movement_interval: 720h # time.Duration
-
-    rocks:
-    # have appropriate name and value
-      cache_size: 100*1024*1024 # 100MB
-    cache:
-    # Current write policy is hard coded to write_through and 
-    # cache replacement policy is lru
-      path: "/path/to/cache"
-      size: 1024*1024*1024
-    disk:
-      strategy: "round_robin" # one of random, round_robin, min_size_first, min_count_first
-      volumes:
-        - path: "/path/to/hot/blocks"
-          size_to_maintain: 1 # In GB
-          inodes_to_maintain: 5 # In percent
-          allowed_block_numbers: 10^9
-          allowed_block_size: 500 # In GB
-        - path: "/path/to/another/hot/blocks"
-          recovery: false
-          size_to_maintain: 1 # In GB
-          inodes_to_maintain: 5 # In percent
-          allowed_block_numbers: 10^9
-          allowed_block_size: 500 # In GB
-    cold:
-      # storage that provides minio interface 
-      delete_local: true
-      strategy: "round_robin" # only round_robin is supported
-      cloud_storages:
-        - storage_service_url: "s3.amazonaws.com"
-          access_id: "AKIA4MPQDEZ4FKNA3OPR"
-          secret_access_key: "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"
-          bucket_name: "lpobkt1"
-          allowed_block_numbers: 10^15 # Can be any numbers
-          allowed_block_size: 10^5 # In GB
-        # - storage_service_url: ""
-        #   access_id: ""
-        #   secret_access_key: ""
-        #   bucket_name: ""
-        #   allowed_block_numbers: 10^15 # Can be any numbers
-        #   allowed_block_size: 10^5 # In GB
-
   sharderCount: 2
   replicaCount: 1
 
@@ -582,6 +525,62 @@ commonConf:
           max_idle_conns: 100
           max_open_conns: 200
           conn_max_lifetime: 20s
+    storage:
+    # Cache -> 1, Disk -> 2 and Cold -> 4. So combination would be sum of these value.
+    # For example if storage_type: 3, then it means blockstore initializer will look for
+    # cache and disk config. Similarly if it is 7, it will look for cache, disk and cold
+    # config
+    storage_type: 2
+    # start and recover mode will delete all the existing blocks 
+    # restart will take off from where it last left
+    # start and recover is currently used interchangeably but later on
+    # recover mode should be used to recover meta data record.
+    # When disk that stores block's metadata crashes then sharder is unable to serve
+    # block requests. That is when recover mode is required so it will traverse
+    # all the paths to generate metadata
+    mode: start # start, restart, recover
+    # blocks older than 720 hours will be moved to cold tier if cold tiering is enabled
+    block_movement_interval: 720h # time.Duration
+
+    rocks:
+    # have appropriate name and value
+      cache_size: 100*1024*1024 # 100MB
+    cache:
+    # Current write policy is hard coded to write_through and 
+    # cache replacement policy is lru
+      path: "/path/to/cache"
+      size: 1024*1024*1024
+    disk:
+      strategy: "round_robin" # one of random, round_robin, min_size_first, min_count_first
+      volumes:
+        - path: "/path/to/hot/blocks"
+          size_to_maintain: 1 # In GB
+          inodes_to_maintain: 5 # In percent
+          allowed_block_numbers: 10^9
+          allowed_block_size: 500 # In GB
+        - path: "/path/to/another/hot/blocks"
+          recovery: false
+          size_to_maintain: 1 # In GB
+          inodes_to_maintain: 5 # In percent
+          allowed_block_numbers: 10^9
+          allowed_block_size: 500 # In GB
+    cold:
+      # storage that provides minio interface 
+      delete_local: true
+      strategy: "round_robin" # only round_robin is supported
+      cloud_storages:
+        - storage_service_url: "s3.amazonaws.com"
+          access_id: "AKIA4MPQDEZ4FKNA3OPR"
+          secret_access_key: "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"
+          bucket_name: "lpobkt1"
+          allowed_block_numbers: 10^15 # Can be any numbers
+          allowed_block_size: 10^5 # In GB
+        # - storage_service_url: ""
+        #   access_id: ""
+        #   secret_access_key: ""
+        #   bucket_name: ""
+        #   allowed_block_numbers: 10^15 # Can be any numbers
+        #   allowed_block_size: 10^5 # In GB
     network:
       nodes_file: config/single_machine_3_nodes.yaml
       magic_block_file: config/magicBlock.json
