@@ -385,7 +385,7 @@ commonConf:
   zchainUp:
     version: 1.0
     logging:
-      level: "debug"
+      level: "error"
       console: false # printing log to console is only supported in development mode
       goroutines: false
       memlog: false
