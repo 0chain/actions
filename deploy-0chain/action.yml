@@ -308,15 +308,6 @@ runs:
         echo "======================================================"
         echo "Copying logging from k8s:"
         echo "======================================================"
-
-
-      
-        echo '#!/bin/bash
-        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
-        delete configmap $1
-        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
-        ' > ./add-configmap.sh;
-        chmod 777 ./add-configmap.sh;
        
         echo '#!/bin/bash
         app=$1
@@ -335,6 +326,8 @@ runs:
         ' > ./logging.sh
 
         ls 
+
+        cat ./logging.sh
 
         chmod 777 ./logging.sh;
 
