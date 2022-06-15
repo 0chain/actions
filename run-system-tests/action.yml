@@ -437,10 +437,12 @@ runs:
 
         chmod 777 ./logging.sh;
 
-        echo "> show pods"
+        echo "> Show pods"
+        echo 
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods
 
-        echo "> extract logs"
+        echo "> Extract logs"
+        echo 
         ./logging.sh 0chain-sharder-01 ./logs/sharder-01
         ./logging.sh 0chain-sharder-02 ./logs/sharder-02
         echo 

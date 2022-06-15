@@ -311,6 +311,11 @@ runs:
         query_sleep_time: 3
         ' > zbox_config.yaml
 
+        echo "==========================================================="
+        echo "SHOW BLOBBERS LIST"
+        echo "==========================================================="
+        ./zbox ls-blobber --all
+
         echo '#!/bin/bash
         echo
         echo "==========================================================="
@@ -414,17 +419,22 @@ runs:
 
         chmod 777 ./logging.sh;
 
-        echo "> show pods"
+        echo "> Show pods"
+        echo
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods
 
-        echo "> extract logs"
+        echo "> Extract logs"
+        echo
+
         ./logging.sh 0chain-sharder-01 ./logs/sharder-01
         ./logging.sh 0chain-sharder-02 ./logs/sharder-02
         echo 
+
         ./logging.sh 0chain-miner-01 ./logs/miner-01
         ./logging.sh 0chain-miner-02 ./logs/miner-02
         ./logging.sh 0chain-miner-03 ./logs/miner-03
         echo
+
         ./logging.sh blobber-blobber-01 ./logs/blobber-01
         ./logging.sh blobber-blobber-02 ./logs/blobber-02
         ./logging.sh blobber-blobber-03 ./logs/blobber-03
@@ -432,6 +442,7 @@ runs:
         ./logging.sh blobber-blobber-05 ./logs/blobber-05
         ./logging.sh blobber-blobber-06 ./logs/blobber-06
         echo
+
         ./logging.sh blobber-validator-01 ./logs/validator-01
         ./logging.sh blobber-validator-02 ./logs/validator-02
         ./logging.sh blobber-validator-03 ./logs/validator-03
