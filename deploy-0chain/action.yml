@@ -314,7 +314,7 @@ runs:
         echo "==========================================================="
         echo "SHOW BLOBBERS LIST"
         echo "==========================================================="
-        ./zbox ls-blobbers --all
+        ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
 
         echo '#!/bin/bash
         echo

@@ -416,12 +416,6 @@ runs:
       run: |
         echo
         echo "======================================================"
-        echo "Show Blobbers:"
-        echo "======================================================"
-        
-
-        echo
-        echo "======================================================"
         echo "Extracting Logging From Pods:"
         echo "======================================================"
        
@@ -445,7 +439,9 @@ runs:
         echo "-----------------------------"
         echo "> Show blobbers"
         echo "-----------------------------"
-        ./zbox ls-blobbers --all
+        cd tests/cli_tests
+        ./zbox --configDir ./config --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
+        cd ../..
 
         echo "-----------------------------"
         echo "> Show pods"
