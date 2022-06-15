@@ -257,7 +257,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@pods_status
+      uses: 0chain/actions/deploy-0chain@fix/pods_status
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -278,7 +278,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@pods_status
+      uses: 0chain/actions/run-system-tests@fix/pods_status
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
