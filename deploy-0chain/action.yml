@@ -431,7 +431,7 @@ runs:
         echo "-----------------------------"
         echo "> Show blobbers"
         echo "-----------------------------"
-        ./zbox ls-blobbers --all
+        ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
 
         echo "-----------------------------"
         echo "> Show pods"
