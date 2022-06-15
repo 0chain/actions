@@ -314,9 +314,7 @@ runs:
         echo "==========================================================="
         echo "SHOW BLOBBERS LIST"
         echo "==========================================================="
-        ls
-        ls ../
-        ./zbox ls-blobber --all
+        ./zbox ls-blobbers --all
 
         echo '#!/bin/bash
         echo
@@ -385,10 +383,23 @@ runs:
       run: |
         timeout 300 ./stake_blobbers.sh
         if [[ $? -ne 0 ]]
-          then
-            cd $GITHUB_WORKSPACE && cat build.log && exit 1;
-          else
-            echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
+        then
+          cat build.log
+          cd ..
+          echo '#!/bin/bash
+          RED="\033[0;31m"
+          NC="\033[0m"
+          echo
+          echo -e "${RED}======================================================${NC}"
+          echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
+          echo -e "${RED}======================================================${NC}"
+          echo
+          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
+          ' > ./retry.sh;
+          chmod 777 ./retry.sh;
+          timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
+        else
+          echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
         fi
 
     - name: "Extract Logging From Pods"
@@ -401,32 +412,35 @@ runs:
         echo "======================================================"
        
 
-
         echo '#!/bin/bash
         app=$1
         output=$2
 
-
         Green="\033[0;32m"
-        Color_Off="\033[0m"
-
+ 
         podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
 
         echo -ne "$Green [+] $app:$podname "
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:log $output && echo "OK"
-        echo "$Color_Off"
 
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get events --sort-by='.metadata.creationTimestamp' | grep $podname
         ' > ./logging.sh
 
         chmod 777 ./logging.sh;
 
+        echo "-----------------------------"
+        echo "> Show blobbers"
+        echo "-----------------------------"
+        ./zbox ls-blobbers --all
+
+        echo "-----------------------------"
         echo "> Show pods"
-        echo
+        echo "-----------------------------"
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods
 
+        echo "-----------------------------"
         echo "> Extract logs"
-        echo
+        echo "-----------------------------"
 
         ./logging.sh 0chain-sharder-01 ./logs/sharder-01
         ./logging.sh 0chain-sharder-02 ./logs/sharder-02
