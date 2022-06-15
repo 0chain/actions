@@ -724,9 +724,6 @@ definitions:
       owner_id:
         type: string
         x-go-name: OwnerID
-      payer_id:
-        type: string
-        x-go-name: PayerID
       read_counter:
         format: int64
         type: integer

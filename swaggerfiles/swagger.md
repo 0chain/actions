@@ -3334,7 +3334,6 @@ it can be used as a scan destination, similar to NullString.
 | DeletedAt | [DeletedAt](#deleted-at)| `DeletedAt` |  | |  |  |
 | ID | uint64 (formatted integer)| `uint64` |  | |  |  |
 | OwnerID | string| `string` |  | |  |  |
-| PayerID | string| `string` |  | |  |  |
 | ReadCounter | int64 (formatted integer)| `int64` |  | |  |  |
 | ReadSize | double (formatted number)| `float64` |  | |  |  |
 | Signature | string| `string` |  | |  |  |
