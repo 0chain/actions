@@ -400,6 +400,8 @@ runs:
 
         podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
 
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get events --sort-by='.metadata.creationTimestamp' | grep $podname
+
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:log $output && echo "OK" | grep -v tar
         ' > ./logging.sh
 
