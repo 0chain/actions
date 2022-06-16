@@ -403,7 +403,7 @@ runs:
         fi
 
     - name: "Extract Logging From Pods"
-      if: ${{ failure()}}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -467,7 +467,7 @@ runs:
         ./logging.sh blobber-validator-06 ./logs/validator-06
 
     - name: "Archive Sharder Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-sharder
@@ -476,7 +476,7 @@ runs:
           ./logs/sharder-02
         retention-days: 5
     - name: "Archive Miner Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-miner
@@ -487,7 +487,7 @@ runs:
         retention-days: 5
 
     - name: "Archive Blobber Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-blobber
@@ -501,7 +501,7 @@ runs:
         retention-days: 5
 
     - name: "Archive Validator Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-validator
