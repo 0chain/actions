@@ -311,6 +311,11 @@ runs:
         query_sleep_time: 3
         ' > zbox_config.yaml
 
+        echo "==========================================================="
+        echo "SHOW BLOBBERS LIST"
+        echo "==========================================================="
+        ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
+
         echo '#!/bin/bash
         echo
         echo "==========================================================="
@@ -378,27 +383,27 @@ runs:
       run: |
         timeout 300 ./stake_blobbers.sh
         if [[ $? -ne 0 ]]
-          then
-            cat build.log
-            cd ..
-            echo '#!/bin/bash
-            RED="\033[0;31m"
-            NC="\033[0m"
-            echo
-            echo -e "${RED}======================================================${NC}"
-            echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
-            echo -e "${RED}======================================================${NC}"
-            echo
-            ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
-            ' > ./retry.sh;
-            chmod 777 ./retry.sh;
-            timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
-          else
-            echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
+        then
+          cat build.log
+          cd ..
+          echo '#!/bin/bash
+          RED="\033[0;31m"
+          NC="\033[0m"
+          echo
+          echo -e "${RED}======================================================${NC}"
+          echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
+          echo -e "${RED}======================================================${NC}"
+          echo
+          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
+          ' > ./retry.sh;
+          chmod 777 ./retry.sh;
+          timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
+        else
+          echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
         fi
 
     - name: "Extract Logging From Pods"
-      if: ${{ failure()}}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -411,36 +416,58 @@ runs:
         app=$1
         output=$2
 
+        Green="\033[0;32m"
+ 
         podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
 
-        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:log $output && echo "OK" | grep -v tar
+        echo -ne "$Green [+] $app:$podname "
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:log $output && echo "OK"
+
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get events --sort-by='.metadata.creationTimestamp' | grep $podname
         ' > ./logging.sh
 
         chmod 777 ./logging.sh;
 
-        echo -ne " [+] sharder-01 " && ./logging.sh 0chain-sharder-01 ./logs/sharder-01
-        echo -ne " [+] sharder-02 " && ./logging.sh 0chain-sharder-02 ./logs/sharder-02
+        echo "-----------------------------"
+        echo "> Show blobbers"
+        echo "-----------------------------"
+        ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
+
+        echo "-----------------------------"
+        echo "> Show pods"
+        echo "-----------------------------"
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods
+
+        echo "-----------------------------"
+        echo "> Extract logs"
+        echo "-----------------------------"
+
+        ./logging.sh 0chain-sharder-01 ./logs/sharder-01
+        ./logging.sh 0chain-sharder-02 ./logs/sharder-02
         echo 
-        echo -ne " [+] miner-01 " && ./logging.sh 0chain-miner-01 ./logs/miner-01
-        echo -ne " [+] miner-02 " && ./logging.sh 0chain-miner-02 ./logs/miner-02
-        echo -ne " [+] miner-03 " && ./logging.sh 0chain-miner-03 ./logs/miner-03
+
+        ./logging.sh 0chain-miner-01 ./logs/miner-01
+        ./logging.sh 0chain-miner-02 ./logs/miner-02
+        ./logging.sh 0chain-miner-03 ./logs/miner-03
         echo
-        echo -ne " [+] blobber-01 " && ./logging.sh blobber-blobber-01 ./logs/blobber-01
-        echo -ne " [+] blobber-02 " && ./logging.sh blobber-blobber-02 ./logs/blobber-02
-        echo -ne " [+] blobber-03 " && ./logging.sh blobber-blobber-03 ./logs/blobber-03
-        echo -ne " [+] blobber-04 " && ./logging.sh blobber-blobber-04 ./logs/blobber-04
-        echo -ne " [+] blobber-05 " && ./logging.sh blobber-blobber-05 ./logs/blobber-05
-        echo -ne " [+] blobber-06 " && ./logging.sh blobber-blobber-06 ./logs/blobber-06
+
+        ./logging.sh blobber-blobber-01 ./logs/blobber-01
+        ./logging.sh blobber-blobber-02 ./logs/blobber-02
+        ./logging.sh blobber-blobber-03 ./logs/blobber-03
+        ./logging.sh blobber-blobber-04 ./logs/blobber-04
+        ./logging.sh blobber-blobber-05 ./logs/blobber-05
+        ./logging.sh blobber-blobber-06 ./logs/blobber-06
         echo
-        echo -ne " [+] validator-01 " && ./logging.sh blobber-validator-01 ./logs/validator-01
-        echo -ne " [+] validator-02 " && ./logging.sh blobber-validator-02 ./logs/validator-02
-        echo -ne " [+] validator-03 " && ./logging.sh blobber-validator-03 ./logs/validator-03
-        echo -ne " [+] validator-04 " && ./logging.sh blobber-validator-04 ./logs/validator-04
-        echo -ne " [+] validator-05 " && ./logging.sh blobber-validator-05 ./logs/validator-05
-        echo -ne " [+] validator-06 " && ./logging.sh blobber-validator-06 ./logs/validator-06
+
+        ./logging.sh blobber-validator-01 ./logs/validator-01
+        ./logging.sh blobber-validator-02 ./logs/validator-02
+        ./logging.sh blobber-validator-03 ./logs/validator-03
+        ./logging.sh blobber-validator-04 ./logs/validator-04
+        ./logging.sh blobber-validator-05 ./logs/validator-05
+        ./logging.sh blobber-validator-06 ./logs/validator-06
 
     - name: "Archive Sharder Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-sharder
@@ -449,7 +476,7 @@ runs:
           ./logs/sharder-02
         retention-days: 5
     - name: "Archive Miner Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-miner
@@ -460,7 +487,7 @@ runs:
         retention-days: 5
 
     - name: "Archive Blobber Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-blobber
@@ -474,7 +501,7 @@ runs:
         retention-days: 5
 
     - name: "Archive Validator Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-validator
