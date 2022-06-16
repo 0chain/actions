@@ -79,35 +79,7 @@ runs:
         repository: "0chain/system_test"
         ref: ${{ env.SYSTEM_TESTS_BRANCH }}
 
-
-#    - name: "Get CLI Cache Key"
-#      shell: 'script --return --quiet --command "bash {0}"'
-#      run: |
-#        if [[ '${{ env.ZWALLET_BRANCH }}' =~ ^[a-f0-9]{40}$ ]];
-#          then
-#            echo ZWALLET_SHA=${{ env.ZWALLET_BRANCH }} >> $GITHUB_ENV
-#          else
-#           echo ZWALLET_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/zwalletcli/git/refs/heads/${{ env.ZWALLET_BRANCH }} | jq --raw-output .object.sha) >> $GITHUB_ENV
-#        fi
-#
-#        if [[ '${{ env.ZBOX_BRANCH }}' =~ ^[a-f0-9]{40}$ ]];
-#          then
-#            echo ZBOX_SHA=${{ env.ZBOX_BRANCH }} >> $GITHUB_ENV
-#          else
-#           echo ZBOX_SHA=$(curl --silent --fail https://api.github.com/repos/0chain/zboxcli/git/refs/heads/${{ env.ZBOX_BRANCH }} | jq --raw-output .object.sha) >> $GITHUB_ENV
-#        fi
-#
-#    - name: "Cache CLI Binaries"
-#      id: cli-cache
-#      uses: actions/cache@v2
-#      with:
-#        path: |
-#          tests/cli_tests/zbox
-#          tests/cli_tests/zwallet
-#        key: cli-cache-${{ runner.os }}-${{ env.ZWALLET_SHA }}-${{ env.ZBOX_SHA }}-v3
-
     - name: "Checkout 0wallet CLI"
-#      if: steps.cli-cache.outputs.cache-hit != 'true'
       uses: actions/checkout@v2
       with:
         ref: ${{ env.ZWALLET_BRANCH }}
@@ -116,7 +88,6 @@ runs:
         path: ./zwalletcli
 
     - name: "Checkout 0box CLI"
-#      if: steps.cli-cache.outputs.cache-hit != 'true'
       uses: actions/checkout@v2
       with:
         ref: ${{ env.ZBOX_BRANCH }}
@@ -141,12 +112,11 @@ runs:
         sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         sudo chmod a+rx /usr/local/bin/youtube-dl
         echo "installing ffmpeg..."
-        sudo apt update > build.log 2>&1 || { cat build.log && exit 1; }
-        sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }
+        sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
+        sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
         echo "Test dependencies install SUCCESS!"
 
     - name: "Build CLI Binaries"
-#      if: steps.cli-cache.outputs.cache-hit != 'true'
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -411,14 +381,14 @@ runs:
 
 
     - name: "Extract Logging From Pods"
-      if: ${{ failure()}}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
         echo "======================================================"
         echo "Extracting Logging From Pods:"
         echo "======================================================"
-       
+
         echo '#!/bin/bash
         app=$1
         output=$2
@@ -454,7 +424,7 @@ runs:
         ./logging.sh 0chain-sharder-01 ./logs/sharder-01
         ./logging.sh 0chain-sharder-02 ./logs/sharder-02
 
-        echo 
+        echo
         ./logging.sh 0chain-miner-01 ./logs/miner-01
         ./logging.sh 0chain-miner-02 ./logs/miner-02
         ./logging.sh 0chain-miner-03 ./logs/miner-03
@@ -476,7 +446,7 @@ runs:
         ./logging.sh blobber-validator-06 ./logs/validator-06
 
     - name: "Archive Sharder Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-sharder
@@ -485,7 +455,7 @@ runs:
           ./logs/sharder-02
         retention-days: 5
     - name: "Archive Miner Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-miner
@@ -496,7 +466,7 @@ runs:
         retention-days: 5
 
     - name: "Archive Blobber Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-blobber
@@ -510,7 +480,7 @@ runs:
         retention-days: 5
 
     - name: "Archive Validator Logging"
-      if: ${{ failure() }}
+      if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v2
       with:
         name: logging-pods-tests-validator
