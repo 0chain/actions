@@ -273,7 +273,7 @@ sharder:
           # min possible allocation duration allowed by the SC
           minAllocDuration: "5m"
           # max challenge completion time of a blobber allowed by the SC
-          maxChallengeCompletionTime: "3m"
+          maxChallengeCompletionTime: "30m"
           # min blobber's offer duration allowed by the SC
           minOfferDuration: "10h"
           # min blobber capacity allowed by the SC
