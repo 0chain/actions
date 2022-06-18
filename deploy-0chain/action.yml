@@ -353,7 +353,7 @@ runs:
         count=0
         while [[ $count -le 5 ]]
         do
-          retry ./zwallet getblobbers --all --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
+          retry ./zbox ls-blobbers --all --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
 
           echo "Stake [$count] output:"
