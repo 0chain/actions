@@ -724,6 +724,9 @@ definitions:
       owner_id:
         type: string
         x-go-name: OwnerID
+      payer_id:
+        type: string
+        x-go-name: PayerID
       read_counter:
         format: int64
         type: integer
@@ -929,8 +932,6 @@ definitions:
       is_immutable:
         type: boolean
         x-go-name: IsImmutable
-      max_challenge_completion_time:
-        $ref: '#/definitions/Duration'
       moved_back:
         $ref: '#/definitions/Coin'
       moved_to_challenge:
@@ -1160,8 +1161,6 @@ definitions:
   Terms:
     description: but any existing offer will use terms of offer signing time.
     properties:
-      challenge_completion_time:
-        $ref: '#/definitions/Duration'
       max_offer_duration:
         $ref: '#/definitions/Duration'
       min_lock_demand:
@@ -1810,6 +1809,18 @@ paths:
         name: allocation_data
         required: true
         type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       responses:
         "200":
           description: ""
@@ -1919,6 +1930,18 @@ paths:
         name: client
         required: true
         type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       responses:
         "200":
           description: StorageAllocation
@@ -1951,6 +1974,18 @@ paths:
         name: free_allocation_data
         required: true
         type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       responses:
         "200":
           description: stringArray
@@ -1975,6 +2010,18 @@ paths:
         type: string
         + name: min_longitude
         description: minimum max_longitude value, defaults to -180
+        in: query
+        type: string
+        + name: offset
+        description: offset
+        in: query
+        type: string
+        + name: limit
+        description: limit
+        in: query
+        type: string
+        + name: sort
+        description: desc or asc
         in: query
         type: string
       operationId: blobbers-by-geolocation
@@ -2035,10 +2082,22 @@ paths:
       description: Gets errors returned by indicated transaction
       operationId: errors
       parameters:
-      - description: offset
+      - description: transaction_hash
         in: query
         name: transaction_hash
         required: true
+        type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
         type: string
       responses:
         "200":
@@ -2059,6 +2118,18 @@ paths:
         in: query
         name: free_allocation_data
         required: true
+        type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
         type: string
       responses:
         "200":
@@ -2104,6 +2175,18 @@ paths:
         in: query
         name: block_hash
         required: true
+        type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
         type: string
       responses:
         "200":
@@ -2256,6 +2339,23 @@ paths:
         name: allocation_id
         required: true
         type: string
+      - description: file name
+        in: query
+        name: filename
+        required: true
+        type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       responses:
         "200":
           description: WriteMarker
@@ -2315,6 +2415,19 @@ paths:
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getblobbers:
     get:
+      description: |-
+        + name: offset
+        description: offset
+        in: query
+        type: string
+        + name: limit
+        description: limit
+        in: query
+        type: string
+        + name: sort
+        description: desc or asc
+        in: query
+        type: string
       operationId: getblobbers
       responses:
         "200":
@@ -2380,6 +2493,18 @@ paths:
         in: query
         name: blobber
         required: true
+        type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
         type: string
       responses:
         "200":
@@ -2474,6 +2599,10 @@ paths:
         in: query
         name: client_id
         type: string
+      - description: restrict to transactions in indicated block
+        in: query
+        name: block_hash
+        type: string
       - description: offset
         in: query
         name: offset
@@ -2482,9 +2611,9 @@ paths:
         in: query
         name: limit
         type: string
-      - description: restrict to transactions in indicated block
+      - description: desc or asc
         in: query
-        name: block_hash
+        name: sort
         type: string
       responses:
         "200":

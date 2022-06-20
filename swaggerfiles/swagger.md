@@ -146,6 +146,9 @@ GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | allocation_data | `query` | string | `string` |  | ✓ |  | allocation data |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -368,6 +371,9 @@ Gets a list of allocation information for allocations owned by the client
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | client | `query` | string | `string` |  | ✓ |  | owner of allocations we wish to list |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -442,6 +448,9 @@ convert list of blobber urls into ids
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | free_allocation_data | `query` | string | `string` |  | ✓ |  | allocation data |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -487,6 +496,18 @@ in: query
 type: string
 + name: min_longitude
 description: minimum max_longitude value, defaults to -180
+in: query
+type: string
++ name: offset
+description: offset
+in: query
+type: string
++ name: limit
+description: limit
+in: query
+type: string
++ name: sort
+description: desc or asc
 in: query
 type: string
 
@@ -637,7 +658,10 @@ Gets errors returned by indicated transaction
 
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
-| transaction_hash | `query` | string | `string` |  | ✓ |  | offset |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
+| transaction_hash | `query` | string | `string` |  | ✓ |  | transaction_hash |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -710,6 +734,9 @@ GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | free_allocation_data | `query` | string | `string` |  | ✓ |  | allocation data |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -1495,6 +1522,10 @@ Gets read markers according to a filter
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | allocation_id | `query` | string | `string` |  | ✓ |  | count write markers for this allocation |
+| filename | `query` | string | `string` |  | ✓ |  | file name |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -1686,6 +1717,9 @@ GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | block_hash | `query` | string | `string` |  | ✓ |  | block hash |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -1979,6 +2013,19 @@ Status: Internal Server Error
 GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getblobbers
 ```
 
++ name: offset
+description: offset
+in: query
+type: string
++ name: limit
+description: limit
+in: query
+type: string
++ name: sort
+description: desc or asc
+in: query
+type: string
+
 #### All responses
 | Code | Status | Description | Has headers | Schema |
 |------|--------|-------------|:-----------:|--------|
@@ -2247,6 +2294,9 @@ Gets open challenges for a blobber
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | blobber | `query` | string | `string` |  | ✓ |  | id of blobber for which to get open challenges |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -2494,6 +2544,7 @@ Gets filtered list of transaction information
 | client_id | `query` | string | `string` |  |  |  | restrict to transactions sent by the specified client |
 | limit | `query` | string | `string` |  |  |  | limit |
 | offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -3334,6 +3385,7 @@ it can be used as a scan destination, similar to NullString.
 | DeletedAt | [DeletedAt](#deleted-at)| `DeletedAt` |  | |  |  |
 | ID | uint64 (formatted integer)| `uint64` |  | |  |  |
 | OwnerID | string| `string` |  | |  |  |
+| PayerID | string| `string` |  | |  |  |
 | ReadCounter | int64 (formatted integer)| `int64` |  | |  |  |
 | ReadSize | double (formatted number)| `float64` |  | |  |  |
 | Signature | string| `string` |  | |  |  |
@@ -3519,7 +3571,6 @@ which the allocation has created. |  |
 | WritePoolOwners | []string| `[]string` |  | | AllocationPools allocationPools `json:"allocation_pools"` |  |
 | challenge_completion_time | [Duration](#duration)| `Duration` |  | |  |  |
 | expiration_date | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
-| max_challenge_completion_time | [Duration](#duration)| `Duration` |  | |  |  |
 | moved_back | [Coin](#coin)| `Coin` |  | |  |  |
 | moved_to_challenge | [Coin](#coin)| `Coin` |  | |  |  |
 | moved_to_validators | [Coin](#coin)| `Coin` |  | |  |  |
@@ -3678,7 +3729,6 @@ which the allocation has created. |  |
 | MinLockDemand | double (formatted number)| `float64` |  | | MinLockDemand in number in [0; 1] range. It represents part of
 allocation should be locked for the blobber rewards even if
 user never write something to the blobber. |  |
-| challenge_completion_time | [Duration](#duration)| `Duration` |  | |  |  |
 | max_offer_duration | [Duration](#duration)| `Duration` |  | |  |  |
 | read_price | [Coin](#coin)| `Coin` |  | |  |  |
 | write_price | [Coin](#coin)| `Coin` |  | |  |  |
