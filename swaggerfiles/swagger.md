@@ -3660,6 +3660,7 @@ which the allocation has created. |  |
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
+| Allocated | int64 (formatted integer)| `int64` |  | |  |  |
 | BaseURL | string| `string` |  | |  |  |
 | BytesWritten | int64 (formatted integer)| `int64` |  | |  |  |
 | Capacity | int64 (formatted integer)| `int64` |  | |  |  |
@@ -3668,7 +3669,6 @@ which the allocation has created. |  |
 | ID | string| `string` |  | |  |  |
 | LastRewardDataReadRound | int64 (formatted integer)| `int64` |  | |  |  |
 | SavedData | int64 (formatted integer)| `int64` |  | |  |  |
-| Used | int64 (formatted integer)| `int64` |  | |  |  |
 | geolocation | [StorageNodeGeolocation](#storage-node-geolocation)| `StorageNodeGeolocation` |  | |  |  |
 | info | [Info](#info)| `Info` |  | |  |  |
 | last_health_check | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
@@ -4170,6 +4170,7 @@ todo: as user(ID), allocation(ID) and transaction(ID) tables are created, enable
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
+| Allocated | int64 (formatted integer)| `int64` |  | |  |  |
 | BaseURL | string| `string` |  | |  |  |
 | BytesWritten | int64 (formatted integer)| `int64` |  | |  |  |
 | Capacity | int64 (formatted integer)| `int64` |  | |  |  |
@@ -4178,7 +4179,6 @@ todo: as user(ID), allocation(ID) and transaction(ID) tables are created, enable
 | ID | string| `string` |  | |  |  |
 | LastRewardDataReadRound | int64 (formatted integer)| `int64` |  | |  |  |
 | SavedData | int64 (formatted integer)| `int64` |  | |  |  |
-| Used | int64 (formatted integer)| `int64` |  | |  |  |
 | geolocation | [StorageNodeGeolocation](#storage-node-geolocation)| `StorageNodeGeolocation` |  | |  |  |
 | info | [Info](#info)| `Info` |  | |  |  |
 | last_health_check | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |

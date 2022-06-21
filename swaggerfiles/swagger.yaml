@@ -1087,6 +1087,10 @@ definitions:
     x-go-package: 0chain.net/smartcontract/storagesc
   StorageNode:
     properties:
+      allocated:
+        format: int64
+        type: integer
+        x-go-name: Allocated
       bytes_written:
         format: int64
         type: integer
@@ -1129,10 +1133,6 @@ definitions:
       url:
         type: string
         x-go-name: BaseURL
-      used:
-        format: int64
-        type: integer
-        x-go-name: Used
     title: StorageNode represents Blobber configurations.
     type: object
     x-go-package: 0chain.net/smartcontract/storagesc
@@ -1585,6 +1585,10 @@ definitions:
     x-go-package: 0chain.net/smartcontract/storagesc
   storageNodeResponse:
     properties:
+      allocated:
+        format: int64
+        type: integer
+        x-go-name: Allocated
       bytes_written:
         format: int64
         type: integer
@@ -1629,10 +1633,6 @@ definitions:
       url:
         type: string
         x-go-name: BaseURL
-      used:
-        format: int64
-        type: integer
-        x-go-name: Used
     title: StorageNode represents Blobber configurations.
     type: object
     x-go-package: 0chain.net/smartcontract/storagesc
