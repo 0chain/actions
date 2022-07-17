@@ -384,44 +384,32 @@ miner:
 commonConf:
   zchainUp:
     version: 1.0
+
     logging:
       level: "debug"
       console: false # printing log to console is only supported in development mode
       goroutines: false
       memlog: false
+
     development:
-      state: true
-      dkg: true
-      view_change: false
-      block_rewards: true
       smart_contract:
-        storage: true
-        faucet: true
         zrc20: true
-        interest: true
-        fee: false
-        miner: true
-        multisig: true
-        vesting: true
-        magma: false #set true to enable magma
-        zcn: true        
       txn_generation:
         wallets: 50
-        transactions: 70
-        pour_point: 100
-        pour_amount: 10000
         max_transactions: 0
-        max_txn_fee: 1000
+        max_txn_fee: 10000
         min_txn_fee: 0
         max_txn_value: 10000000000
         min_txn_value: 100
       faucet:
         refill_amount: 1000000000000000
+
     zerochain:
       id: "0afc093ffb509f059c55478bc1a60351cef7b4e9c008a53a6cc8241ca8617dfe"
       decimals: 10
       genesis_block:
         id: "ed79cae70d439c11258236da1dfa6fc550f7cc569768304623e8fbd7d70efae4"
+
     server_chain:
       id: "0afc093ffb509f059c55478bc1a60351cef7b4e9c008a53a6cc8241ca8617dfe"
       owner: "edb90b850f2e7e7cbd0a1fa370fdcc5cd378ffbec95363a7bc0e5a98b8ba5759"
@@ -432,9 +420,8 @@ commonConf:
       block:
         min_block_size: 1
         max_block_size: 10
-        max_block_cost: 10000
+        max_block_cost: 10000 #equal to 100ms
         max_byte_size: 1638400
-        generators: 2
         min_generators: 2
         generators_percent: 0.2
         replicators: 0
@@ -442,30 +429,33 @@ commonConf:
           timeout: 15
           retry_wait_time: 5 #milliseconds
         proposal:
-          max_wait_time: 180ms # milliseconds
+          max_wait_time: 180ms
           wait_mode: static # static or dynamic
         consensus:
           threshold_by_count: 66 # percentage (registration)
           threshold_by_stake: 0 # percent
         sharding:
           min_active_sharders: 25 # percentage
-          min_active_replicators: 25 # percentage
+          min_active_replicators: 25 # percentageRF
         validation:
           batch_size: 1000
         reuse_txns: false
         storage:
           provider: blockstore.FSBlockStore # blockstore.FSBlockStore or blockstore.BlockDBStore
+
       round_range: 10000000
+      dkg: true
+      view_change: false
       round_timeouts:
-        softto_min: 1500 #in miliseconds
-        softto_mult: 1 #multiples of mean network time (mnt)  softto = max{softo_min, softto_mult * mnt}
-        round_restart_mult: 10 #number of soft timeouts before round is restarted
+        softto_min: 1500 # in miliseconds
+        softto_mult: 1 # multiples of mean network time (mnt)  softto = max{softo_min, softto_mult * mnt}
+        round_restart_mult: 10 # number of soft timeouts before round is restarted
         timeout_cap: 1 # 0 indicates no cap
         vrfs_timeout_mismatch_tolerance: 5
       transaction:
         payload:
           max_size: 98304 # bytes
-        timeout: 600 # seconds
+        timeout: 30 # seconds
         min_fee: 0
         exempt:
           - add_miner
@@ -482,15 +472,24 @@ commonConf:
       messages:
         verification_tickets_to: all_miners # generator or all_miners
       state:
+        enabled: true
         prune_below_count: 100 # rounds
         sync:
           timeout: 10 # seconds
+      block_rewards: true  
       stuck:
         check_interval: 10 # seconds
         time_threshold: 60 #seconds
       smart_contract:
         setting_update_period: 200 #rounds
-        timeout: 8000ms # milliseconds
+        timeout: 8000ms
+        storage: true
+        faucet: true
+        interest: true
+        miner: true
+        multisig: true
+        vesting: true
+        zcn: true
       health_check:
         show_counters: true
         deep_scan:
@@ -501,36 +500,37 @@ commonConf:
           report_status_mins: 1m #minutes
           batch_size: 50
         proximity_scan:
-          enabled: true
+          enabled: false
           settle_secs: 30s
           window: 100000 #number of blocks, Do not make 0 with minio ON, Should be less than minio old block round range
           repeat_interval_mins: 1m #minutes
           report_status_mins: 1m #minutes
           batch_size: 50
       lfb_ticket:
-        rebroadcast_timeout: "15s"  #
-        ahead: 5                    # should be >= 5
+        rebroadcast_timeout: "15s" #
+        ahead: 5 # should be >= 5
         fb_fetching_lifetime: "10s" #
       async_blocks_fetching:
-        max_simultaneous_from_miners: 100 
-        max_simultaneous_from_sharders: 30 
+        max_simultaneous_from_miners: 100
+        max_simultaneous_from_sharders: 30
       dbs:
         events:
           enabled: true
           name: events_db
           user: zchain_user
           password: zchian
-          host: helm-sharder-postgres-01 #localhost
+          host: postgres #localhost
           port: 5432
           max_idle_conns: 100
           max_open_conns: 200
           conn_max_lifetime: 20s
+
     network:
       nodes_file: config/single_machine_3_nodes.yaml
       magic_block_file: config/magicBlock.json
       initial_states: config/initial-state.yaml
       genesis_dkg: 0
-      dns_url: ""
+      dns_url: "" # http://198.18.0.98:9091
       relay_time: 200 # milliseconds
       max_concurrent_requests: 40
       timeout:
@@ -541,35 +541,41 @@ commonConf:
         rate_limit: 100000000 # 100 per second
       n2n_handlers:
         rate_limit: 10000000000 # 10000 per second
+
     # delegate wallet is wallet that used to configure node in Miner SC; if its
     # empty, then node ID used
   
   zchainDown:
     # % of fees and rewards for generator
-    service_charge: 0.10       # [0; 1) of all fees
+    service_charge: 0.10 # [0; 1) of all fees
     # max number of delegate pools allowed by a node in miner SC
-    number_of_delegates: 20   # max number of delegate pools
+    number_of_delegates: 10 # max number of delegate pools
     # min stake pool amount allowed by node; should not conflict with
-    # SC min_stake 
-    min_stake: 0.0    # tokens
+    # SC min_stake
+    min_stake: 0.0 # tokens
     # max stake pool amount allowed by node; should not conflict with
-    # SC max_stake 
-    max_stake: 100.0  # tokens
+    # SC max_stake
+    max_stake: 100.0 # tokens
     # latitude is miner/sharder latitude geolocation
     latitude: 28.644800
     # longitude is miner/sharder longitude geolocation
     longitude: 77.216721
+
     minio:
       enabled: false # Enable or disable minio backup, Do not enable with deep scan ON
       worker_frequency: 1800 # In Seconds, The frequency at which the worker should look for files, Ex: 3600 means it will run every 3600 seconds
       num_workers: 5 # Number of workers to run in parallel, Just to make execution faster we can have mutiple workers running simultaneously
       use_ssl: false # Use SSL for connection or not
-      old_block_round_range: 250000 # How old the block should be to be considered for moving to cloud
+      old_block_round_range: 250000 # How old the block should be to be considered for moving to cloud, Should be greater than proximity scan window
       delete_local_copy: true # Delete local copy of block once it's moved to cloud
+
     cassandra:
       connection:
         delay: 10 # in seconds
         retries: 10
+    #   host: cassandra
+    #   port: 9042
+
     # integration tests related configurations
     integration_tests:
       # address of the server
@@ -577,6 +583,63 @@ commonConf:
       # lock_interval used by nodes to request server to connect to blockchain
       # after start
       lock_interval: 1s
+
+    storage:
+      # Cache -> 1, Disk -> 2 and Cold -> 4. So combination would be sum of these value.
+      # For example if storage_type: 3, then it means blockstore initializer will look for
+      # cache and disk config. Similarly if it is 7, it will look for cache, disk and cold
+      # config
+      storage_type: 2
+      # start and recover mode will delete all the existing blocks 
+      # restart will take off from where it last left
+      # start and recover is currently used interchangeably but later on
+      # recover mode should be used to recover meta data record.
+      # When disk that stores block's metadata crashes then sharder is unable to serve
+      # block requests. That is when recover mode is required so it will traverse
+      # all the paths to generate metadata
+      mode: start # start, restart, recover
+      # blocks older than 720 hours will be moved to cold tier if cold tiering is enabled
+      block_movement_interval: 720h # time.Duration
+
+      rocks:
+      # have appropriate name and value
+        cache_size: 100*1024*1024 # 100MB
+      cache:
+      # Current write policy is hard coded to write_through and 
+      # cache replacement policy is lru
+        path: "/path/to/cache"
+        size: 1024*1024*1024
+      disk:
+        strategy: "round_robin" # one of random, round_robin, min_size_first, min_count_first
+        volumes:
+          - path: "/path/to/hot/blocks"
+            size_to_maintain: 1 # In GB
+            inodes_to_maintain: 5 # In percent
+            allowed_block_numbers: 10^9
+            allowed_block_size: 500 # In GB
+          - path: "/path/to/another/hot/blocks"
+            recovery: false
+            size_to_maintain: 1 # In GB
+            inodes_to_maintain: 5 # In percent
+            allowed_block_numbers: 10^9
+            allowed_block_size: 500 # In GB
+      cold:
+        # storage that provides minio interface 
+        delete_local: true
+        strategy: "round_robin" # only round_robin is supported
+        cloud_storages:
+          - storage_service_url: "s3.amazonaws.com"
+            access_id: "AKIA4MPQDEZ4FKNA3OPR"
+            secret_access_key: "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"
+            bucket_name: "lpobkt1"
+            allowed_block_numbers: 10^15 # Can be any numbers
+            allowed_block_size: 10^5 # In GB
+          # - storage_service_url: ""
+          #   access_id: ""
+          #   secret_access_key: ""
+          #   bucket_name: ""
+          #   allowed_block_numbers: 10^15 # Can be any numbers
+          #   allowed_block_size: 10^5 # In GB
 
   sc:
     smart_contracts:
@@ -670,6 +733,7 @@ commonConf:
           addToDelegatePool: 100
           deleteFromDelegatePool: 100
           sharder_keep: 100
+          collect_reward: 100
       storagesc:
         owner_id: 1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802
         # the time_unit is a duration used as divider for a write price; a write
@@ -690,8 +754,6 @@ commonConf:
         min_offer_duration: "10h"
         # min blobber capacity allowed by the SC
         min_blobber_capacity: 1024
-        # max blobbers per allocation
-        max_blobbers_per_allocation: 40
         # users' read pool related configurations
         readpool:
           min_lock: 0.1 # tokens
@@ -710,6 +772,8 @@ commonConf:
           interest_rate: 0.0
           # interest_interval is interval to pay interests for a stake
           interest_interval: 1m
+          # amount stake holders are slashed if blobber or validator is killed
+          kill_slash: 0.5
         # following settings are for free storage rewards
         #
         # largest value you can have for the total allowed free storage
@@ -734,15 +798,19 @@ commonConf:
           write_price_range:
             min: 0.0
             max: 0.04
+          max_challenge_completion_time:  1m
         # validator_reward represents part of blobbers' rewards goes to validators
         validator_reward: 0.025
         # blobber_slash represents blobber's stake penalty when a challenge not
         # passed
         blobber_slash: 0.10
+        health_check_period: 1h
         # max prices for blobbers (tokens per GB)
         max_read_price: 100.0
         max_write_price: 100.0
         # min_write_price: 0.1
+
+        max_blobbers_per_allocation: 40
         # allocation cancellation
         #
         # failed_challenges_to_cancel is number of failed challenges of an
@@ -781,6 +849,14 @@ commonConf:
           trigger_period: 30
           blobber_capacity_ratio: 10
           blobber_usage_ratio: 40
+          gamma:
+            alpha: 0.2
+            a: 10
+            b: 9
+          zeta:
+            i: 1
+            k: 0.9
+            mu: 0.2
         expose_mpt: true
         cost:
           update_settings: 100
@@ -799,10 +875,15 @@ commonConf:
           update_blobber_settings: 100
           update_validator_settings: 100
           pay_blobber_block_rewards: 100
+          shut-down-blobber: 100
+          kill-blobber: 100
           curator_transfer_allocation: 100
           challenge_request: 100
           challenge_response: 1600
           add_validator: 100
+          validator-health-check: 100
+          shut-down-validator: 100
+          kill-validator: 100
           add_blobber: 100
           new_read_pool: 100
           read_pool_lock: 100
