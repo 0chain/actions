@@ -392,7 +392,11 @@ runs:
           chmod 777 ./retry.sh;
           timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
         else
-          echo "Blobbers staked succefully on try $((ITER+1)). Moving on to tests..."
+          echo "Blobbers staked succefully on try $((ITER+1))."
+          echo
+          echo "==========================================================="
+          echo "  0CHAIN DEPLOYMENT COMPLETED SUCCESSFULLY"
+          echo "==========================================================="
         fi
 
     - name: "Extract Logging From Pods"
