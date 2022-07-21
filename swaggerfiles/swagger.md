@@ -29,6 +29,7 @@
 | Method  | URI     | Name   | Summary |
 |---------|---------|--------|---------|
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/GetGlobalConfig | [get global config](#get-global-config) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocWrittenSizePerPeriod | [alloc written size per period](#alloc-written-size-per-period) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/alloc_blobbers | [alloc blobbers](#alloc-blobbers) | returns list of all blobbers alive that match the allocation request. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/alloc_read_size | [alloc read size](#alloc-read-size) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/alloc_write_marker_count | [alloc write marker count](#alloc-write-marker-count) |  |
@@ -39,6 +40,7 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-write-price | [average write price](#average-write-price) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber_ids | [blobber ids](#blobber-ids) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobbers-by-geolocation | [blobbers by geolocation](#blobbers-by-geolocation) | Returns a list of all blobbers within a rectangle defined by maximum and minimum latitude and longitude values. |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/block | [block](#block) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward | [collected reward](#collected-reward) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/configs | [configs](#configs) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/count_readmarkers | [count readmarkers](#count-readmarkers) |  |
@@ -70,7 +72,6 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolAllocBlobberStat | [get write pool alloc blobber stat](#get-write-pool-alloc-blobber-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolStat | [get write pool stat](#get-write-pool-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_blobber_total_stakes | [get blobber total stakes](#get-blobber-total-stakes) |  |
-| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_block_by_hash | [get block by hash](#get-block-by-hash) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_blocks | [get blocks](#get-blocks) | Gets block information for all blocks. Todo: We need to add a filter to this. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_miner_geolocations | [get miner geolocations](#get-miner-geolocations) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_miners_stake | [get miners stake](#get-miners-stake) |  |
@@ -96,7 +97,9 @@ Each change to files results in the blobber sending a WriteMarker to 0chain.
 This WriteMarker has a Size filed indicated the change the data stored on the blobber.
 Negative if data is removed. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/transaction | [transaction](#transaction) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/transactionHashes | [transaction hashes](#transaction-hashes) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/transactions | [transactions](#transactions) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/validators | [validators](#validators) | Gets list of all validators alive (e.g. excluding blobbers with zero capacity). |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/vesting_config | [vesting config](#vesting-config) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/writemarkers | [writemarkers](#writemarkers) |  |
   
@@ -134,6 +137,44 @@ Status: OK
 Status: Not Found
 
 ###### <span id="get-global-config-404-schema"></span> Schema
+
+### <span id="alloc-written-size-per-period"></span> alloc written size per period (*allocWrittenSizePerPeriod*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocWrittenSizePerPeriod
+```
+
+Total amount of data added during given blocks
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| block-end | `query` | string | `string` |  | ✓ |  | end block number |
+| block-start | `query` | string | `string` |  | ✓ |  | start block number |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#alloc-written-size-per-period-200) | OK | Int64Map |  | [schema](#alloc-written-size-per-period-200-schema) |
+| [400](#alloc-written-size-per-period-400) | Bad Request |  |  | [schema](#alloc-written-size-per-period-400-schema) |
+
+#### Responses
+
+
+##### <span id="alloc-written-size-per-period-200"></span> 200 - Int64Map
+Status: OK
+
+###### <span id="alloc-written-size-per-period-200-schema"></span> Schema
+   
+  
+
+[Int64Map](#int64-map)
+
+##### <span id="alloc-written-size-per-period-400"></span> 400
+Status: Bad Request
+
+###### <span id="alloc-written-size-per-period-400-schema"></span> Schema
 
 ### <span id="alloc-blobbers"></span> returns list of all blobbers alive that match the allocation request. (*alloc_blobbers*)
 
@@ -534,6 +575,51 @@ Status: OK
 Status: Internal Server Error
 
 ###### <span id="blobbers-by-geolocation-500-schema"></span> Schema
+
+### <span id="block"></span> block (*block*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/block
+```
+
+Gets block information
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| block_hash | `query` | string | `string` |  |  |  | block hash |
+| date | `query` | string | `string` |  |  |  | block created closest to the date (epoch timestamp in nanoseconds) |
+| round | `query` | string | `string` |  |  |  | block round |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#block-200) | OK | Block |  | [schema](#block-200-schema) |
+| [400](#block-400) | Bad Request |  |  | [schema](#block-400-schema) |
+| [500](#block-500) | Internal Server Error |  |  | [schema](#block-500-schema) |
+
+#### Responses
+
+
+##### <span id="block-200"></span> 200 - Block
+Status: OK
+
+###### <span id="block-200-schema"></span> Schema
+   
+  
+
+[Block](#block)
+
+##### <span id="block-400"></span> 400
+Status: Bad Request
+
+###### <span id="block-400-schema"></span> Schema
+
+##### <span id="block-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="block-500-schema"></span> Schema
 
 ### <span id="collected-reward"></span> collected reward (*collected_reward*)
 
@@ -974,6 +1060,9 @@ events for block
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | block_number | `query` | string | `string` |  |  |  | block number |
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 | tag | `query` | string | `string` |  |  |  | tag |
 | tx_hash | `query` | string | `string` |  |  |  | hash of transaction |
 | type | `query` | string | `string` |  |  |  | type |
@@ -1078,6 +1167,7 @@ lists miners
 | active | `query` | string | `string` |  |  |  | active |
 | limit | `query` | string | `string` |  |  |  | limit |
 | offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -1356,6 +1446,7 @@ lists sharders
 | active | `query` | string | `string` |  |  |  | active |
 | limit | `query` | string | `string` |  |  |  | limit |
 | offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -1663,49 +1754,6 @@ Status: Internal Server Error
 
 ###### <span id="get-blobber-total-stakes-500-schema"></span> Schema
 
-### <span id="get-block-by-hash"></span> get block by hash (*get_block_by_hash*)
-
-```
-GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_block_by_hash
-```
-
-Gets block information from block hash
-
-#### Parameters
-
-| Name | Source | Type | Go type | Separator | Required | Default | Description |
-|------|--------|------|---------|-----------| :------: |---------|-------------|
-| block_hash | `query` | string | `string` |  | ✓ |  | block hash |
-
-#### All responses
-| Code | Status | Description | Has headers | Schema |
-|------|--------|-------------|:-----------:|--------|
-| [200](#get-block-by-hash-200) | OK | Block |  | [schema](#get-block-by-hash-200-schema) |
-| [400](#get-block-by-hash-400) | Bad Request |  |  | [schema](#get-block-by-hash-400-schema) |
-| [500](#get-block-by-hash-500) | Internal Server Error |  |  | [schema](#get-block-by-hash-500-schema) |
-
-#### Responses
-
-
-##### <span id="get-block-by-hash-200"></span> 200 - Block
-Status: OK
-
-###### <span id="get-block-by-hash-200-schema"></span> Schema
-   
-  
-
-[Block](#block)
-
-##### <span id="get-block-by-hash-400"></span> 400
-Status: Bad Request
-
-###### <span id="get-block-by-hash-400-schema"></span> Schema
-
-##### <span id="get-block-by-hash-500"></span> 500
-Status: Internal Server Error
-
-###### <span id="get-block-by-hash-500-schema"></span> Schema
-
 ### <span id="get-blocks"></span> Gets block information for all blocks. Todo: We need to add a filter to this. (*get_blocks*)
 
 ```
@@ -1765,6 +1813,7 @@ list minersc config settings
 | active | `query` | string | `string` |  | ✓ |  | active |
 | limit | `query` | string | `string` |  | ✓ |  | limit |
 | offset | `query` | string | `string` |  | ✓ |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -1872,6 +1921,7 @@ list minersc config settings
 | active | `query` | string | `string` |  | ✓ |  | active |
 | limit | `query` | string | `string` |  | ✓ |  | limit |
 | offset | `query` | string | `string` |  | ✓ |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -2013,18 +2063,13 @@ Status: Internal Server Error
 GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getblobbers
 ```
 
-+ name: offset
-description: offset
-in: query
-type: string
-+ name: limit
-description: limit
-in: query
-type: string
-+ name: sort
-description: desc or asc
-in: query
-type: string
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| limit | `query` | string | `string` |  |  |  | limit |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -2211,7 +2256,7 @@ lists sharders
 
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
-| id | `query` | string | `string` |  | ✓ |  | offset |
+| id | `query` | string | `string` |  | ✓ |  | id |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -2528,6 +2573,55 @@ Status: Internal Server Error
 
 ###### <span id="transaction-500-schema"></span> Schema
 
+### <span id="transaction-hashes"></span> transaction hashes (*transactionHashes*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/transactionHashes
+```
+
+Gets filtered list of transaction hashes from file information
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| content-hash | `query` | string | `string` |  |  |  | restrict to transactions by the specific content hash on write marker |
+| limit | `query` | string | `string` |  |  |  | limit |
+| look-up-hash | `query` | string | `string` |  |  |  | restrict to transactions by the specific look up hash on write marker |
+| name | `query` | string | `string` |  |  |  | restrict to transactions by the specific file name on write marker |
+| offset | `query` | string | `string` |  |  |  | offset |
+| sort | `query` | string | `string` |  |  |  | desc or asc |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#transaction-hashes-200) | OK | stringArray |  | [schema](#transaction-hashes-200-schema) |
+| [400](#transaction-hashes-400) | Bad Request |  |  | [schema](#transaction-hashes-400-schema) |
+| [500](#transaction-hashes-500) | Internal Server Error |  |  | [schema](#transaction-hashes-500-schema) |
+
+#### Responses
+
+
+##### <span id="transaction-hashes-200"></span> 200 - stringArray
+Status: OK
+
+###### <span id="transaction-hashes-200-schema"></span> Schema
+   
+  
+
+
+ [StringArray](#string-array)
+
+##### <span id="transaction-hashes-400"></span> 400
+Status: Bad Request
+
+###### <span id="transaction-hashes-400-schema"></span> Schema
+
+##### <span id="transaction-hashes-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="transaction-hashes-500-schema"></span> Schema
+
 ### <span id="transactions"></span> transactions (*transactions*)
 
 ```
@@ -2540,11 +2634,14 @@ Gets filtered list of transaction information
 
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
+| block-end | `query` | string | `string` |  |  |  | restrict to transactions in specified start block and endblock |
+| block-start | `query` | string | `string` |  |  |  | restrict to transactions in specified start block and endblock |
 | block_hash | `query` | string | `string` |  |  |  | restrict to transactions in indicated block |
 | client_id | `query` | string | `string` |  |  |  | restrict to transactions sent by the specified client |
 | limit | `query` | string | `string` |  |  |  | limit |
 | offset | `query` | string | `string` |  |  |  | offset |
 | sort | `query` | string | `string` |  |  |  | desc or asc |
+| to_client_id | `query` | string | `string` |  |  |  | restrict to transactions sent to a specified client |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -2574,6 +2671,35 @@ Status: Bad Request
 Status: Internal Server Error
 
 ###### <span id="transactions-500-schema"></span> Schema
+
+### <span id="validators"></span> Gets list of all validators alive (e.g. excluding blobbers with zero capacity). (*validators*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/validators
+```
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#validators-200) | OK | Validator |  | [schema](#validators-200-schema) |
+| [400](#validators-400) | Bad Request |  |  | [schema](#validators-400-schema) |
+
+#### Responses
+
+
+##### <span id="validators-200"></span> 200 - Validator
+Status: OK
+
+###### <span id="validators-200-schema"></span> Schema
+   
+  
+
+[Validator](#validator)
+
+##### <span id="validators-400"></span> 400
+Status: Bad Request
+
+###### <span id="validators-400-schema"></span> Schema
 
 ### <span id="vesting-config"></span> vesting config (*vesting_config*)
 
@@ -2652,6 +2778,56 @@ Status: Internal Server Error
 ###### <span id="writemarkers-500-schema"></span> Schema
 
 ## Models
+
+### <span id="allocation"></span> Allocation
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| AllocationID | string| `string` |  | |  |  |
+| AllocationName | string| `string` |  | |  |  |
+| Cancelled | boolean| `bool` |  | |  |  |
+| ChallengeCompletionTime | int64 (formatted integer)| `int64` |  | |  |  |
+| CreatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
+| DataShards | int64 (formatted integer)| `int64` |  | |  |  |
+| DeletedAt | [DeletedAt](#deleted-at)| `DeletedAt` |  | |  |  |
+| Expiration | int64 (formatted integer)| `int64` |  | |  |  |
+| FailedChallenges | int64 (formatted integer)| `int64` |  | |  |  |
+| Finalized | boolean| `bool` |  | |  |  |
+| ID | uint64 (formatted integer)| `uint64` |  | |  |  |
+| IsImmutable | boolean| `bool` |  | |  |  |
+| LatestClosedChallengeTxn | string| `string` |  | |  |  |
+| NumReads | int64 (formatted integer)| `int64` |  | |  |  |
+| NumWrites | int64 (formatted integer)| `int64` |  | |  |  |
+| OpenChallenges | int64 (formatted integer)| `int64` |  | |  |  |
+| Owner | string| `string` |  | |  |  |
+| OwnerPublicKey | string| `string` |  | |  |  |
+| ParityShards | int64 (formatted integer)| `int64` |  | |  |  |
+| Size | int64 (formatted integer)| `int64` |  | |  |  |
+| StartTime | int64 (formatted integer)| `int64` |  | |  |  |
+| SuccessfulChallenges | int64 (formatted integer)| `int64` |  | |  |  |
+| Terms | string| `string` |  | |  |  |
+| TimeUnit | int64 (formatted integer)| `int64` |  | |  |  |
+| TotalChallenges | int64 (formatted integer)| `int64` |  | |  |  |
+| TransactionID | string| `string` |  | |  |  |
+| UpdatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
+| UsedSize | int64 (formatted integer)| `int64` |  | |  |  |
+| User | [User](#user)| `User` |  | |  |  |
+| moved_back | [Coin](#coin)| `Coin` |  | |  |  |
+| moved_to_challenge | [Coin](#coin)| `Coin` |  | |  |  |
+| moved_to_validators | [Coin](#coin)| `Coin` |  | |  |  |
+| read_price_max | [Coin](#coin)| `Coin` |  | |  |  |
+| read_price_min | [Coin](#coin)| `Coin` |  | |  |  |
+| write_price_max | [Coin](#coin)| `Coin` |  | |  |  |
+| write_price_min | [Coin](#coin)| `Coin` |  | |  |  |
+
+
 
 ### <span id="approved-minter"></span> ApprovedMinter
 
@@ -2923,7 +3099,7 @@ largest representable duration to approximately 290 years. |  |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | BlockNumber | int64 (formatted integer)| `int64` |  | |  |  |
 | CreatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
-| Data | string| `string` |  | |  |  |
+| Data | [interface{}](#interface)| `interface{}` |  | |  |  |
 | DeletedAt | [DeletedAt](#deleted-at)| `DeletedAt` |  | |  |  |
 | ID | uint64 (formatted integer)| `uint64` |  | |  |  |
 | Index | string| `string` |  | |  |  |
@@ -3376,6 +3552,7 @@ it can be used as a scan destination, similar to NullString.
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
+| Allocation | [Allocation](#allocation)| `Allocation` |  | |  |  |
 | AllocationID | string| `string` |  | |  |  |
 | AuthTicket | string| `string` |  | |  |  |
 | BlobberID | string| `string` |  | |  |  |
@@ -3384,6 +3561,7 @@ it can be used as a scan destination, similar to NullString.
 | CreatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
 | DeletedAt | [DeletedAt](#deleted-at)| `DeletedAt` |  | |  |  |
 | ID | uint64 (formatted integer)| `uint64` |  | |  |  |
+| Owner | [User](#user)| `User` |  | |  |  |
 | OwnerID | string| `string` |  | |  |  |
 | PayerID | string| `string` |  | |  |  |
 | ReadCounter | int64 (formatted integer)| `int64` |  | |  |  |
@@ -3392,6 +3570,7 @@ it can be used as a scan destination, similar to NullString.
 | Timestamp | int64 (formatted integer)| `int64` |  | |  |  |
 | TransactionID | string| `string` |  | |  |  |
 | UpdatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
+| User | [User](#user)| `User` |  | |  |  |
 
 
 
@@ -3662,7 +3841,6 @@ which the allocation has created. |  |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | Allocated | int64 (formatted integer)| `int64` |  | |  |  |
 | BaseURL | string| `string` |  | |  |  |
-| BytesWritten | int64 (formatted integer)| `int64` |  | |  |  |
 | Capacity | int64 (formatted integer)| `int64` |  | |  |  |
 | DataRead | double (formatted number)| `float64` |  | |  |  |
 | DataReadLastRewardRound | double (formatted number)| `float64` |  | |  |  |
@@ -3774,7 +3952,7 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | Hash | string| `string` |  | |  |  |
 | ID | uint64 (formatted integer)| `uint64` |  | |  |  |
 | OutputHash | string| `string` |  | |  |  |
-| ReadMarkers | [][ReadMarker](#read-marker)| `[]*ReadMarker` |  | |  |  |
+| ReadMarkers | [][ReadMarker](#read-marker)| `[]*ReadMarker` |  | | ref |  |
 | Signature | string| `string` |  | |  |  |
 | Status | int64 (formatted integer)| `int64` |  | |  |  |
 | ToClientId | string| `string` |  | |  |  |
@@ -3784,6 +3962,26 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | UpdatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
 | Value | [Coin](#coin)| `Coin` |  | |  |  |
 | Version | string| `string` |  | |  |  |
+| WriteMarker | [][WriteMarker](#write-marker)| `[]*WriteMarker` |  | |  |  |
+
+
+
+### <span id="user"></span> User
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Nonce | int64 (formatted integer)| `int64` |  | |  |  |
+| Round | int64 (formatted integer)| `int64` |  | |  |  |
+| TxnHash | string| `string` |  | |  |  |
+| UserID | string| `string` |  | |  |  |
+| balance | [Coin](#coin)| `Coin` |  | |  |  |
 
 
 
@@ -3865,8 +4063,7 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | AllocationID | string| `string` |  | |  |  |
 | AllocationRoot | string| `string` |  | |  |  |
 | BlobberID | string| `string` |  | |  |  |
-| ClientID | string| `string` |  | | foreign keys
-todo: as user(ID), allocation(ID) and transaction(ID) tables are created, enable it |  |
+| ClientID | string| `string` |  | |  |  |
 | ContentHash | string| `string` |  | |  |  |
 | LookupHash | string| `string` |  | | file info |  |
 | Name | string| `string` |  | |  |  |
@@ -4172,7 +4369,6 @@ todo: as user(ID), allocation(ID) and transaction(ID) tables are created, enable
 |------|------|---------|:--------:| ------- |-------------|---------|
 | Allocated | int64 (formatted integer)| `int64` |  | |  |  |
 | BaseURL | string| `string` |  | |  |  |
-| BytesWritten | int64 (formatted integer)| `int64` |  | |  |  |
 | Capacity | int64 (formatted integer)| `int64` |  | |  |  |
 | DataRead | double (formatted number)| `float64` |  | |  |  |
 | DataReadLastRewardRound | double (formatted number)| `float64` |  | |  |  |

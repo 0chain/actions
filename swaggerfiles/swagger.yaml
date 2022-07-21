@@ -1,5 +1,122 @@
 basePath: /
 definitions:
+  Allocation:
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        $ref: '#/definitions/DeletedAt'
+      ID:
+        format: uint64
+        type: integer
+      UpdatedAt:
+        format: date-time
+        type: string
+      User:
+        $ref: '#/definitions/User'
+      allocation_id:
+        type: string
+        x-go-name: AllocationID
+      allocation_name:
+        type: string
+        x-go-name: AllocationName
+      cancelled:
+        type: boolean
+        x-go-name: Cancelled
+      challenge_completion_time:
+        format: int64
+        type: integer
+        x-go-name: ChallengeCompletionTime
+      data_shards:
+        format: int64
+        type: integer
+        x-go-name: DataShards
+      expiration:
+        format: int64
+        type: integer
+        x-go-name: Expiration
+      failed_challenges:
+        format: int64
+        type: integer
+        x-go-name: FailedChallenges
+      finalized:
+        type: boolean
+        x-go-name: Finalized
+      is_immutable:
+        type: boolean
+        x-go-name: IsImmutable
+      latest_closed_challenge_txn:
+        type: string
+        x-go-name: LatestClosedChallengeTxn
+      moved_back:
+        $ref: '#/definitions/Coin'
+      moved_to_challenge:
+        $ref: '#/definitions/Coin'
+      moved_to_validators:
+        $ref: '#/definitions/Coin'
+      num_reads:
+        format: int64
+        type: integer
+        x-go-name: NumReads
+      num_writes:
+        format: int64
+        type: integer
+        x-go-name: NumWrites
+      open_challenges:
+        format: int64
+        type: integer
+        x-go-name: OpenChallenges
+      owner:
+        type: string
+        x-go-name: Owner
+      owner_public_key:
+        type: string
+        x-go-name: OwnerPublicKey
+      parity_shards:
+        format: int64
+        type: integer
+        x-go-name: ParityShards
+      read_price_max:
+        $ref: '#/definitions/Coin'
+      read_price_min:
+        $ref: '#/definitions/Coin'
+      size:
+        format: int64
+        type: integer
+        x-go-name: Size
+      start_time:
+        format: int64
+        type: integer
+        x-go-name: StartTime
+      successful_challenges:
+        format: int64
+        type: integer
+        x-go-name: SuccessfulChallenges
+      terms:
+        type: string
+        x-go-name: Terms
+      time_unit:
+        format: int64
+        type: integer
+        x-go-name: TimeUnit
+      total_challenges:
+        format: int64
+        type: integer
+        x-go-name: TotalChallenges
+      transaction_id:
+        type: string
+        x-go-name: TransactionID
+      used_size:
+        format: int64
+        type: integer
+        x-go-name: UsedSize
+      write_price_max:
+        $ref: '#/definitions/Coin'
+      write_price_min:
+        $ref: '#/definitions/Coin'
+    type: object
+    x-go-package: 0chain.net/smartcontract/dbs/event
   ApprovedMinter:
     format: int64
     type: integer
@@ -297,7 +414,6 @@ definitions:
         type: integer
         x-go-name: BlockNumber
       data:
-        type: string
         x-go-name: Data
       index:
         type: string
@@ -694,6 +810,8 @@ definitions:
     x-go-package: 0chain.net/smartcontract/storagesc
   ReadMarker:
     properties:
+      Allocation:
+        $ref: '#/definitions/Allocation'
       CreatedAt:
         format: date-time
         type: string
@@ -702,9 +820,13 @@ definitions:
       ID:
         format: uint64
         type: integer
+      Owner:
+        $ref: '#/definitions/User'
       UpdatedAt:
         format: date-time
         type: string
+      User:
+        $ref: '#/definitions/User'
       allocation_id:
         type: string
         x-go-name: AllocationID
@@ -1091,10 +1213,6 @@ definitions:
         format: int64
         type: integer
         x-go-name: Allocated
-      bytes_written:
-        format: int64
-        type: integer
-        x-go-name: BytesWritten
       capacity:
         format: int64
         type: integer
@@ -1210,6 +1328,7 @@ definitions:
       OutputHash:
         type: string
       ReadMarkers:
+        description: ref
         items:
           $ref: '#/definitions/ReadMarker'
         type: array
@@ -1234,6 +1353,30 @@ definitions:
         $ref: '#/definitions/Coin'
       Version:
         type: string
+      WriteMarker:
+        items:
+          $ref: '#/definitions/WriteMarker'
+        type: array
+    type: object
+    x-go-package: 0chain.net/smartcontract/dbs/event
+  User:
+    properties:
+      balance:
+        $ref: '#/definitions/Coin'
+      nonce:
+        format: int64
+        type: integer
+        x-go-name: Nonce
+      round:
+        format: int64
+        type: integer
+        x-go-name: Round
+      txn:
+        type: string
+        x-go-name: TxnHash
+      user_id:
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: 0chain.net/smartcontract/dbs/event
   ValidationNode:
@@ -1320,9 +1463,6 @@ definitions:
         type: string
         x-go-name: BlobberID
       client_id:
-        description: |-
-          foreign keys
-          todo: as user(ID), allocation(ID) and transaction(ID) tables are created, enable it
         type: string
         x-go-name: ClientID
       content_hash:
@@ -1589,10 +1729,6 @@ definitions:
         format: int64
         type: integer
         x-go-name: Allocated
-      bytes_written:
-        format: int64
-        type: integer
-        x-go-name: BytesWritten
       capacity:
         format: int64
         type: integer
@@ -1886,6 +2022,28 @@ paths:
             $ref: '#/definitions/challengePoolStat'
         "400":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocWrittenSizePerPeriod:
+    get:
+      description: Total amount of data added during given blocks
+      operationId: allocWrittenSizePerPeriod
+      parameters:
+      - description: start block number
+        in: query
+        name: block-start
+        required: true
+        type: string
+      - description: end block number
+        in: query
+        name: block-end
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Int64Map
+          schema:
+            $ref: '#/definitions/Int64Map'
+        "400":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocation:
     get:
       description: Gets allocation object
@@ -2034,6 +2192,32 @@ paths:
           description: ""
       summary: Returns a list of all blobbers within a rectangle defined by maximum
         and minimum latitude and longitude values.
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/block:
+    get:
+      description: Gets block information
+      operationId: block
+      parameters:
+      - description: block hash
+        in: query
+        name: block_hash
+        type: string
+      - description: block created closest to the date (epoch timestamp in nanoseconds)
+        in: query
+        name: date
+        type: string
+      - description: block round
+        in: query
+        name: round
+        type: string
+      responses:
+        "200":
+          description: Block
+          schema:
+            $ref: '#/definitions/Block'
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward:
     get:
       operationId: collected_reward
@@ -2146,25 +2330,6 @@ paths:
           description: Int64Map
           schema:
             $ref: '#/definitions/Int64Map'
-        "500":
-          description: ""
-  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_block_by_hash:
-    get:
-      description: Gets block information from block hash
-      operationId: get_block_by_hash
-      parameters:
-      - description: block hash
-        in: query
-        name: block_hash
-        required: true
-        type: string
-      responses:
-        "200":
-          description: Block
-          schema:
-            $ref: '#/definitions/Block'
-        "400":
-          description: ""
         "500":
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_blocks:
@@ -2415,20 +2580,20 @@ paths:
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getblobbers:
     get:
-      description: |-
-        + name: offset
-        description: offset
-        in: query
-        type: string
-        + name: limit
-        description: limit
-        in: query
-        type: string
-        + name: sort
-        description: desc or asc
-        in: query
-        type: string
       operationId: getblobbers
+      parameters:
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       responses:
         "200":
           description: storageNodeResponse
@@ -2590,6 +2755,46 @@ paths:
             $ref: '#/definitions/Transaction'
         "500":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/transactionHashes:
+    get:
+      description: Gets filtered list of transaction hashes from file information
+      operationId: transactionHashes
+      parameters:
+      - description: restrict to transactions by the specific look up hash on write
+          marker
+        in: query
+        name: look-up-hash
+        type: string
+      - description: restrict to transactions by the specific file name on write marker
+        in: query
+        name: name
+        type: string
+      - description: restrict to transactions by the specific content hash on write
+          marker
+        in: query
+        name: content-hash
+        type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
+      responses:
+        "200":
+          description: stringArray
+          schema:
+            $ref: '#/definitions/stringArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/transactions:
     get:
       description: Gets filtered list of transaction information
@@ -2598,6 +2803,10 @@ paths:
       - description: restrict to transactions sent by the specified client
         in: query
         name: client_id
+        type: string
+      - description: restrict to transactions sent to a specified client
+        in: query
+        name: to_client_id
         type: string
       - description: restrict to transactions in indicated block
         in: query
@@ -2615,6 +2824,14 @@ paths:
         in: query
         name: sort
         type: string
+      - description: restrict to transactions in specified start block and endblock
+        in: query
+        name: block-start
+        type: string
+      - description: restrict to transactions in specified start block and endblock
+        in: query
+        name: block-end
+        type: string
       responses:
         "200":
           description: Transaction
@@ -2626,6 +2843,18 @@ paths:
           description: ""
         "500":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/validators:
+    get:
+      operationId: validators
+      responses:
+        "200":
+          description: Validator
+          schema:
+            $ref: '#/definitions/Validator'
+        "400":
+          description: ""
+      summary: Gets list of all validators alive (e.g. excluding blobbers with zero
+        capacity).
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/writemarkers:
     get:
       description: Gets list of write markers satisfying filter
@@ -2682,6 +2911,10 @@ paths:
         name: limit
         required: true
         type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       - description: active
         in: query
         name: active
@@ -2732,6 +2965,10 @@ paths:
         in: query
         name: limit
         required: true
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
         type: string
       - description: active
         in: query
@@ -2812,6 +3049,18 @@ paths:
         in: query
         name: tx_hash
         type: string
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       responses:
         "200":
           description: eventList
@@ -2853,6 +3102,10 @@ paths:
       - description: limit
         in: query
         name: limit
+        type: string
+      - description: desc or asc
+        in: query
+        name: sort
         type: string
       - description: active
         in: query
@@ -2937,6 +3190,10 @@ paths:
         in: query
         name: limit
         type: string
+      - description: desc or asc
+        in: query
+        name: sort
+        type: string
       - description: active
         in: query
         name: active
@@ -2985,7 +3242,7 @@ paths:
       description: lists sharders
       operationId: nodePoolStat
       parameters:
-      - description: offset
+      - description: id
         in: query
         name: id
         required: true
