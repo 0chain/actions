@@ -38,6 +38,7 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocation_min_lock | [allocation min lock](#allocation-min-lock) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocations | [allocations](#allocations) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-write-price | [average write price](#average-write-price) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-rank | [blobber rank](#blobber-rank) | Gets the rank of a blobber. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber_ids | [blobber ids](#blobber-ids) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobbers-by-geolocation | [blobbers by geolocation](#blobbers-by-geolocation) | Returns a list of all blobbers within a rectangle defined by maximum and minimum latitude and longitude values. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/block | [block](#block) |  |
@@ -475,6 +476,43 @@ Status: OK
 Status: Bad Request
 
 ###### <span id="average-write-price-400-schema"></span> Schema
+
+### <span id="blobber-rank"></span> Gets the rank of a blobber. (*blobber-rank*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-rank
+```
+
+challenges passed / total challenges
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| id | `query` | string | `string` |  | ✓ |  | id of blobber |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-rank-200) | OK | Int64Map |  | [schema](#blobber-rank-200-schema) |
+| [400](#blobber-rank-400) | Bad Request |  |  | [schema](#blobber-rank-400-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-rank-200"></span> 200 - Int64Map
+Status: OK
+
+###### <span id="blobber-rank-200-schema"></span> Schema
+   
+  
+
+[Int64Map](#int64-map)
+
+##### <span id="blobber-rank-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-rank-400-schema"></span> Schema
 
 ### <span id="blobber-ids"></span> blobber ids (*blobber_ids*)
 
@@ -3036,6 +3074,7 @@ CreationDateField - Can be used to add a creation date functionality to an entit
 | RoundCreated | int64 (formatted integer)| `int64` |  | |  |  |
 | balance | [Coin](#coin)| `Coin` |  | |  |  |
 | reward | [Coin](#coin)| `Coin` |  | |  |  |
+| staked_at | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
 | status | [PoolStatus](#pool-status)| `PoolStatus` |  | |  |  |
 
 
@@ -4381,6 +4420,7 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | reward_partition | [RewardPartitionLocation](#reward-partition-location)| `RewardPartitionLocation` |  | |  |  |
 | stake_pool_settings | [Settings](#settings)| `Settings` |  | |  |  |
 | terms | [Terms](#terms)| `Terms` |  | |  |  |
+| total_service_charge | [Coin](#coin)| `Coin` |  | |  |  |
 | total_stake | [Coin](#coin)| `Coin` |  | |  |  |
 
 

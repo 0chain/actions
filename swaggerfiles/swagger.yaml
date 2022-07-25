@@ -363,6 +363,8 @@ definitions:
         format: int64
         type: integer
         x-go-name: RoundCreated
+      staked_at:
+        $ref: '#/definitions/Timestamp'
       status:
         $ref: '#/definitions/PoolStatus'
     type: object
@@ -1764,6 +1766,8 @@ definitions:
         $ref: '#/definitions/Settings'
       terms:
         $ref: '#/definitions/Terms'
+      total_service_charge:
+        $ref: '#/definitions/Coin'
       total_stake:
         $ref: '#/definitions/Coin'
       url:
@@ -2122,6 +2126,24 @@ paths:
             $ref: '#/definitions/Int64Map'
         "400":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-rank:
+    get:
+      description: challenges passed / total challenges
+      operationId: blobber-rank
+      parameters:
+      - description: id of blobber
+        in: query
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Int64Map
+          schema:
+            $ref: '#/definitions/Int64Map'
+        "400":
+          description: ""
+      summary: Gets the rank of a blobber.
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber_ids:
     get:
       description: convert list of blobber urls into ids
