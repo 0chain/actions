@@ -294,7 +294,7 @@ jobs:
         run_flaky_tests: false
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
-        DEVOPS_CHANNEL_WEBHOOK_URL: ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
