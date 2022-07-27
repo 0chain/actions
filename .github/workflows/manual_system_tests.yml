@@ -7,6 +7,9 @@ concurrency:
 on:
   workflow_call:
     secrets:
+      DEVOPS_CHANNEL_WEBHOOK_URL:
+        description: 'URL to notify slack if tests fail on staging'
+        required: true
       SVC_ACCOUNT_SECRET:
         description: 'A token used for cross-repo actions'
         required: true
@@ -291,6 +294,7 @@ jobs:
         run_flaky_tests: false
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
+        DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
