@@ -747,7 +747,7 @@ commonConf:
         # min possible allocations size in bytes allowed by the SC
         min_alloc_size: 1024
         # min possible allocation duration allowed by the SC
-        min_alloc_duration: "5m"
+        min_alloc_duration: "15s"
         # max challenge completion time of a blobber allowed by the SC
         max_challenge_completion_time: "3m"
         # min blobber's offer duration allowed by the SC
