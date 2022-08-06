@@ -34,22 +34,39 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/alloc_read_size | [alloc read size](#alloc-read-size) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/alloc_write_marker_count | [alloc write marker count](#alloc-write-marker-count) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/alloc_written_size | [alloc written size](#alloc-written-size) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocated-storage | [allocated storage](#allocated-storage) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocation | [allocation](#allocation) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocation_min_lock | [allocation min lock](#allocation-min-lock) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocations | [allocations](#allocations) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-rw-price | [average rw price](#average-rw-price) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-write-price | [average write price](#average-write-price) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-allocated | [blobber average allocated](#blobber-average-allocated) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-capacity | [blobber average capacity](#blobber-average-capacity) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-saved-data | [blobber average saved data](#blobber-average-saved-data) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-total-stake | [blobber average total stake](#blobber-average-total-stake) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-unstake-total | [blobber average unstake total](#blobber-average-unstake-total) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-write-price | [blobber average write price](#blobber-average-write-price) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges-completed | [blobber challenges completed](#blobber-challenges-completed) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges-passed | [blobber challenges passed](#blobber-challenges-passed) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-inactive-rounds | [blobber inactive rounds](#blobber-inactive-rounds) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-rank | [blobber rank](#blobber-rank) | Gets the rank of a blobber. |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-service-charge | [blobber service charge](#blobber-service-charge) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber_ids | [blobber ids](#blobber-ids) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobbers-by-geolocation | [blobbers by geolocation](#blobbers-by-geolocation) | Returns a list of all blobbers within a rectangle defined by maximum and minimum latitude and longitude values. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/block | [block](#block) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/cloud-growth | [cloud growth](#cloud-growth) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward | [collected reward](#collected-reward) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/configs | [configs](#configs) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/count_readmarkers | [count readmarkers](#count-readmarkers) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/daily-allocations | [daily allocations](#daily-allocations) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-capitalization | [data capitalization](#data-capitalization) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-storage-cost | [data storage cost](#data-storage-cost) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-utilization | [data utilization](#data-utilization) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/errors | [errors](#errors) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/faucet_config | [faucet config](#faucet-config) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/free_alloc_blobbers | [free alloc blobbers](#free-alloc-blobbers) | returns list of all blobbers alive that match the free allocation request. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/getAuthorizer | [get authorizer](#get-authorizer) |  |
-| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/getAuthorizerNodes | [get authorizer nodes](#get-authorizer-nodes) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712e0/getAuthorizerNodes | [get authorizer nodes](#get-authorizer-nodes) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getBlobber | [get blobber](#get-blobber) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getChallengePoolStat | [get challenge pool stat](#get-challenge-pool-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/getClientPools | [get client pools](#get-client-pools) |  |
@@ -62,7 +79,6 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/getNodepool | [get nodepool](#get-nodepool) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/getPhase | [get phase](#get-phase) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/getPoolInfo | [get pool info](#get-pool-info) |  |
-| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getReadPoolAllocBlobberStat | [get read pool alloc blobber stat](#get-read-pool-alloc-blobber-stat) | Gets statistic locked tokens of the indicated read pools. This now a shortcut to readpool stats. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getReadPoolStat | [get read pool stat](#get-read-pool-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/getSharderKeepList | [get sharder keep list](#get-sharder-keep-list) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/getSharderList | [get sharder list](#get-sharder-list) |  |
@@ -70,13 +86,12 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/getUserPools | [get user pools](#get-user-pools) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getUserStakePoolStat | [get user stake pool stat](#get-user-stake-pool-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWriteMarkers | [get write markers](#get-write-markers) |  |
-| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolAllocBlobberStat | [get write pool alloc blobber stat](#get-write-pool-alloc-blobber-stat) |  |
-| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolStat | [get write pool stat](#get-write-pool-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_blobber_total_stakes | [get blobber total stakes](#get-blobber-total-stakes) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_blocks | [get blocks](#get-blocks) | Gets block information for all blocks. Todo: We need to add a filter to this. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_miner_geolocations | [get miner geolocations](#get-miner-geolocations) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_miners_stake | [get miners stake](#get-miners-stake) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_miners_stats | [get miners stats](#get-miners-stats) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_rounds_mint_total | [get rounds mint total](#get-rounds-mint-total) | Gets the total amount minted between from and to dates. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_sharder_geolocations | [get sharder geolocations](#get-sharder-geolocations) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_sharders_stake | [get sharders stake](#get-sharders-stake) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/get_sharders_stats | [get sharders stats](#get-sharders-stats) |  |
@@ -86,13 +101,17 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/globalPeriodicLimit | [global periodic limit](#global-periodic-limit) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/globalSettings | [global settings](#global-settings) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/latestreadmarker | [latestreadmarker](#latestreadmarker) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/network-data-quality | [network data quality](#network-data-quality) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/nodePoolStat | [node pool stat](#node-pool-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/nodeStat | [node stat](#node-stat) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/openchallenges | [openchallenges](#openchallenges) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/personalPeriodicLimit | [personal periodic limit](#personal-periodic-limit) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/pourAmount | [pour amount](#pour-amount) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/readmarkers | [readmarkers](#readmarkers) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/search | [search](#search) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/storage_config | [storage config](#storage-config) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-locked | [total locked](#total-locked) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-staked | [total staked](#total-staked) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-stored-data | [total stored data](#total-stored-data) | Gets the total data stored across all blobbers.
 Each change to files results in the blobber sending a WriteMarker to 0chain.
 This WriteMarker has a Size filed indicated the change the data stored on the blobber.
@@ -103,6 +122,7 @@ Negative if data is removed. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/validators | [validators](#validators) | Gets list of all validators alive (e.g. excluding blobbers with zero capacity). |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/vesting_config | [vesting config](#vesting-config) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/writemarkers | [writemarkers](#writemarkers) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/zcn-supply | [zcn supply](#zcn-supply) |  |
   
 
 
@@ -320,6 +340,48 @@ Status: Bad Request
 
 ###### <span id="alloc-written-size-400-schema"></span> Schema
 
+### <span id="allocated-storage"></span> allocated storage (*allocated-storage*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocated-storage
+```
+
+Get market data allocated storage between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#allocated-storage-200) | OK |  |  | [schema](#allocated-storage-200-schema) |
+| [400](#allocated-storage-400) | Bad Request |  |  | [schema](#allocated-storage-400-schema) |
+| [500](#allocated-storage-500) | Internal Server Error |  |  | [schema](#allocated-storage-500-schema) |
+
+#### Responses
+
+
+##### <span id="allocated-storage-200"></span> 200
+Status: OK
+
+###### <span id="allocated-storage-200-schema"></span> Schema
+
+##### <span id="allocated-storage-400"></span> 400
+Status: Bad Request
+
+###### <span id="allocated-storage-400-schema"></span> Schema
+
+##### <span id="allocated-storage-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="allocated-storage-500-schema"></span> Schema
+
 ### <span id="allocation"></span> allocation (*allocation*)
 
 ```
@@ -332,7 +394,7 @@ Gets allocation object
 
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
-| transaction_hash | `query` | string | `string` |  | ✓ |  | offset |
+| allocation | `query` | string | `string` |  | ✓ |  | offset |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -446,6 +508,48 @@ Status: Internal Server Error
 
 ###### <span id="allocations-500-schema"></span> Schema
 
+### <span id="average-rw-price"></span> average rw price (*average-rw-price*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-rw-price
+```
+
+Get storage data average read/write price between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#average-rw-price-200) | OK |  |  | [schema](#average-rw-price-200-schema) |
+| [400](#average-rw-price-400) | Bad Request |  |  | [schema](#average-rw-price-400-schema) |
+| [500](#average-rw-price-500) | Internal Server Error |  |  | [schema](#average-rw-price-500-schema) |
+
+#### Responses
+
+
+##### <span id="average-rw-price-200"></span> 200
+Status: OK
+
+###### <span id="average-rw-price-200-schema"></span> Schema
+
+##### <span id="average-rw-price-400"></span> 400
+Status: Bad Request
+
+###### <span id="average-rw-price-400-schema"></span> Schema
+
+##### <span id="average-rw-price-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="average-rw-price-500-schema"></span> Schema
+
 ### <span id="average-write-price"></span> average write price (*average-write-price*)
 
 ```
@@ -476,6 +580,429 @@ Status: OK
 Status: Bad Request
 
 ###### <span id="average-write-price-400-schema"></span> Schema
+
+### <span id="blobber-average-allocated"></span> blobber average allocated (*blobber-average-allocated*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-allocated
+```
+
+Gets the average allocated storage
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-average-allocated-200) | OK | floatArray |  | [schema](#blobber-average-allocated-200-schema) |
+| [400](#blobber-average-allocated-400) | Bad Request |  |  | [schema](#blobber-average-allocated-400-schema) |
+| [500](#blobber-average-allocated-500) | Internal Server Error |  |  | [schema](#blobber-average-allocated-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-average-allocated-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-average-allocated-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-average-allocated-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-average-allocated-400-schema"></span> Schema
+
+##### <span id="blobber-average-allocated-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-average-allocated-500-schema"></span> Schema
+
+### <span id="blobber-average-capacity"></span> blobber average capacity (*blobber-average-capacity*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-capacity
+```
+
+Gets the average capacity
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-average-capacity-200) | OK | floatArray |  | [schema](#blobber-average-capacity-200-schema) |
+| [400](#blobber-average-capacity-400) | Bad Request |  |  | [schema](#blobber-average-capacity-400-schema) |
+| [500](#blobber-average-capacity-500) | Internal Server Error |  |  | [schema](#blobber-average-capacity-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-average-capacity-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-average-capacity-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-average-capacity-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-average-capacity-400-schema"></span> Schema
+
+##### <span id="blobber-average-capacity-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-average-capacity-500-schema"></span> Schema
+
+### <span id="blobber-average-saved-data"></span> blobber average saved data (*blobber-average-saved-data*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-saved-data
+```
+
+Gets the average saved data
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-average-saved-data-200) | OK | floatArray |  | [schema](#blobber-average-saved-data-200-schema) |
+| [400](#blobber-average-saved-data-400) | Bad Request |  |  | [schema](#blobber-average-saved-data-400-schema) |
+| [500](#blobber-average-saved-data-500) | Internal Server Error |  |  | [schema](#blobber-average-saved-data-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-average-saved-data-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-average-saved-data-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-average-saved-data-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-average-saved-data-400-schema"></span> Schema
+
+##### <span id="blobber-average-saved-data-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-average-saved-data-500-schema"></span> Schema
+
+### <span id="blobber-average-total-stake"></span> blobber average total stake (*blobber-average-total-stake*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-total-stake
+```
+
+Gets the average offers total
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-average-total-stake-200) | OK | floatArray |  | [schema](#blobber-average-total-stake-200-schema) |
+| [400](#blobber-average-total-stake-400) | Bad Request |  |  | [schema](#blobber-average-total-stake-400-schema) |
+| [500](#blobber-average-total-stake-500) | Internal Server Error |  |  | [schema](#blobber-average-total-stake-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-average-total-stake-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-average-total-stake-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-average-total-stake-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-average-total-stake-400-schema"></span> Schema
+
+##### <span id="blobber-average-total-stake-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-average-total-stake-500-schema"></span> Schema
+
+### <span id="blobber-average-unstake-total"></span> blobber average unstake total (*blobber-average-unstake-total*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-unstake-total
+```
+
+Gets the average offers total
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-average-unstake-total-200) | OK | floatArray |  | [schema](#blobber-average-unstake-total-200-schema) |
+| [400](#blobber-average-unstake-total-400) | Bad Request |  |  | [schema](#blobber-average-unstake-total-400-schema) |
+| [500](#blobber-average-unstake-total-500) | Internal Server Error |  |  | [schema](#blobber-average-unstake-total-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-average-unstake-total-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-average-unstake-total-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-average-unstake-total-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-average-unstake-total-400-schema"></span> Schema
+
+##### <span id="blobber-average-unstake-total-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-average-unstake-total-500-schema"></span> Schema
+
+### <span id="blobber-average-write-price"></span> blobber average write price (*blobber-average-write-price*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-write-price
+```
+
+Gets the average write price
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-average-write-price-200) | OK | floatArray |  | [schema](#blobber-average-write-price-200-schema) |
+| [400](#blobber-average-write-price-400) | Bad Request |  |  | [schema](#blobber-average-write-price-400-schema) |
+| [500](#blobber-average-write-price-500) | Internal Server Error |  |  | [schema](#blobber-average-write-price-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-average-write-price-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-average-write-price-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-average-write-price-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-average-write-price-400-schema"></span> Schema
+
+##### <span id="blobber-average-write-price-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-average-write-price-500-schema"></span> Schema
+
+### <span id="blobber-challenges-completed"></span> blobber challenges completed (*blobber-challenges-completed*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges-completed
+```
+
+Gets the count of challenges passed in a time range
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-challenges-completed-200) | OK | floatArray |  | [schema](#blobber-challenges-completed-200-schema) |
+| [400](#blobber-challenges-completed-400) | Bad Request |  |  | [schema](#blobber-challenges-completed-400-schema) |
+| [500](#blobber-challenges-completed-500) | Internal Server Error |  |  | [schema](#blobber-challenges-completed-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-challenges-completed-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-challenges-completed-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-challenges-completed-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-challenges-completed-400-schema"></span> Schema
+
+##### <span id="blobber-challenges-completed-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-challenges-completed-500-schema"></span> Schema
+
+### <span id="blobber-challenges-passed"></span> blobber challenges passed (*blobber-challenges-passed*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges-passed
+```
+
+Gets the count of challenges passed in a time range
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-challenges-passed-200) | OK | floatArray |  | [schema](#blobber-challenges-passed-200-schema) |
+| [400](#blobber-challenges-passed-400) | Bad Request |  |  | [schema](#blobber-challenges-passed-400-schema) |
+| [500](#blobber-challenges-passed-500) | Internal Server Error |  |  | [schema](#blobber-challenges-passed-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-challenges-passed-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-challenges-passed-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-challenges-passed-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-challenges-passed-400-schema"></span> Schema
+
+##### <span id="blobber-challenges-passed-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-challenges-passed-500-schema"></span> Schema
+
+### <span id="blobber-inactive-rounds"></span> blobber inactive rounds (*blobber-inactive-rounds*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-inactive-rounds
+```
+
+Gets the count of challenges passed in a time range
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-inactive-rounds-200) | OK | floatArray |  | [schema](#blobber-inactive-rounds-200-schema) |
+| [400](#blobber-inactive-rounds-400) | Bad Request |  |  | [schema](#blobber-inactive-rounds-400-schema) |
+| [500](#blobber-inactive-rounds-500) | Internal Server Error |  |  | [schema](#blobber-inactive-rounds-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-inactive-rounds-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-inactive-rounds-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-inactive-rounds-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-inactive-rounds-400-schema"></span> Schema
+
+##### <span id="blobber-inactive-rounds-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-inactive-rounds-500-schema"></span> Schema
 
 ### <span id="blobber-rank"></span> Gets the rank of a blobber. (*blobber-rank*)
 
@@ -513,6 +1040,53 @@ Status: OK
 Status: Bad Request
 
 ###### <span id="blobber-rank-400-schema"></span> Schema
+
+### <span id="blobber-service-charge"></span> blobber service charge (*blobber-service-charge*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-service-charge
+```
+
+Gets the average offers total
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-service-charge-200) | OK | floatArray |  | [schema](#blobber-service-charge-200-schema) |
+| [400](#blobber-service-charge-400) | Bad Request |  |  | [schema](#blobber-service-charge-400-schema) |
+| [500](#blobber-service-charge-500) | Internal Server Error |  |  | [schema](#blobber-service-charge-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-service-charge-200"></span> 200 - floatArray
+Status: OK
+
+###### <span id="blobber-service-charge-200-schema"></span> Schema
+   
+  
+
+
+ [FloatArray](#float-array)
+
+##### <span id="blobber-service-charge-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-service-charge-400-schema"></span> Schema
+
+##### <span id="blobber-service-charge-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-service-charge-500-schema"></span> Schema
 
 ### <span id="blobber-ids"></span> blobber ids (*blobber_ids*)
 
@@ -659,6 +1233,48 @@ Status: Internal Server Error
 
 ###### <span id="block-500-schema"></span> Schema
 
+### <span id="cloud-growth"></span> cloud growth (*cloud-growth*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/cloud-growth
+```
+
+Get market data cloud growth data between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#cloud-growth-200) | OK |  |  | [schema](#cloud-growth-200-schema) |
+| [400](#cloud-growth-400) | Bad Request |  |  | [schema](#cloud-growth-400-schema) |
+| [500](#cloud-growth-500) | Internal Server Error |  |  | [schema](#cloud-growth-500-schema) |
+
+#### Responses
+
+
+##### <span id="cloud-growth-200"></span> 200
+Status: OK
+
+###### <span id="cloud-growth-200-schema"></span> Schema
+
+##### <span id="cloud-growth-400"></span> 400
+Status: Bad Request
+
+###### <span id="cloud-growth-400-schema"></span> Schema
+
+##### <span id="cloud-growth-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="cloud-growth-500-schema"></span> Schema
+
 ### <span id="collected-reward"></span> collected reward (*collected_reward*)
 
 ```
@@ -769,6 +1385,174 @@ Status: OK
 Status: Internal Server Error
 
 ###### <span id="count-readmarkers-500-schema"></span> Schema
+
+### <span id="daily-allocations"></span> daily allocations (*daily-allocations*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/daily-allocations
+```
+
+Get storage data daily allocations between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#daily-allocations-200) | OK |  |  | [schema](#daily-allocations-200-schema) |
+| [400](#daily-allocations-400) | Bad Request |  |  | [schema](#daily-allocations-400-schema) |
+| [500](#daily-allocations-500) | Internal Server Error |  |  | [schema](#daily-allocations-500-schema) |
+
+#### Responses
+
+
+##### <span id="daily-allocations-200"></span> 200
+Status: OK
+
+###### <span id="daily-allocations-200-schema"></span> Schema
+
+##### <span id="daily-allocations-400"></span> 400
+Status: Bad Request
+
+###### <span id="daily-allocations-400-schema"></span> Schema
+
+##### <span id="daily-allocations-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="daily-allocations-500-schema"></span> Schema
+
+### <span id="data-capitalization"></span> data capitalization (*data-capitalization*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-capitalization
+```
+
+Get historic market data capitalization between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#data-capitalization-200) | OK |  |  | [schema](#data-capitalization-200-schema) |
+| [400](#data-capitalization-400) | Bad Request |  |  | [schema](#data-capitalization-400-schema) |
+| [500](#data-capitalization-500) | Internal Server Error |  |  | [schema](#data-capitalization-500-schema) |
+
+#### Responses
+
+
+##### <span id="data-capitalization-200"></span> 200
+Status: OK
+
+###### <span id="data-capitalization-200-schema"></span> Schema
+
+##### <span id="data-capitalization-400"></span> 400
+Status: Bad Request
+
+###### <span id="data-capitalization-400-schema"></span> Schema
+
+##### <span id="data-capitalization-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="data-capitalization-500-schema"></span> Schema
+
+### <span id="data-storage-cost"></span> data storage cost (*data-storage-cost*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-storage-cost
+```
+
+Get market data storage cost info between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#data-storage-cost-200) | OK |  |  | [schema](#data-storage-cost-200-schema) |
+| [400](#data-storage-cost-400) | Bad Request |  |  | [schema](#data-storage-cost-400-schema) |
+| [500](#data-storage-cost-500) | Internal Server Error |  |  | [schema](#data-storage-cost-500-schema) |
+
+#### Responses
+
+
+##### <span id="data-storage-cost-200"></span> 200
+Status: OK
+
+###### <span id="data-storage-cost-200-schema"></span> Schema
+
+##### <span id="data-storage-cost-400"></span> 400
+Status: Bad Request
+
+###### <span id="data-storage-cost-400-schema"></span> Schema
+
+##### <span id="data-storage-cost-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="data-storage-cost-500-schema"></span> Schema
+
+### <span id="data-utilization"></span> data utilization (*data-utilization*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-utilization
+```
+
+Get historic market data utilization between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#data-utilization-200) | OK |  |  | [schema](#data-utilization-200-schema) |
+| [400](#data-utilization-400) | Bad Request |  |  | [schema](#data-utilization-400-schema) |
+| [500](#data-utilization-500) | Internal Server Error |  |  | [schema](#data-utilization-500-schema) |
+
+#### Responses
+
+
+##### <span id="data-utilization-200"></span> 200
+Status: OK
+
+###### <span id="data-utilization-200-schema"></span> Schema
+
+##### <span id="data-utilization-400"></span> 400
+Status: Bad Request
+
+###### <span id="data-utilization-400-schema"></span> Schema
+
+##### <span id="data-utilization-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="data-utilization-500-schema"></span> Schema
 
 ### <span id="errors"></span> errors (*errors*)
 
@@ -915,7 +1699,7 @@ Status: Not Found
 ### <span id="get-authorizer-nodes"></span> get authorizer nodes (*getAuthorizerNodes*)
 
 ```
-GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/getAuthorizerNodes
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712e0/getAuthorizerNodes
 ```
 
 get authorizer nodes
@@ -1366,41 +2150,6 @@ Status: Internal Server Error
 
 ###### <span id="get-pool-info-500-schema"></span> Schema
 
-### <span id="get-read-pool-alloc-blobber-stat"></span> Gets statistic locked tokens of the indicated read pools. This now a shortcut to readpool stats. (*getReadPoolAllocBlobberStat*)
-
-```
-GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getReadPoolAllocBlobberStat
-```
-
-#### Parameters
-
-| Name | Source | Type | Go type | Separator | Required | Default | Description |
-|------|--------|------|---------|-----------| :------: |---------|-------------|
-| client_id | `query` | string | `string` |  | ✓ |  | client for which to get read pools statistics |
-
-#### All responses
-| Code | Status | Description | Has headers | Schema |
-|------|--------|-------------|:-----------:|--------|
-| [200](#get-read-pool-alloc-blobber-stat-200) | OK | untilStat |  | [schema](#get-read-pool-alloc-blobber-stat-200-schema) |
-| [400](#get-read-pool-alloc-blobber-stat-400) | Bad Request |  |  | [schema](#get-read-pool-alloc-blobber-stat-400-schema) |
-
-#### Responses
-
-
-##### <span id="get-read-pool-alloc-blobber-stat-200"></span> 200 - untilStat
-Status: OK
-
-###### <span id="get-read-pool-alloc-blobber-stat-200-schema"></span> Schema
-   
-  
-
-[][UntilStat](#until-stat)
-
-##### <span id="get-read-pool-alloc-blobber-stat-400"></span> 400
-Status: Bad Request
-
-###### <span id="get-read-pool-alloc-blobber-stat-400-schema"></span> Schema
-
 ### <span id="get-read-pool-stat"></span> get read pool stat (*getReadPoolStat*)
 
 ```
@@ -1418,20 +2167,20 @@ Gets  statistic for all locked tokens of the read pool
 #### All responses
 | Code | Status | Description | Has headers | Schema |
 |------|--------|-------------|:-----------:|--------|
-| [200](#get-read-pool-stat-200) | OK | allocationPoolsStat |  | [schema](#get-read-pool-stat-200-schema) |
+| [200](#get-read-pool-stat-200) | OK | readPool |  | [schema](#get-read-pool-stat-200-schema) |
 | [400](#get-read-pool-stat-400) | Bad Request |  |  | [schema](#get-read-pool-stat-400-schema) |
 
 #### Responses
 
 
-##### <span id="get-read-pool-stat-200"></span> 200 - allocationPoolsStat
+##### <span id="get-read-pool-stat-200"></span> 200 - readPool
 Status: OK
 
 ###### <span id="get-read-pool-stat-200-schema"></span> Schema
    
   
 
-[AllocationPoolsStat](#allocation-pools-stat)
+[ReadPool](#read-pool)
 
 ##### <span id="get-read-pool-stat-400"></span> 400
 Status: Bad Request
@@ -1685,82 +2434,6 @@ Status: Internal Server Error
 
 ###### <span id="get-write-markers-500-schema"></span> Schema
 
-### <span id="get-write-pool-alloc-blobber-stat"></span> get write pool alloc blobber stat (*getWritePoolAllocBlobberStat*)
-
-```
-GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolAllocBlobberStat
-```
-
-Gets statistic for all locked tokens of the indicated read pools
-
-#### Parameters
-
-| Name | Source | Type | Go type | Separator | Required | Default | Description |
-|------|--------|------|---------|-----------| :------: |---------|-------------|
-| allocation_id | `query` | string | `string` |  | ✓ |  | allocation for which to get write pools statistics |
-| blobber_id | `query` | string | `string` |  | ✓ |  | blobber for which to get write pools statistics |
-| client_id | `query` | string | `string` |  | ✓ |  | client for which to get write pools statistics |
-
-#### All responses
-| Code | Status | Description | Has headers | Schema |
-|------|--------|-------------|:-----------:|--------|
-| [200](#get-write-pool-alloc-blobber-stat-200) | OK | untilStat |  | [schema](#get-write-pool-alloc-blobber-stat-200-schema) |
-| [400](#get-write-pool-alloc-blobber-stat-400) | Bad Request |  |  | [schema](#get-write-pool-alloc-blobber-stat-400-schema) |
-
-#### Responses
-
-
-##### <span id="get-write-pool-alloc-blobber-stat-200"></span> 200 - untilStat
-Status: OK
-
-###### <span id="get-write-pool-alloc-blobber-stat-200-schema"></span> Schema
-   
-  
-
-[][UntilStat](#until-stat)
-
-##### <span id="get-write-pool-alloc-blobber-stat-400"></span> 400
-Status: Bad Request
-
-###### <span id="get-write-pool-alloc-blobber-stat-400-schema"></span> Schema
-
-### <span id="get-write-pool-stat"></span> get write pool stat (*getWritePoolStat*)
-
-```
-GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolStat
-```
-
-Gets  statistic for all locked tokens of the write pool
-
-#### Parameters
-
-| Name | Source | Type | Go type | Separator | Required | Default | Description |
-|------|--------|------|---------|-----------| :------: |---------|-------------|
-| client_id | `query` | string | `string` |  | ✓ |  | client for which to get read pools statistics |
-
-#### All responses
-| Code | Status | Description | Has headers | Schema |
-|------|--------|-------------|:-----------:|--------|
-| [200](#get-write-pool-stat-200) | OK | allocationPoolsStat |  | [schema](#get-write-pool-stat-200-schema) |
-| [400](#get-write-pool-stat-400) | Bad Request |  |  | [schema](#get-write-pool-stat-400-schema) |
-
-#### Responses
-
-
-##### <span id="get-write-pool-stat-200"></span> 200 - allocationPoolsStat
-Status: OK
-
-###### <span id="get-write-pool-stat-200-schema"></span> Schema
-   
-  
-
-[AllocationPoolsStat](#allocation-pools-stat)
-
-##### <span id="get-write-pool-stat-400"></span> 400
-Status: Bad Request
-
-###### <span id="get-write-pool-stat-400-schema"></span> Schema
-
 ### <span id="get-blobber-total-stakes"></span> get blobber total stakes (*get_blobber_total_stakes*)
 
 ```
@@ -1943,6 +2616,45 @@ Status: OK
 Status: Not Found
 
 ###### <span id="get-miners-stats-404-schema"></span> Schema
+
+### <span id="get-rounds-mint-total"></span> Gets the total amount minted between from and to dates. (*get_rounds_mint_total*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_rounds_mint_total
+```
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-rounds-mint-total-200) | OK |  |  | [schema](#get-rounds-mint-total-200-schema) |
+| [400](#get-rounds-mint-total-400) | Bad Request |  |  | [schema](#get-rounds-mint-total-400-schema) |
+| [500](#get-rounds-mint-total-500) | Internal Server Error |  |  | [schema](#get-rounds-mint-total-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-rounds-mint-total-200"></span> 200
+Status: OK
+
+###### <span id="get-rounds-mint-total-200-schema"></span> Schema
+
+##### <span id="get-rounds-mint-total-400"></span> 400
+Status: Bad Request
+
+###### <span id="get-rounds-mint-total-400-schema"></span> Schema
+
+##### <span id="get-rounds-mint-total-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="get-rounds-mint-total-500-schema"></span> Schema
 
 ### <span id="get-sharder-geolocations"></span> get sharder geolocations (*get_sharder_geolocations*)
 
@@ -2282,6 +2994,48 @@ Status: Internal Server Error
 
 ###### <span id="latestreadmarker-500-schema"></span> Schema
 
+### <span id="network-data-quality"></span> network data quality (*network-data-quality*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/network-data-quality
+```
+
+Get network data quality score between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#network-data-quality-200) | OK |  |  | [schema](#network-data-quality-200-schema) |
+| [400](#network-data-quality-400) | Bad Request |  |  | [schema](#network-data-quality-400-schema) |
+| [500](#network-data-quality-500) | Internal Server Error |  |  | [schema](#network-data-quality-500-schema) |
+
+#### Responses
+
+
+##### <span id="network-data-quality-200"></span> 200
+Status: OK
+
+###### <span id="network-data-quality-200-schema"></span> Schema
+
+##### <span id="network-data-quality-400"></span> 400
+Status: Bad Request
+
+###### <span id="network-data-quality-400-schema"></span> Schema
+
+##### <span id="network-data-quality-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="network-data-quality-500-schema"></span> Schema
+
 ### <span id="node-pool-stat"></span> node pool stat (*nodePoolStat*)
 
 ```
@@ -2515,6 +3269,45 @@ Status: Internal Server Error
 
 ###### <span id="readmarkers-500-schema"></span> Schema
 
+### <span id="search"></span> search (*search*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/search
+```
+
+Generic search endpoint
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| searchString | `query` | string | `string` |  | ✓ |  | Generic query string, supported inputs: Block hash, Round num, Transaction hash, File name, Content hash, Wallet address |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#search-200) | OK |  |  | [schema](#search-200-schema) |
+| [400](#search-400) | Bad Request |  |  | [schema](#search-400-schema) |
+| [500](#search-500) | Internal Server Error |  |  | [schema](#search-500-schema) |
+
+#### Responses
+
+
+##### <span id="search-200"></span> 200
+Status: OK
+
+###### <span id="search-200-schema"></span> Schema
+
+##### <span id="search-400"></span> 400
+Status: Bad Request
+
+###### <span id="search-400-schema"></span> Schema
+
+##### <span id="search-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="search-500-schema"></span> Schema
+
 ### <span id="storage-config"></span> storage config (*storage_config*)
 
 ```
@@ -2546,6 +3339,90 @@ Status: Bad Request
 
 ###### <span id="storage-config-400-schema"></span> Schema
 
+### <span id="total-locked"></span> total locked (*total-locked*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-locked
+```
+
+Get total locked tokens historical data between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#total-locked-200) | OK |  |  | [schema](#total-locked-200-schema) |
+| [400](#total-locked-400) | Bad Request |  |  | [schema](#total-locked-400-schema) |
+| [500](#total-locked-500) | Internal Server Error |  |  | [schema](#total-locked-500-schema) |
+
+#### Responses
+
+
+##### <span id="total-locked-200"></span> 200
+Status: OK
+
+###### <span id="total-locked-200-schema"></span> Schema
+
+##### <span id="total-locked-400"></span> 400
+Status: Bad Request
+
+###### <span id="total-locked-400-schema"></span> Schema
+
+##### <span id="total-locked-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="total-locked-500-schema"></span> Schema
+
+### <span id="total-staked"></span> total staked (*total-staked*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-staked
+```
+
+Get market data total staked between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#total-staked-200) | OK |  |  | [schema](#total-staked-200-schema) |
+| [400](#total-staked-400) | Bad Request |  |  | [schema](#total-staked-400-schema) |
+| [500](#total-staked-500) | Internal Server Error |  |  | [schema](#total-staked-500-schema) |
+
+#### Responses
+
+
+##### <span id="total-staked-200"></span> 200
+Status: OK
+
+###### <span id="total-staked-200-schema"></span> Schema
+
+##### <span id="total-staked-400"></span> 400
+Status: Bad Request
+
+###### <span id="total-staked-400-schema"></span> Schema
+
+##### <span id="total-staked-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="total-staked-500-schema"></span> Schema
+
 ### <span id="total-stored-data"></span> Gets the total data stored across all blobbers.
 Each change to files results in the blobber sending a WriteMarker to 0chain.
 This WriteMarker has a Size filed indicated the change the data stored on the blobber.
@@ -2555,7 +3432,7 @@ Negative if data is removed. (*total-stored-data*)
 GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-stored-data
 ```
 
-This endpoint returns the summation of all the Size fields in all the WriteMarkers sent to 0chain by blobbers
+# This endpoint returns the summation of all the Size fields in all the WriteMarkers sent to 0chain by blobbers
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -2815,6 +3692,48 @@ Status: Internal Server Error
 
 ###### <span id="writemarkers-500-schema"></span> Schema
 
+### <span id="zcn-supply"></span> zcn supply (*zcn-supply*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/zcn-supply
+```
+
+Get market data zcn supply between from and to interval
+returns array of 100 datapoints for any specified interval
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#zcn-supply-200) | OK |  |  | [schema](#zcn-supply-200-schema) |
+| [400](#zcn-supply-400) | Bad Request |  |  | [schema](#zcn-supply-400-schema) |
+| [500](#zcn-supply-500) | Internal Server Error |  |  | [schema](#zcn-supply-500-schema) |
+
+#### Responses
+
+
+##### <span id="zcn-supply-200"></span> 200
+Status: OK
+
+###### <span id="zcn-supply-200-schema"></span> Schema
+
+##### <span id="zcn-supply-400"></span> 400
+Status: Bad Request
+
+###### <span id="zcn-supply-400-schema"></span> Schema
+
+##### <span id="zcn-supply-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="zcn-supply-500-schema"></span> Schema
+
 ## Models
 
 ### <span id="allocation"></span> Allocation
@@ -2862,6 +3781,7 @@ Status: Internal Server Error
 | moved_to_validators | [Coin](#coin)| `Coin` |  | |  |  |
 | read_price_max | [Coin](#coin)| `Coin` |  | |  |  |
 | read_price_min | [Coin](#coin)| `Coin` |  | |  |  |
+| write_pool | [Coin](#coin)| `Coin` |  | |  |  |
 | write_price_max | [Coin](#coin)| `Coin` |  | |  |  |
 | write_price_min | [Coin](#coin)| `Coin` |  | |  |  |
 
@@ -2905,6 +3825,34 @@ Status: Internal Server Error
 | stats | [StorageAllocationStats](#storage-allocation-stats)| `StorageAllocationStats` |  | |  |  |
 | terms | [Terms](#terms)| `Terms` |  | |  |  |
 | write_marker | [WriteMarker](#write-marker)| `WriteMarker` |  | |  |  |
+
+
+
+### <span id="blobber-snapshot"></span> BlobberSnapshot
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Allocated | int64 (formatted integer)| `int64` |  | |  |  |
+| BlobberID | string| `string` |  | |  |  |
+| Capacity | int64 (formatted integer)| `int64` |  | |  |  |
+| ChallengesCompleted | uint64 (formatted integer)| `uint64` |  | |  |  |
+| ChallengesPassed | uint64 (formatted integer)| `uint64` |  | |  |  |
+| CreationRound | int64 (formatted integer)| `int64` |  | |  |  |
+| InactiveRounds | int64 (formatted integer)| `int64` |  | |  |  |
+| SavedData | int64 (formatted integer)| `int64` |  | |  |  |
+| Used | int64 (formatted integer)| `int64` |  | |  |  |
+| offers_total | [Coin](#coin)| `Coin` |  | |  |  |
+| total_service_charge | [Coin](#coin)| `Coin` |  | |  |  |
+| total_stake | [Coin](#coin)| `Coin` |  | |  |  |
+| unstake_total | [Coin](#coin)| `Coin` |  | |  |  |
+| write_price | [Coin](#coin)| `Coin` |  | |  |  |
 
 
 
@@ -3736,6 +4684,37 @@ it can be used as a scan destination, similar to NullString.
 
 [SimpleNodes](#simple-nodes)
 
+### <span id="snapshot"></span> Snapshot
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| ActiveAllocatedDelta | int64 (formatted integer)| `int64` |  | |  |  |
+| AllocatedStorage | int64 (formatted integer)| `int64` |  | |  |  |
+| AverageRWPrice | int64 (formatted integer)| `int64` |  | |  |  |
+| Capitalization | int64 (formatted integer)| `int64` |  | |  |  |
+| ClientLocks | int64 (formatted integer)| `int64` |  | |  |  |
+| DataUtilization | int64 (formatted integer)| `int64` |  | |  |  |
+| FailedChallenges | int64 (formatted integer)| `int64` |  | |  |  |
+| MaxCapacityStorage | int64 (formatted integer)| `int64` |  | |  |  |
+| Round | int64 (formatted integer)| `int64` |  | |  |  |
+| StakedStorage | int64 (formatted integer)| `int64` |  | |  |  |
+| StorageCost | int64 (formatted integer)| `int64` |  | |  |  |
+| SuccessfulChallenges | int64 (formatted integer)| `int64` |  | |  |  |
+| TotalMint | int64 (formatted integer)| `int64` |  | |  |  |
+| TotalStaked | int64 (formatted integer)| `int64` |  | |  |  |
+| TotalValueLocked | int64 (formatted integer)| `int64` |  | |  |  |
+| UsedStorage | int64 (formatted integer)| `int64` |  | |  |  |
+| ZCNSupply | int64 (formatted integer)| `int64` |  | |  |  |
+
+
+
 ### <span id="stake-pool"></span> StakePool
 
 
@@ -3775,18 +4754,27 @@ transaction. |  |
 | Curators | []string| `[]string` |  | |  |  |
 | DataShards | int64 (formatted integer)| `int64` |  | |  |  |
 | DiverseBlobbers | boolean| `bool` |  | |  |  |
+| FileOptions | uint8 (formatted integer)| `uint8` |  | | FileOptions to define file restrictions on an allocation for third-parties
+default 00000000 for all crud operations suggesting only owner has the below listed abilities.
+enabling option/s allows any third party to perform certain ops
+00000001 - 1  - upload
+00000010 - 2  - delete
+00000100 - 4  - update
+00001000 - 8  - move
+00010000 - 16 - copy
+00100000 - 32 - rename |  |
 | Finalized | boolean| `bool` |  | | Finalized is true where allocation has been finalized. |  |
 | ID | string| `string` |  | | ID is unique allocation ID that is equal to hash of transaction with
 which the allocation has created. |  |
-| IsImmutable | boolean| `bool` |  | |  |  |
+| IsImmutable | boolean| `bool` |  | | Defines mutability of the files in the allocation, used by blobber on CommitWrite |  |
 | Name | string| `string` |  | | Name is the name of an allocation |  |
 | Owner | string| `string` |  | |  |  |
 | OwnerPublicKey | string| `string` |  | |  |  |
 | ParityShards | int64 (formatted integer)| `int64` |  | |  |  |
 | PreferredBlobbers | []string| `[]string` |  | |  |  |
 | Size | int64 (formatted integer)| `int64` |  | |  |  |
+| ThirdPartyExtendable | boolean| `bool` |  | | Flag to determine if anyone can extend this allocation |  |
 | Tx | string| `string` |  | | Tx keeps hash with which the allocation has created or updated. |  |
-| WritePoolOwners | []string| `[]string` |  | | AllocationPools allocationPools `json:"allocation_pools"` |  |
 | challenge_completion_time | [Duration](#duration)| `Duration` |  | |  |  |
 | expiration_date | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
 | moved_back | [Coin](#coin)| `Coin` |  | |  |  |
@@ -3796,6 +4784,7 @@ which the allocation has created. |  |
 | start_time | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
 | stats | [StorageAllocationStats](#storage-allocation-stats)| `StorageAllocationStats` |  | |  |  |
 | time_unit | [Duration](#duration)| `Duration` |  | |  |  |
+| write_pool | [Coin](#coin)| `Coin` |  | |  |  |
 | write_price_range | [PriceRange](#price-range)| `PriceRange` |  | |  |  |
 
 
@@ -4021,6 +5010,7 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | TxnHash | string| `string` |  | |  |  |
 | UserID | string| `string` |  | |  |  |
 | balance | [Coin](#coin)| `Coin` |  | |  |  |
+| change | [Coin](#coin)| `Coin` |  | |  |  |
 
 
 
@@ -4113,41 +5103,6 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 
 
 
-### <span id="allocation-pool-stat"></span> allocationPoolStat
-
-
-  
-
-
-
-**Properties**
-
-| Name | Type | Go type | Required | Default | Description | Example |
-|------|------|---------|:--------:| ------- |-------------|---------|
-| AllocationID | string| `string` |  | |  |  |
-| Blobbers | [][BlobberPoolStat](#blobber-pool-stat)| `[]*BlobberPoolStat` |  | |  |  |
-| ID | string| `string` |  | |  |  |
-| Locked | boolean| `bool` |  | |  |  |
-| balance | [Coin](#coin)| `Coin` |  | |  |  |
-| expire_at | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
-
-
-
-### <span id="allocation-pools-stat"></span> allocationPoolsStat
-
-
-  
-
-
-
-**Properties**
-
-| Name | Type | Go type | Required | Default | Description | Example |
-|------|------|---------|:--------:| ------- |-------------|---------|
-| Pools | [][AllocationPoolStat](#allocation-pool-stat)| `[]*AllocationPoolStat` |  | |  |  |
-
-
-
 ### <span id="authorizer-node"></span> authorizerNode
 
 
@@ -4201,25 +5156,6 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | fee | [Coin](#coin)| `Coin` |  | |  |  |
 | max_stake | [Coin](#coin)| `Coin` |  | |  |  |
 | min_stake | [Coin](#coin)| `Coin` |  | |  |  |
-
-
-
-### <span id="blobber-pool-stat"></span> blobberPoolStat
-
-
-> blobber pool represents tokens locked for a blobber
-  
-
-
-
-
-
-**Properties**
-
-| Name | Type | Go type | Required | Default | Description | Example |
-|------|------|---------|:--------:| ------- |-------------|---------|
-| BlobberID | string| `string` |  | |  |  |
-| balance | [Coin](#coin)| `Coin` |  | |  |  |
 
 
 
@@ -4314,6 +5250,13 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 
 
 
+### <span id="float-array"></span> floatArray
+
+
+  
+
+[]double (formatted number)
+
 ### <span id="info"></span> info
 
 
@@ -4369,6 +5312,25 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 
 
 
+### <span id="read-pool"></span> readPool
+
+
+> one for the allocations that the client (client_id) owns
+and the other for the allocations that the client (client_id) doesn't own
+  
+
+
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| balance | [Coin](#coin)| `Coin` |  | |  |  |
+
+
+
 ### <span id="stake-pool-stat"></span> stakePoolStat
 
 
@@ -4409,11 +5371,13 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | Allocated | int64 (formatted integer)| `int64` |  | |  |  |
 | BaseURL | string| `string` |  | |  |  |
 | Capacity | int64 (formatted integer)| `int64` |  | |  |  |
+| CreationRound | int64 (formatted integer)| `int64` |  | |  |  |
 | DataRead | double (formatted number)| `float64` |  | |  |  |
 | DataReadLastRewardRound | double (formatted number)| `float64` |  | |  |  |
 | ID | string| `string` |  | |  |  |
 | LastRewardDataReadRound | int64 (formatted integer)| `int64` |  | |  |  |
 | SavedData | int64 (formatted integer)| `int64` |  | |  |  |
+| UsedAllocation | int64 (formatted integer)| `int64` |  | |  |  |
 | geolocation | [StorageNodeGeolocation](#storage-node-geolocation)| `StorageNodeGeolocation` |  | |  |  |
 | info | [Info](#info)| `Info` |  | |  |  |
 | last_health_check | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
@@ -4446,26 +5410,6 @@ Timestamp - just a wrapper to control the json encoding */ |  |
   
 
 []string
-
-### <span id="until-stat"></span> untilStat
-
-
-> until stat
-  
-
-
-
-
-
-**Properties**
-
-| Name | Type | Go type | Required | Default | Description | Example |
-|------|------|---------|:--------:| ------- |-------------|---------|
-| PoolID | string| `string` |  | |  |  |
-| balance | [Coin](#coin)| `Coin` |  | |  |  |
-| expire_at | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
-
-
 
 ### <span id="user-pool-stat"></span> userPoolStat
 

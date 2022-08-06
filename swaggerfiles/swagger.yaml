@@ -111,6 +111,8 @@ definitions:
         format: int64
         type: integer
         x-go-name: UsedSize
+      write_pool:
+        $ref: '#/definitions/Coin'
       write_price_max:
         $ref: '#/definitions/Coin'
       write_price_min:
@@ -163,6 +165,55 @@ definitions:
         $ref: '#/definitions/WriteMarker'
     type: object
     x-go-package: 0chain.net/smartcontract/storagesc
+  BlobberSnapshot:
+    properties:
+      allocated:
+        format: int64
+        type: integer
+        x-go-name: Allocated
+      capacity:
+        format: int64
+        type: integer
+        x-go-name: Capacity
+      challenges_completed:
+        format: uint64
+        type: integer
+        x-go-name: ChallengesCompleted
+      challenges_passed:
+        format: uint64
+        type: integer
+        x-go-name: ChallengesPassed
+      creation_round:
+        format: int64
+        type: integer
+        x-go-name: CreationRound
+      id:
+        type: string
+        x-go-name: BlobberID
+      inactive_rounds:
+        format: int64
+        type: integer
+        x-go-name: InactiveRounds
+      offers_total:
+        $ref: '#/definitions/Coin'
+      saved_data:
+        format: int64
+        type: integer
+        x-go-name: SavedData
+      total_service_charge:
+        $ref: '#/definitions/Coin'
+      total_stake:
+        $ref: '#/definitions/Coin'
+      unstake_total:
+        $ref: '#/definitions/Coin'
+      used:
+        format: int64
+        type: integer
+        x-go-name: Used
+      write_price:
+        $ref: '#/definitions/Coin'
+    type: object
+    x-go-package: 0chain.net/smartcontract/dbs/event
   Block:
     properties:
       CreatedAt:
@@ -995,6 +1046,63 @@ definitions:
     description: not thread safe
     type: object
     x-go-package: 0chain.net/smartcontract/minersc
+  Snapshot:
+    properties:
+      ActiveAllocatedDelta:
+        format: int64
+        type: integer
+      AllocatedStorage:
+        format: int64
+        type: integer
+      AverageRWPrice:
+        format: int64
+        type: integer
+      Capitalization:
+        format: int64
+        type: integer
+      ClientLocks:
+        format: int64
+        type: integer
+      DataUtilization:
+        format: int64
+        type: integer
+      FailedChallenges:
+        format: int64
+        type: integer
+      MaxCapacityStorage:
+        format: int64
+        type: integer
+      StakedStorage:
+        format: int64
+        type: integer
+      StorageCost:
+        format: int64
+        type: integer
+      SuccessfulChallenges:
+        format: int64
+        type: integer
+      TotalStaked:
+        format: int64
+        type: integer
+      TotalValueLocked:
+        format: int64
+        type: integer
+      UsedStorage:
+        format: int64
+        type: integer
+      ZCNSupply:
+        format: int64
+        type: integer
+      round:
+        format: int64
+        type: integer
+        x-go-name: Round
+      total_mint:
+        format: int64
+        type: integer
+        x-go-name: TotalMint
+    type: object
+    x-go-package: 0chain.net/smartcontract/dbs/event
   StakePool:
     description: StakePool holds delegate information for an 0chain providers
     properties:
@@ -1043,6 +1151,20 @@ definitions:
         x-go-name: DiverseBlobbers
       expiration_date:
         $ref: '#/definitions/Timestamp'
+      file_options:
+        description: |-
+          FileOptions to define file restrictions on an allocation for third-parties
+          default 00000000 for all crud operations suggesting only owner has the below listed abilities.
+          enabling option/s allows any third party to perform certain ops
+          00000001 - 1  - upload
+          00000010 - 2  - delete
+          00000100 - 4  - update
+          00001000 - 8  - move
+          00010000 - 16 - copy
+          00100000 - 32 - rename
+        format: uint8
+        type: integer
+        x-go-name: FileOptions
       finalized:
         description: Finalized is true where allocation has been finalized.
         type: boolean
@@ -1054,6 +1176,8 @@ definitions:
         type: string
         x-go-name: ID
       is_immutable:
+        description: Defines mutability of the files in the allocation, used by blobber
+          on CommitWrite
         type: boolean
         x-go-name: IsImmutable
       moved_back:
@@ -1091,18 +1215,18 @@ definitions:
         $ref: '#/definitions/Timestamp'
       stats:
         $ref: '#/definitions/StorageAllocationStats'
+      third_party_extendable:
+        description: Flag to determine if anyone can extend this allocation
+        type: boolean
+        x-go-name: ThirdPartyExtendable
       time_unit:
         $ref: '#/definitions/Duration'
       tx:
         description: Tx keeps hash with which the allocation has created or updated.
         type: string
         x-go-name: Tx
-      write_pool_owners:
-        description: AllocationPools allocationPools `json:"allocation_pools"`
-        items:
-          type: string
-        type: array
-        x-go-name: WritePoolOwners
+      write_pool:
+        $ref: '#/definitions/Coin'
       write_price_range:
         $ref: '#/definitions/PriceRange'
     title: StorageAllocation request and entity.
@@ -1365,6 +1489,8 @@ definitions:
     properties:
       balance:
         $ref: '#/definitions/Coin'
+      change:
+        $ref: '#/definitions/Coin'
       nonce:
         format: int64
         type: integer
@@ -1494,38 +1620,6 @@ definitions:
         x-go-name: Timestamp
     type: object
     x-go-package: 0chain.net/smartcontract/storagesc
-  allocationPoolStat:
-    properties:
-      allocation_id:
-        type: string
-        x-go-name: AllocationID
-      balance:
-        $ref: '#/definitions/Coin'
-      blobbers:
-        items:
-          $ref: '#/definitions/blobberPoolStat'
-        type: array
-        x-go-name: Blobbers
-      expire_at:
-        $ref: '#/definitions/Timestamp'
-      id:
-        type: string
-        x-go-name: ID
-      locked:
-        type: boolean
-        x-go-name: Locked
-    title: allocation read/write pool represents tokens locked for an allocation;
-    type: object
-    x-go-package: 0chain.net/smartcontract/storagesc
-  allocationPoolsStat:
-    properties:
-      pools:
-        items:
-          $ref: '#/definitions/allocationPoolStat'
-        type: array
-        x-go-name: Pools
-    type: object
-    x-go-package: 0chain.net/smartcontract/storagesc
   authorizerNode:
     properties:
       id:
@@ -1587,16 +1681,6 @@ definitions:
         x-go-name: URL
     type: object
     x-go-package: 0chain.net/smartcontract/zcnsc
-  blobberPoolStat:
-    description: blobber pool represents tokens locked for a blobber
-    properties:
-      balance:
-        $ref: '#/definitions/Coin'
-      blobber_id:
-        type: string
-        x-go-name: BlobberID
-    type: object
-    x-go-package: 0chain.net/smartcontract/storagesc
   challengePoolStat:
     properties:
       balance:
@@ -1665,6 +1749,12 @@ definitions:
         x-go-name: Events
     type: object
     x-go-package: 0chain.net/smartcontract/minersc
+  floatArray:
+    items:
+      format: double
+      type: number
+    type: array
+    x-go-package: 0chain.net/smartcontract/storagesc
   periodicResponse:
     properties:
       start_time:
@@ -1686,6 +1776,16 @@ definitions:
         format: int64
         type: integer
         x-go-name: ReadMarkersCount
+    type: object
+    x-go-package: 0chain.net/smartcontract/storagesc
+  readPool:
+    description: |-
+      one for the allocations that the client (client_id) owns
+      and the other for the allocations that the client (client_id) doesn't own
+    properties:
+      balance:
+        $ref: '#/definitions/Coin'
+    title: readPool represents new trimmed down readPool consisting of two balances,
     type: object
     x-go-package: 0chain.net/smartcontract/storagesc
   stakePoolStat:
@@ -1735,6 +1835,10 @@ definitions:
         format: int64
         type: integer
         x-go-name: Capacity
+      creation_round:
+        format: int64
+        type: integer
+        x-go-name: CreationRound
       data_read:
         format: double
         type: number
@@ -1773,6 +1877,10 @@ definitions:
       url:
         type: string
         x-go-name: BaseURL
+      used_allocation:
+        format: int64
+        type: integer
+        x-go-name: UsedAllocation
     title: StorageNode represents Blobber configurations.
     type: object
     x-go-package: 0chain.net/smartcontract/storagesc
@@ -1788,18 +1896,6 @@ definitions:
     items:
       type: string
     type: array
-    x-go-package: 0chain.net/smartcontract/storagesc
-  untilStat:
-    description: until stat
-    properties:
-      balance:
-        $ref: '#/definitions/Coin'
-      expire_at:
-        $ref: '#/definitions/Timestamp'
-      pool_id:
-        type: string
-        x-go-name: PoolID
-    type: object
     x-go-package: 0chain.net/smartcontract/storagesc
   userPoolStat:
     properties:
@@ -1896,17 +1992,6 @@ paths:
           description: authorizerResponse
           schema:
             $ref: '#/definitions/authorizerResponse'
-        "404":
-          description: ""
-  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/getAuthorizerNodes:
-    get:
-      description: get authorizer nodes
-      operationId: getAuthorizerNodes
-      responses:
-        "200":
-          description: authorizerNodesResponse
-          schema:
-            $ref: '#/definitions/authorizerNodesResponse'
         "404":
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3/globalPeriodicLimit:
@@ -2048,6 +2133,32 @@ paths:
             $ref: '#/definitions/Int64Map'
         "400":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocated-storage:
+    get:
+      description: |-
+        Get market data allocated storage between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: allocated-storage
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocation:
     get:
       description: Gets allocation object
@@ -2055,7 +2166,7 @@ paths:
       parameters:
       - description: offset
         in: query
-        name: transaction_hash
+        name: allocation
         required: true
         type: string
       responses:
@@ -2115,6 +2226,32 @@ paths:
           description: ""
         "500":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-rw-price:
+    get:
+      description: |-
+        Get storage data average read/write price between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: average-rw-price
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-write-price:
     get:
       description: Gets the average write price across all blobbers
@@ -2125,6 +2262,258 @@ paths:
           schema:
             $ref: '#/definitions/Int64Map'
         "400":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-allocated:
+    get:
+      description: |-
+        Gets the average allocated storage
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-average-allocated
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-capacity:
+    get:
+      description: |-
+        Gets the average capacity
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-average-capacity
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-saved-data:
+    get:
+      description: |-
+        Gets the average saved data
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-average-saved-data
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-total-stake:
+    get:
+      description: |-
+        Gets the average offers total
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-average-total-stake
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-unstake-total:
+    get:
+      description: |-
+        Gets the average offers total
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-average-unstake-total
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-average-write-price:
+    get:
+      description: |-
+        Gets the average write price
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-average-write-price
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges-completed:
+    get:
+      description: |-
+        Gets the count of challenges passed in a time range
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-challenges-completed
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges-passed:
+    get:
+      description: |-
+        Gets the count of challenges passed in a time range
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-challenges-passed
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-inactive-rounds:
+    get:
+      description: |-
+        Gets the count of challenges passed in a time range
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-inactive-rounds
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-rank:
     get:
@@ -2144,6 +2533,34 @@ paths:
         "400":
           description: ""
       summary: Gets the rank of a blobber.
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-service-charge:
+    get:
+      description: |-
+        Gets the average offers total
+        returns array of 100 datapoints for any specified interval
+      operationId: blobber-service-charge
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: floatArray
+          schema:
+            $ref: '#/definitions/floatArray'
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber_ids:
     get:
       description: convert list of blobber urls into ids
@@ -2240,6 +2657,32 @@ paths:
           description: ""
         "500":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/cloud-growth:
+    get:
+      description: |-
+        Get market data cloud growth data between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: cloud-growth
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward:
     get:
       operationId: collected_reward
@@ -2281,6 +2724,110 @@ paths:
           description: readMarkersCount
           schema:
             $ref: '#/definitions/readMarkersCount'
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/daily-allocations:
+    get:
+      description: |-
+        Get storage data daily allocations between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: daily-allocations
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-capitalization:
+    get:
+      description: |-
+        Get historic market data capitalization between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: data-capitalization
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-storage-cost:
+    get:
+      description: |-
+        Get market data storage cost info between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: data-storage-cost
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/data-utilization:
+    get:
+      description: |-
+        Get historic market data utilization between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: data-utilization
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
         "500":
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/errors:
@@ -2388,6 +2935,30 @@ paths:
           description: ""
       summary: 'Gets block information for all blocks. Todo: We need to add a filter
         to this.'
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_rounds_mint_total:
+    get:
+      operationId: get_rounds_mint_total
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
+      summary: Gets the total amount minted between from and to dates.
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/get_validator:
     get:
       description: Gets validator information
@@ -2443,26 +3014,6 @@ paths:
             $ref: '#/definitions/challengePoolStat'
         "400":
           description: ""
-  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getReadPoolAllocBlobberStat:
-    get:
-      operationId: getReadPoolAllocBlobberStat
-      parameters:
-      - description: client for which to get read pools statistics
-        in: query
-        name: client_id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: untilStat
-          schema:
-            items:
-              $ref: '#/definitions/untilStat'
-            type: array
-        "400":
-          description: ""
-      summary: Gets statistic locked tokens of the indicated read pools. This now
-        a shortcut to readpool stats.
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getReadPoolStat:
     get:
       description: Gets  statistic for all locked tokens of the read pool
@@ -2475,9 +3026,9 @@ paths:
         type: string
       responses:
         "200":
-          description: allocationPoolsStat
+          description: readPool
           schema:
-            $ref: '#/definitions/allocationPoolsStat'
+            $ref: '#/definitions/readPool'
         "400":
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getStakePoolStat:
@@ -2554,52 +3105,6 @@ paths:
           description: ""
         "500":
           description: ""
-  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolAllocBlobberStat:
-    get:
-      description: Gets statistic for all locked tokens of the indicated read pools
-      operationId: getWritePoolAllocBlobberStat
-      parameters:
-      - description: client for which to get write pools statistics
-        in: query
-        name: client_id
-        required: true
-        type: string
-      - description: allocation for which to get write pools statistics
-        in: query
-        name: allocation_id
-        required: true
-        type: string
-      - description: blobber for which to get write pools statistics
-        in: query
-        name: blobber_id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: untilStat
-          schema:
-            items:
-              $ref: '#/definitions/untilStat'
-            type: array
-        "400":
-          description: ""
-  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getWritePoolStat:
-    get:
-      description: Gets  statistic for all locked tokens of the write pool
-      operationId: getWritePoolStat
-      parameters:
-      - description: client for which to get read pools statistics
-        in: query
-        name: client_id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: allocationPoolsStat
-          schema:
-            $ref: '#/definitions/allocationPoolsStat'
-        "400":
-          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/getblobbers:
     get:
       operationId: getblobbers
@@ -2671,6 +3176,32 @@ paths:
             $ref: '#/definitions/ReadMarker'
         "500":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/network-data-quality:
+    get:
+      description: |-
+        Get network data quality score between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: network-data-quality
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/openchallenges:
     get:
       description: Gets open challenges for a blobber
@@ -2738,6 +3269,24 @@ paths:
             type: array
         "500":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/search:
+    get:
+      description: Generic search endpoint
+      operationId: search
+      parameters:
+      - description: 'Generic query string, supported inputs: Block hash, Round num,
+          Transaction hash, File name, Content hash, Wallet address'
+        in: query
+        name: searchString
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/storage_config:
     get:
       description: Gets the current storage smart contract settings
@@ -2749,10 +3298,62 @@ paths:
             $ref: '#/definitions/StringMap'
         "400":
           description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-locked:
+    get:
+      description: |-
+        Get total locked tokens historical data between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: total-locked
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-staked:
+    get:
+      description: |-
+        Get market data total staked between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: total-staked
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/total-stored-data:
     get:
-      description: This endpoint returns the summation of all the Size fields in all
-        the WriteMarkers sent to 0chain by blobbers
+      description: '# This endpoint returns the summation of all the Size fields in
+        all the WriteMarkers sent to 0chain by blobbers'
       operationId: total-stored-data
       responses:
         "200":
@@ -2901,6 +3502,32 @@ paths:
             items:
               $ref: '#/definitions/WriteMarker'
             type: array
+        "400":
+          description: ""
+        "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/zcn-supply:
+    get:
+      description: |-
+        Get market data zcn supply between from and to interval
+        returns array of 100 datapoints for any specified interval
+      operationId: zcn-supply
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: ""
         "400":
           description: ""
         "500":
@@ -3305,6 +3932,17 @@ paths:
           schema:
             $ref: '#/definitions/StringMap'
         "500":
+          description: ""
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712e0/getAuthorizerNodes:
+    get:
+      description: get authorizer nodes
+      operationId: getAuthorizerNodes
+      responses:
+        "200":
+          description: authorizerNodesResponse
+          schema:
+            $ref: '#/definitions/authorizerNodesResponse'
+        "404":
           description: ""
 produces:
 - application/json
