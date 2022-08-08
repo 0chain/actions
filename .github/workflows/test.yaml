@@ -18,7 +18,7 @@ jobs:
       with:
           pr_number: ${{ steps.findPr.outputs.pr }}
           description: "System tests running with default config..."
-          state: "pending"
+          state: "success"
           repository: ${{ github.repository }}
           status_name: "0Chain System Tests"
           target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
