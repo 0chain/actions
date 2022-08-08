@@ -300,7 +300,7 @@ jobs:
       if: always()
       run: rm -rf ./*
 
-    - name: "Set PR status as ${{ job.status }}"
+    - name: "Set PR status as ${{ job.status }}" 
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
       uses: 0chain/actions/notify-pull-request@master
       continue-on-error: true
