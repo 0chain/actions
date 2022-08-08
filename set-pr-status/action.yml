@@ -33,9 +33,11 @@ runs:
         curl --silent --location --request GET 'https://api.github.com/repos/${{inputs.repository}}/pulls/${{inputs.pr_number}}' \
         --header 'Accept: application/vnd.github.v3+json' \
         --header 'Authorization: token ${{inputs.github_token}}' \
-        --header 'Content-Type: application/json' \ | jq -r '.statuses_url' | xargs > status_url
+        --header 'Content-Type: application/json' \  xargs > pr.json
 
-        curl --silent --location --request POST "$(cat status_url)" \
+        status_url=$(grep "statuses_url" pr.json | sed -r 's/^[^:]*:(.*)$/\1/')
+
+        curl --silent --location --request POST "$status_url" \
         --header 'Accept: application/vnd.github.v3+json' \
         --header 'Authorization: token ${{inputs.github_token}}' \
         --header 'Content-Type: application/json' \
