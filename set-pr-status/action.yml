@@ -45,5 +45,6 @@ runs:
           --header "Content-Type: application/json" \
           --data-raw "{\"state\": \"${{inputs.state}}\", \"context\": \"${{inputs.status_name}}\", \"target_url\": \"${{inputs.target_url}}\", \"description\": \"${{inputs.description}}\" }"
         ' > ./notify.sh;
+        chmod 777 ./notify.sh;
 
         notify.sh || { sleep 10 && echo "Retrying..." && notify.sh; }
