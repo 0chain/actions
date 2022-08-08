@@ -1,0 +1,42 @@
+name: "Notify Github PR"
+description: "Notify Github PR"
+inputs:
+  pr_number:
+    description: 'pr number to notify'
+    required: true
+  description:
+    description: 'notification description'
+    default: ''
+    required: false
+  state:
+    description: 'state'
+    required: true
+  repository:
+    description: 'repository'
+    required: true
+  status_name:
+    description: 'context'
+    required: true
+  target_url:
+    description: 'target_url'
+    required: true
+  github_token:
+    description: 'github_token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Notify PR"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        curl --silent --location --request GET 'https://api.github.com/repos/${{inputs.repository}}/pulls/${{inputs.pr_number}}' \
+        --header 'Accept: application/vnd.github.v3+json' \
+        --header 'Authorization: token ${{inputs.github_token}}' \
+        --header 'Content-Type: application/json' \ | jq -r '.statuses_url' | xargs > status_url
+
+        curl --silent --location --request POST "$(cat status_url)" \
+        --header 'Accept: application/vnd.github.v3+json' \
+        --header 'Authorization: token ${{inputs.github_token}}' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{"state": "${{inputs.state}}", "context": "${{inputs.status_name}}", "target_url": "${{inputs.target_url}}", "description": "${{inputs.description}}" }'
