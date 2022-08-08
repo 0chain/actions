@@ -47,4 +47,4 @@ runs:
         ' > ./notify.sh;
         chmod 777 ./notify.sh;
 
-        notify.sh || { sleep 10 && echo "Retrying..." && notify.sh; }
+        ./notify.sh || { sleep 10 && echo "Retrying..." && ./notify.sh; }
