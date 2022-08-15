@@ -788,17 +788,17 @@ commonConf:
           # the free payment is split between read and write pool in the ratio
           # read_pool_fraction : (1-read_pool_fraction)
           read_pool_fraction: 0.2
-          data_shards: 10
-          parity_shards: 5
-          size: 10000000000
-          duration: 50h
+          data_shards: 1
+          parity_shards: 1
+          size: 10240
+          duration: 5m
           read_price_range:
             min: 0.0
             max: 0.04
           write_price_range:
             min: 0.0
             max: 0.04
-          max_challenge_completion_time:  1m
+          max_challenge_completion_time:  3m
         # validator_reward represents part of blobbers' rewards goes to validators
         validator_reward: 0.025
         # blobber_slash represents blobber's stake penalty when a challenge not
