@@ -196,6 +196,10 @@ definitions:
         x-go-name: InactiveRounds
       offers_total:
         $ref: '#/definitions/Coin'
+      open_challenges:
+        format: uint64
+        type: integer
+        x-go-name: OpenChallenges
       read_data:
         format: int64
         type: integer
@@ -210,10 +214,6 @@ definitions:
         $ref: '#/definitions/Coin'
       unstake_total:
         $ref: '#/definitions/Coin'
-      used:
-        format: int64
-        type: integer
-        x-go-name: Used
       write_price:
         $ref: '#/definitions/Coin'
     type: object
@@ -289,6 +289,57 @@ definitions:
         type: string
         x-go-name: Version
     type: object
+    x-go-package: 0chain.net/smartcontract/dbs/event
+  Challenge:
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        $ref: '#/definitions/DeletedAt'
+      ID:
+        format: uint64
+        type: integer
+      UpdatedAt:
+        format: date-time
+        type: string
+      allocation_id:
+        type: string
+        x-go-name: AllocationID
+      allocation_root:
+        type: string
+        x-go-name: AllocationRoot
+      blobber_id:
+        type: string
+        x-go-name: BlobberID
+      challenge_id:
+        type: string
+        x-go-name: ChallengeID
+      created_at:
+        $ref: '#/definitions/Timestamp'
+      passed:
+        type: boolean
+        x-go-name: Passed
+      responded:
+        type: boolean
+        x-go-name: Responded
+      round_responded:
+        format: int64
+        type: integer
+        x-go-name: RoundResponded
+      seed:
+        format: int64
+        type: integer
+        x-go-name: Seed
+      validators_id:
+        type: string
+        x-go-name: ValidatorsID
+    type: object
+    x-go-package: 0chain.net/smartcontract/dbs/event
+  Challenges:
+    items:
+      $ref: '#/definitions/Challenge'
+    type: array
     x-go-package: 0chain.net/smartcontract/dbs/event
   ChallengesResponse:
     properties:
@@ -1459,6 +1510,9 @@ definitions:
       ID:
         format: uint64
         type: integer
+      Nonce:
+        format: int64
+        type: integer
       OutputHash:
         type: string
       ReadMarkers:
@@ -2274,6 +2328,37 @@ paths:
         "500":
           description: ""
       summary: The average write price, average across all blobbers.
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges:
+    get:
+      description: Gets challenges for a blobber by challenge id
+      operationId: blobber-challenges
+      parameters:
+      - description: id of blobber
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: start time of interval
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: end time of interval
+        in: query
+        name: end
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Challenges
+          schema:
+            $ref: '#/definitions/Challenges'
+        "400":
+          description: ""
+        "404":
+          description: ""
+        "500":
+          description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-rank:
     get:
       description: challenges passed / total challenges
@@ -2390,21 +2475,33 @@ paths:
           description: ""
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward:
     get:
+      description: '> Note: Using start/end-block and start/end-date together would
+        only return results with start/end-block'
       operationId: collected_reward
       parameters:
       - description: start block
         in: query
-        name: start_block
-        required: true
+        name: start-block
         type: string
       - description: end block
         in: query
-        name: end_block
-        required: true
+        name: end-block
+        type: string
+      - description: start date
+        in: query
+        name: start-date
+        type: string
+      - description: end date
+        in: query
+        name: end-date
+        type: string
+      - description: number of data points in response
+        in: query
+        name: data-points
         type: string
       - description: client id
         in: query
-        name: client_id
+        name: client-id
         required: true
         type: string
       responses:
@@ -2414,6 +2511,9 @@ paths:
             $ref: '#/definitions/challengePoolStat'
         "400":
           description: ""
+      summary: |-
+        Returns collected reward for a client_id.
+        > Note: start-date and end-date resolves to the closest block number for those timestamps on the network.
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/count_readmarkers:
     get:
       description: Gets read markers according to a filter
@@ -2871,6 +2971,42 @@ paths:
         "500":
           description: ""
       summary: Graphs the total challenges created for the indicated blobber.
+  /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-challenges-open:
+    get:
+      description: |-
+        Unstaking tokens are locked into allocations now, but cannot be used for any further allocations.
+
+        Graph endpoints take a start and end time and the number `data-points` into which you wish to split the graph.
+        The count rounds for the period is determined and the graph split up into `data-points` intervals of equal number of rounds.
+        0chain data is then amalgamated into `data-points` intervals of equal rounds.
+        Each point will give the average open challenges over that interval.
+
+        The result is given in an array of values with length equal to `data-points`.
+        Array index represents intervals of increasing round number.
+      operationId: graph-blobber-challenges-open
+      parameters:
+      - description: from date timestamp
+        in: query
+        name: from
+        type: string
+      - description: to date timestamp
+        in: query
+        name: to
+        type: string
+      - description: total data points in result
+        in: query
+        name: data-points
+        type: string
+      responses:
+        "200":
+          description: graphPoints
+          schema:
+            $ref: '#/definitions/graphPoints'
+        "400":
+          description: ""
+        "500":
+          description: ""
+      summary: Graphs the change in open challenges.
   /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-challenges-passed:
     get:
       description: |-

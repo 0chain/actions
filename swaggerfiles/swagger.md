@@ -38,11 +38,13 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocation_min_lock | [allocation min lock](#allocation-min-lock) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/allocations | [allocations](#allocations) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/average-write-price | [average write price](#average-write-price) | The average write price, average across all blobbers. |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges | [blobber challenges](#blobber-challenges) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-rank | [blobber rank](#blobber-rank) | Gets the rank of a blobber. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber_ids | [blobber ids](#blobber-ids) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobbers-by-geolocation | [blobbers by geolocation](#blobbers-by-geolocation) | Returns a list of all blobbers within a rectangle defined by maximum and minimum latitude and longitude values. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/block | [block](#block) |  |
-| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward | [collected reward](#collected-reward) |  |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward | [collected reward](#collected-reward) | Returns collected reward for a client_id.
+> Note: start-date and end-date resolves to the closest block number for those timestamps on the network. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d9/configs | [configs](#configs) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/count_readmarkers | [count readmarkers](#count-readmarkers) |  |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/errors | [errors](#errors) |  |
@@ -87,6 +89,7 @@
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-allocated | [graph blobber allocated](#graph-blobber-allocated) | Graphs the total amount of storage allocated to a blobber over time. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-capacity | [graph blobber capacity](#graph-blobber-capacity) | Graphs the total blobber capacity over time. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-challenges-completed | [graph blobber challenges completed](#graph-blobber-challenges-completed) | Graphs the total challenges created for the indicated blobber. |
+| GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-challenges-open | [graph blobber challenges open](#graph-blobber-challenges-open) | Graphs the change in open challenges. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-challenges-passed | [graph blobber challenges passed](#graph-blobber-challenges-passed) | Graphs the total challenges passed across all blobbers |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-inactive-rounds | [graph blobber inactive rounds](#graph-blobber-inactive-rounds) | Graphs the percentage of inactive rounds during each period. This endpoint has not yet been implemented. |
 | GET | /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-offers-total | [graph blobber offers total](#graph-blobber-offers-total) | Graphs the total amount of tokens in blobber stake pools that are locked into allocation offers for the blobber. |
@@ -512,6 +515,58 @@ Status: Internal Server Error
 
 ###### <span id="average-write-price-500-schema"></span> Schema
 
+### <span id="blobber-challenges"></span> blobber challenges (*blobber-challenges*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/blobber-challenges
+```
+
+Gets challenges for a blobber by challenge id
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| end | `query` | string | `string` |  | ✓ |  | end time of interval |
+| id | `query` | string | `string` |  | ✓ |  | id of blobber |
+| start | `query` | string | `string` |  | ✓ |  | start time of interval |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#blobber-challenges-200) | OK | Challenges |  | [schema](#blobber-challenges-200-schema) |
+| [400](#blobber-challenges-400) | Bad Request |  |  | [schema](#blobber-challenges-400-schema) |
+| [404](#blobber-challenges-404) | Not Found |  |  | [schema](#blobber-challenges-404-schema) |
+| [500](#blobber-challenges-500) | Internal Server Error |  |  | [schema](#blobber-challenges-500-schema) |
+
+#### Responses
+
+
+##### <span id="blobber-challenges-200"></span> 200 - Challenges
+Status: OK
+
+###### <span id="blobber-challenges-200-schema"></span> Schema
+   
+  
+
+
+ [Challenges](#challenges)
+
+##### <span id="blobber-challenges-400"></span> 400
+Status: Bad Request
+
+###### <span id="blobber-challenges-400-schema"></span> Schema
+
+##### <span id="blobber-challenges-404"></span> 404
+Status: Not Found
+
+###### <span id="blobber-challenges-404-schema"></span> Schema
+
+##### <span id="blobber-challenges-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="blobber-challenges-500-schema"></span> Schema
+
 ### <span id="blobber-rank"></span> Gets the rank of a blobber. (*blobber-rank*)
 
 ```
@@ -694,19 +749,25 @@ Status: Internal Server Error
 
 ###### <span id="block-500-schema"></span> Schema
 
-### <span id="collected-reward"></span> collected reward (*collected_reward*)
+### <span id="collected-reward"></span> Returns collected reward for a client_id.
+> Note: start-date and end-date resolves to the closest block number for those timestamps on the network. (*collected_reward*)
 
 ```
 GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/collected_reward
 ```
 
+> Note: Using start/end-block and start/end-date together would only return results with start/end-block
+
 #### Parameters
 
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
-| client_id | `query` | string | `string` |  | ✓ |  | client id |
-| end_block | `query` | string | `string` |  | ✓ |  | end block |
-| start_block | `query` | string | `string` |  | ✓ |  | start block |
+| client-id | `query` | string | `string` |  | ✓ |  | client id |
+| data-points | `query` | string | `string` |  |  |  | number of data points in response |
+| end-block | `query` | string | `string` |  |  |  | end block |
+| end-date | `query` | string | `string` |  |  |  | end date |
+| start-block | `query` | string | `string` |  |  |  | start block |
+| start-date | `query` | string | `string` |  |  |  | start date |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -2418,6 +2479,60 @@ Status: Bad Request
 Status: Internal Server Error
 
 ###### <span id="graph-blobber-challenges-completed-500-schema"></span> Schema
+
+### <span id="graph-blobber-challenges-open"></span> Graphs the change in open challenges. (*graph-blobber-challenges-open*)
+
+```
+GET /v1/screst/6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7/graph-blobber-challenges-open
+```
+
+Unstaking tokens are locked into allocations now, but cannot be used for any further allocations.
+
+Graph endpoints take a start and end time and the number `data-points` into which you wish to split the graph.
+The count rounds for the period is determined and the graph split up into `data-points` intervals of equal number of rounds.
+0chain data is then amalgamated into `data-points` intervals of equal rounds.
+Each point will give the average open challenges over that interval.
+
+The result is given in an array of values with length equal to `data-points`.
+Array index represents intervals of increasing round number.
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| data-points | `query` | string | `string` |  |  |  | total data points in result |
+| from | `query` | string | `string` |  |  |  | from date timestamp |
+| to | `query` | string | `string` |  |  |  | to date timestamp |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#graph-blobber-challenges-open-200) | OK | graphPoints |  | [schema](#graph-blobber-challenges-open-200-schema) |
+| [400](#graph-blobber-challenges-open-400) | Bad Request |  |  | [schema](#graph-blobber-challenges-open-400-schema) |
+| [500](#graph-blobber-challenges-open-500) | Internal Server Error |  |  | [schema](#graph-blobber-challenges-open-500-schema) |
+
+#### Responses
+
+
+##### <span id="graph-blobber-challenges-open-200"></span> 200 - graphPoints
+Status: OK
+
+###### <span id="graph-blobber-challenges-open-200-schema"></span> Schema
+   
+  
+
+
+ [GraphPoints](#graph-points)
+
+##### <span id="graph-blobber-challenges-open-400"></span> 400
+Status: Bad Request
+
+###### <span id="graph-blobber-challenges-open-400-schema"></span> Schema
+
+##### <span id="graph-blobber-challenges-open-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="graph-blobber-challenges-open-500-schema"></span> Schema
 
 ### <span id="graph-blobber-challenges-passed"></span> Graphs the total challenges passed across all blobbers (*graph-blobber-challenges-passed*)
 
@@ -4170,9 +4285,9 @@ Status: Internal Server Error
 | ChallengesPassed | uint64 (formatted integer)| `uint64` |  | |  |  |
 | CreationRound | int64 (formatted integer)| `int64` |  | |  |  |
 | InactiveRounds | int64 (formatted integer)| `int64` |  | |  |  |
+| OpenChallenges | uint64 (formatted integer)| `uint64` |  | |  |  |
 | ReadData | int64 (formatted integer)| `int64` |  | |  |  |
 | SavedData | int64 (formatted integer)| `int64` |  | |  |  |
-| Used | int64 (formatted integer)| `int64` |  | |  |  |
 | offers_total | [Coin](#coin)| `Coin` |  | |  |  |
 | total_service_charge | [Coin](#coin)| `Coin` |  | |  |  |
 | total_stake | [Coin](#coin)| `Coin` |  | |  |  |
@@ -4215,6 +4330,41 @@ Status: Internal Server Error
 | Version | string| `string` |  | |  |  |
 
 
+
+### <span id="challenge"></span> Challenge
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| AllocationID | string| `string` |  | |  |  |
+| AllocationRoot | string| `string` |  | |  |  |
+| BlobberID | string| `string` |  | |  |  |
+| ChallengeID | string| `string` |  | |  |  |
+| CreatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
+| DeletedAt | [DeletedAt](#deleted-at)| `DeletedAt` |  | |  |  |
+| ID | uint64 (formatted integer)| `uint64` |  | |  |  |
+| Passed | boolean| `bool` |  | |  |  |
+| Responded | boolean| `bool` |  | |  |  |
+| RoundResponded | int64 (formatted integer)| `int64` |  | |  |  |
+| Seed | int64 (formatted integer)| `int64` |  | |  |  |
+| UpdatedAt | date-time (formatted string)| `strfmt.DateTime` |  | |  |  |
+| ValidatorsID | string| `string` |  | |  |  |
+| created_at | [Timestamp](#timestamp)| `Timestamp` |  | |  |  |
+
+
+
+### <span id="challenges"></span> Challenges
+
+
+  
+
+[][Challenge](#challenge)
 
 ### <span id="challenges-response"></span> ChallengesResponse
 
@@ -5301,6 +5451,7 @@ Timestamp - just a wrapper to control the json encoding */ |  |
 | Fee | [Coin](#coin)| `Coin` |  | |  |  |
 | Hash | string| `string` |  | |  |  |
 | ID | uint64 (formatted integer)| `uint64` |  | |  |  |
+| Nonce | int64 (formatted integer)| `int64` |  | |  |  |
 | OutputHash | string| `string` |  | |  |  |
 | ReadMarkers | [][ReadMarker](#read-marker)| `[]*ReadMarker` |  | | ref |  |
 | Signature | string| `string` |  | |  |  |
