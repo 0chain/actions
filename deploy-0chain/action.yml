@@ -235,6 +235,9 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
+        export GOPATH="/root/actions-runner/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner/_work/_tool/.cache/go-build"
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
