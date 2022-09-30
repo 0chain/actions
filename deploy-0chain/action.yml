@@ -338,6 +338,7 @@ runs:
             }
             done
         }
+        export HOME="/root"
         retry ./zwallet register --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         for i in {1..6}
         do
