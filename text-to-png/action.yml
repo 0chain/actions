@@ -19,8 +19,8 @@ runs:
     - name: "Convert file"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        path=$(readlink -f ${{ inputs.file_location }})
-        echo "PATH=$(echo $path)" >> $GITHUB_ENV
+        file_path=$(readlink -f ${{ inputs.file_location }})
+        echo "FILE_PATH=$(echo $path)" >> $GITHUB_ENV
         echo "FILENAME=$(basename $path)" >> $GITHUB_ENV
         mkdir file-to-image
         cd file-to-image
@@ -31,7 +31,7 @@ runs:
         mv ansigo-master ../ansigo
         cd ../
         rm -rf file-to-image
-        ./ansigo $path
+        ./ansigo $file_path
 
     - name: "Archive file"
       if: ${{ inputs.archive_file == 'true' }}
@@ -39,4 +39,4 @@ runs:
       with:
         name: ${{ env.FILENAME }}.png
         path: |
-          ${{ env.PATH }}.png
+          ${{ env.FILE_PATH }}.png
