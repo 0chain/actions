@@ -34,7 +34,7 @@ runs:
       with:
         name: ${{ env.FILENAME }}
         path: |
-          ./${{ env.PATH }}
+          ${{ env.PATH }}.png
 
     - name: "Post: remove temp files"
       uses: webiny/action-post-run@2.0.1
