@@ -40,8 +40,18 @@ runs:
         path: |
           ${{ env.PATH }}.png
 
+    - name: "Create post run teardown script"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo '#!/bin/bash
+        
+        rm -rf file-to-image
+        
+        ' > ./post.sh;
+        chmod 777 ./post.sh;      
+
     - name: "Post: remove temp files"
       uses: webiny/action-post-run@2.0.1
       with:
-        run: rm -rf file-to-image
+        run: ./post.sh
         working-directory: ./
