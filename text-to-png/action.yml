@@ -4,6 +4,9 @@ inputs:
   file_location:
     description: 'file containing command output'
     required: true
+  archive_file:
+    description: 'should archive the png file'
+    default: 'true'
 
 runs:
   using: "composite"
@@ -30,9 +33,10 @@ runs:
         ./ansigo $path
 
     - name: "Archive file"
+      if: ${{ inputs.archive_file == 'true' }}
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.FILENAME }}
+        name: ${{ env.FILENAME }}.png
         path: |
           ${{ env.PATH }}.png
 
