@@ -133,7 +133,7 @@ jobs:
     runs-on: [ tests-suite ]
     steps:
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: "Setup Test Run"
       run: |
