@@ -20,8 +20,8 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         file_path=$(readlink -f ${{ inputs.file_location }})
-        echo "FILE_PATH=$(echo $path)" >> $GITHUB_ENV
-        echo "FILENAME=$(basename $path)" >> $GITHUB_ENV
+        echo "FILE_PATH=$(echo $file_path)" >> $GITHUB_ENV
+        echo "FILENAME=$(basename $file_path)" >> $GITHUB_ENV
         mkdir file-to-image
         cd file-to-image
         wget https://github.com/ansilove/ansigo/archive/refs/heads/master.zip
@@ -40,3 +40,20 @@ runs:
         name: ${{ env.FILENAME }}.png
         path: |
           ${{ env.FILE_PATH }}.png
+
+    - name: "Create post run teardown script"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo '#!/bin/bash
+
+        rm -rf file-to-image || true
+        rm -rf ${{ env.FILE_PATH }}.png || true
+
+        ' > ./post.sh;
+        chmod 777 ./post.sh;      
+
+    - name: "Post: remove temp files"
+      uses: webiny/action-post-run@2.0.1
+      with:
+        run: ./post.sh
+        working-directory: ./
