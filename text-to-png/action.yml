@@ -38,8 +38,7 @@ runs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.FILENAME }}.png
-        path: |
-          ${{ env.FILE_PATH }}.png
+        path: ${{ env.FILE_PATH }}.png
 
     - name: "Create post run teardown script"
       shell: 'script --return --quiet --command "bash {0}"'
