@@ -129,6 +129,7 @@ runs:
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
@@ -178,6 +179,7 @@ runs:
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
         
         go get gotest.tools/gotestsum
         go get github.com/vakenbolt/go-test-report
@@ -212,6 +214,7 @@ runs:
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
 
         cd tests/api_tests
         api_system_tests_exit_code=0
@@ -255,6 +258,7 @@ runs:
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
 
         cd tests/cli_tests
         system_tests_exit_code=0
@@ -289,6 +293,7 @@ runs:
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
 
         testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
         echo "Attempting to resolve filter to test files..."
@@ -385,6 +390,7 @@ runs:
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
         
         cd tests/cli_tests
         rm -rf cmdlog.log || true
