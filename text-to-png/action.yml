@@ -30,7 +30,7 @@ runs:
         GO111MODULE=off go build ./...
         mv ansigo-master ./ansigo
         ./ansigo $file_path
-        cd ../
+        cd ../../
         rm -rf file-to-image
 
     - name: "Archive file"
