@@ -1,5 +1,5 @@
 name: "Text to PNG"
-description: "Convert a Text File (eg. command output) to png"
+description: "Convert a Text File (eg. command output) to png, plscing it in the same working directory as the text file and optionally archiving it to github"
 inputs:
   file_location:
     description: 'file containing command output'
@@ -28,10 +28,10 @@ runs:
         unzip master.zip
         cd ansigo-master
         GO111MODULE=off go build ./...
-        mv ansigo-master ../ansigo
+        mv ansigo-master ./ansigo
+        ./ansigo $file_path
         cd ../
         rm -rf file-to-image
-        ./ansigo $file_path
 
     - name: "Archive file"
       if: ${{ inputs.archive_file == 'true' }}
