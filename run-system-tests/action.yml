@@ -111,10 +111,13 @@ runs:
         echo "installing youtube-dl..."
         sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         sudo chmod a+rx /usr/local/bin/youtube-dl
+        youtube-dl --version
         echo "installing ffmpeg..."
         sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
         sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
+        ffmpeg -version
         echo "Test dependencies install SUCCESS!"
+
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
