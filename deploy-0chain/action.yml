@@ -369,7 +369,7 @@ runs:
         readarray -t blobber_ids < build.log
         for id in "${blobber_ids[@]}"
         do
-            retry ./zbox sp-lock --blobber_id $id --tokens 15 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zbox sp-lock --blobber_id $id --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
         ' > ./stake_blobbers.sh;
         chmod 777 ./stake_blobbers.sh;
