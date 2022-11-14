@@ -379,7 +379,7 @@ runs:
       run: |
         export HOME="/root"
         mkdir /root/.zcn
-        ./zwallet register --configDir . --config ./zbox_config.yaml # add a wallet.json to /root/.zcn
+        ./zwallet register --configDir . --config ./zbox_config.yaml  --wallet /root/.zcn/wallet.json # add a wallet.json to /root/.zcn
         echo 'owner:
             Password: 02289b9
             EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
