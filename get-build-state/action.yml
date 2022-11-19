@@ -18,7 +18,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo '#!/bin/bash
-          curl --silent --location --request GET "https://api.github.com/repos/${{inputs.repository}}/commits/${{inputs.sha}}" \
+          curl --silent --fail --location --request GET "https://api.github.com/repos/${{inputs.repository}}/commits/${{inputs.sha}}/statuses" \
           --header "Accept: application/vnd.github.v3+json" \
           --header "Authorization: token ${{inputs.github_token}}" \
           --header "Content-Type: application/json"  > state.json
