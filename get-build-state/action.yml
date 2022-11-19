@@ -24,6 +24,11 @@ runs:
           --header "Content-Type: application/json"  > state.json
 
           STATE=$(cat state.json | jq -r ".[0].state")
+        
+          if [[ -z "$STATE" ]];then
+            STATE="no state set"
+          fi
+        
           echo "BUILD_STATE=$STATE" >> $GITHUB_ENV
           rm -rf state.json
 
