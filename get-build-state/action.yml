@@ -23,7 +23,7 @@ runs:
           --header "Authorization: token ${{inputs.github_token}}" \
           --header "Content-Type: application/json"  > state.json
 
-          STATE=$(cat state.json | jq -r '.[0].state'")
+          STATE=$(cat state.json | jq -r ".[0].state")
           echo "BUILD_STATE=$STATE" >> $GITHUB_ENV
           rm -rf state.json
 
