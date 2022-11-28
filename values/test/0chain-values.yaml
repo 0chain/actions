@@ -524,6 +524,7 @@ commonConf:
           max_idle_conns: 100
           max_open_conns: 200
           conn_max_lifetime: 20s
+          aggregate_period: 11
 
     network:
       nodes_file: config/single_machine_3_nodes.yaml
