@@ -74,13 +74,13 @@ runs:
         echo "Test file filter:       [${{ inputs.test_file_filter }}]"
 
     - name: "Checkout System Tests"
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: "0chain/system_test"
         ref: ${{ env.SYSTEM_TESTS_BRANCH }}
 
     - name: "Checkout 0wallet CLI"
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: ${{ env.ZWALLET_BRANCH }}
         repository: 0chain/zwalletcli
@@ -88,7 +88,7 @@ runs:
         path: ./zwalletcli
 
     - name: "Checkout 0box CLI"
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: ${{ env.ZBOX_BRANCH }}
         repository: 0chain/zboxcli
@@ -96,7 +96,7 @@ runs:
         path: ./zboxcli
 
     - name: "Setup Go"
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: 1.18
 
@@ -126,6 +126,10 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
@@ -171,10 +175,16 @@ runs:
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
+        
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
+        
         go get gotest.tools/gotestsum
         go get github.com/vakenbolt/go-test-report
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,network_entrypoint:.*,network_entrypoint: https://${{ env.NETWORK_URL }}/dns/network," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
 
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
@@ -200,6 +210,11 @@ runs:
         echo "RUNNING API SYSTEM TESTS:"
         echo "======================================================"
         echo
+        
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
 
         cd tests/api_tests
         api_system_tests_exit_code=0
@@ -219,7 +234,7 @@ runs:
 
     - name: "Archive API Test Config & Console Output"
       if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: API-System-Test-${{ env.TEST_TIME }}
         path: |
@@ -237,8 +252,13 @@ runs:
         echo
 
         if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizor|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
+        
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
 
         cd tests/cli_tests
         system_tests_exit_code=0
@@ -265,10 +285,15 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizor|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
 
         cd tests/cli_tests
+        
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
 
         testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
         echo "Attempting to resolve filter to test files..."
@@ -317,7 +342,7 @@ runs:
 
     - name: "Archive CLI Config & Console Output"
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.archive_results == 'true' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: System-Test-${{ env.TEST_TIME }}
         path: |
@@ -331,7 +356,7 @@ runs:
       run: |
         if [ -n "${{ env.NAMESPACE }}" ];
           then
-            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizor|zbox|zblock|zdns|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_post_test_run.txt
+            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_post_test_run.txt
             echo "Pod status pre test run (some restarts are normal as the network stabilises):"
             cat pod_status_pre_test_run.txt
             echo "Pod status post test run (no further restarts should have taken place for the network to be considered stable):"
@@ -361,6 +386,12 @@ runs:
         echo "RUNNING FLAKY SYSTEM TESTS:"
         echo "======================================================"
         echo
+        
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
+        
         cd tests/cli_tests
         rm -rf cmdlog.log || true
         rm -rf test-output.json || true
@@ -371,7 +402,7 @@ runs:
 
     - name: "Archive Flaky Test CLI Config & Console Output"
       if: ${{ always() && env.FLAKY_TESTS_RAN == 'true' && inputs.archive_results  == 'true'}}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Flaky-System-Test-${{ env.TEST_TIME }}
         path: |
@@ -447,7 +478,7 @@ runs:
 
     - name: "Archive Sharder Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-sharder
         path: |
@@ -456,7 +487,7 @@ runs:
         retention-days: 5
     - name: "Archive Miner Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-miner
         path: |
@@ -467,7 +498,7 @@ runs:
 
     - name: "Archive Blobber Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-blobber
         path: |
@@ -481,7 +512,7 @@ runs:
 
     - name: "Archive Validator Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-validator
         path: |

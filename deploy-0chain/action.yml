@@ -190,8 +190,8 @@ runs:
         ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
-        
-        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set commonConf.zchainDown.number_of_delegates=20 --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" --set commonConf.zchainUp.server_chain.transaction.timeout=600 --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} --set commonConf.zchainUp.server_chain.dkg=true --set commonConf.zchainUp.server_chain.view_change=false --set commonConf.zchainUp.server_chain.state.enabled=true --set commonConf.zchainUp.server_chain.block_rewards=true --set commonConf.zchainUp.server_chain.smart_contract.storage=true --set commonConf.zchainUp.server_chain.smart_contract.faucet=true --set commonConf.zchainUp.server_chain.smart_contract.interest=true --set commonConf.zchainUp.server_chain.smart_contract.miner=true --set commonConf.zchainUp.server_chain.smart_contract.multisig=true --set commonConf.zchainUp.server_chain.smart_contract.vesting=true --set commonConf.zchainUp.server_chain.smart_contract.zcn=true --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+
+        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set commonConf.zchainDown.number_of_delegates=20 --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" --set commonConf.zchainUp.server_chain.transaction.timeout=600 --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} --set commonConf.zchainUp.server_chain.dkg=true --set commonConf.zchainUp.server_chain.view_change=false --set commonConf.zchainUp.server_chain.state.enabled=true --set commonConf.zchainUp.server_chain.block_rewards=true --set commonConf.zchainUp.server_chain.smart_contract.storage=true --set commonConf.zchainUp.server_chain.smart_contract.faucet=true --set commonConf.zchainUp.server_chain.smart_contract.interest=true --set commonConf.zchainUp.server_chain.smart_contract.miner=true --set commonConf.zchainUp.server_chain.smart_contract.multisig=true --set commonConf.zchainUp.server_chain.smart_contract.vesting=true --set commonConf.zchainUp.server_chain.smart_contract.zcn=true --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 --set commonConf.sc.smart_contracts.minersc.num_miner_delegates_rewarded=10 --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install blobber --wait --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install 0block --set zblock.hostName=${{ env.NAMESPACE }} --set zblock.host=devnet-0chain.net --set zblock.image.tag=${{ env.ZBLOCK_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zblock --kubeconfig ./kube/${{ env.NAMESPACE }}-config
@@ -204,7 +204,7 @@ runs:
         ./deploy.sh
 
     - name: "Checkout 0wallet CLI"
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: ${{ env.ZWALLET_BRANCH }}
         repository: 0chain/zwalletcli
@@ -212,7 +212,7 @@ runs:
         path: ./zwalletcli
 
     - name: "Checkout 0box CLI"
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: ${{ env.ZBOX_BRANCH }}
         repository: 0chain/zboxcli
@@ -220,7 +220,7 @@ runs:
         path: ./zboxcli
 
     - name: "Setup Go"
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: 1.18
 
@@ -234,6 +234,9 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
@@ -335,10 +338,11 @@ runs:
             }
             done
         }
+        export HOME="/root"
         retry ./zwallet register --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
-        for i in {1..6}
+        for i in {1..12}
         do
-            retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 2 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
         # Wait for 6 blobbers to register for 60 seconds...
@@ -356,7 +360,7 @@ runs:
           sleep 10
           ((count++))
         done
-        if [[ $num -ne 6 ]]
+        if [[ $num -lt 6 ]]
         then
           echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
           cat build.log
@@ -365,7 +369,7 @@ runs:
         readarray -t blobber_ids < build.log
         for id in "${blobber_ids[@]}"
         do
-            retry ./zbox sp-lock --blobber_id $id --tokens 1 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zbox sp-lock --blobber_id $id --tokens 5 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
         ' > ./stake_blobbers.sh;
         chmod 777 ./stake_blobbers.sh;
@@ -464,7 +468,7 @@ runs:
 
     - name: "Archive Sharder Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-sharder
         path: |
@@ -473,7 +477,7 @@ runs:
         retention-days: 5
     - name: "Archive Miner Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-miner
         path: |
@@ -484,7 +488,7 @@ runs:
 
     - name: "Archive Blobber Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-blobber
         path: |
@@ -498,7 +502,7 @@ runs:
 
     - name: "Archive Validator Logging"
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: logging-pods-tests-validator
         path: |
