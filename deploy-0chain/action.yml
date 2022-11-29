@@ -192,7 +192,7 @@ runs:
         ./add-configmap.sh nodes
         
         helm upgrade --install 0chain --wait \
-            --timeout 10m  0chain-helm/zchainDel \
+          --timeout 10m  0chain-helm/zchainDel \
           --set sharder.hostName=${{ env.NAMESPACE }} \
           --set sharder.host=devnet-0chain.net \
           --set sharder.image.tag=${{ env.SHARDER_TAG }} \
