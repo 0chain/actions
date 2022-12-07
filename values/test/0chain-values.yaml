@@ -466,6 +466,7 @@ commonConf:
           - sharder_keep
           - shareSignsOrShares
           - wait
+          - pour
       client:
         signature_scheme: bls0chain # ed25519 or bls0chain
         discover: true
