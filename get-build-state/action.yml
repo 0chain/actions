@@ -1,0 +1,38 @@
+name: "Get Github BuiLd State"
+description: "Get build state of a github branch or SHA"
+inputs:
+  repository:
+    description: 'repository'
+    required: true
+  sha:
+    description: 'The branch or SHA you want to get the state of'
+    required: true
+  github_token:
+    description: 'github_token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Get State of {{ inputs.sha }}"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo '#!/bin/bash
+          curl --silent --fail --location --request GET "https://api.github.com/repos/${{inputs.repository}}/commits/${{inputs.sha}}/statuses" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --header "Authorization: token ${{inputs.github_token}}" \
+          --header "Content-Type: application/json"  > state.json
+
+          STATE=$(cat state.json | jq -r ".[0].state")
+        
+          if [[ -z "$STATE" ]];then
+            STATE="no state set"
+          fi
+        
+          echo "BUILD_STATE=$STATE" >> $GITHUB_ENV
+          rm -rf state.json
+
+        ' > ./get-state.sh;
+        chmod 777 ./get-state.sh;
+
+        ./get-state.sh || { sleep 10 && echo "Retrying..." && ./get-state.sh; }
