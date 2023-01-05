@@ -68,6 +68,7 @@ runs:
         echo
         echo "System tests branch:    [${{ env.SYSTEM_TESTS_BRANCH }}]"
         echo "0Chain network URL:     [${{ env.NETWORK_URL }}]"
+        echo "0box network URL:       [0box.${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:        [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:     [${{ env.ZWALLET_BRANCH }}]"
         echo "Custom gosdk version:   [${{ inputs.custom_go_sdk_version }}]"
