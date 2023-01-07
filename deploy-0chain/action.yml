@@ -457,7 +457,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         helm upgrade --install --wait \
-          --set zs3server.hostName=dev-${{ RUNNER_NAME:(-1) }} \
+          --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
           --set zs3server.host=devnet-0chain.net \
           --set zs3server.client.image.tag=v0.0.2 \
           --set zs3server.logsearchapi.image.tag=v0.0.1 \
