@@ -453,7 +453,7 @@ runs:
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --silent
         ./zbox newallocation --lock 5 --data 2 --parity 2 --silent | grep -o "[a-z0-9]\{64\}" > allocation.txt
         echo "Allocation hash: $(cat allocation.txt)"
-        echo "ALLOCATION=$(cat allocation.txt)" >> GITHUB_ENV
+        echo "ALLOCATION=$(cat allocation.txt)" >> $GITHUB_ENV
         echo "Allocation hash env variable: ${{ env.ALLOCATION }}"
 
     - name: "Install Zs3Server"
