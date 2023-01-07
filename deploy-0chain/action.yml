@@ -467,7 +467,7 @@ runs:
           --set zs3server.minio.image.tag=v0.0.1 \
           --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
           --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
-          zs3server -n helm 0chain-helm/zs3server
+          zs3server -n helm 0chain-helm/zs3server --kubeconfig ./kube/${{ env.NAMESPACE }}-config
 
     - name: "Extract Logging From Pods"
       if: ${{ failure() && env.NAMESPACE != '' }}
