@@ -447,6 +447,25 @@ runs:
           echo "==========================================================="
         fi
 
+    - name: "Install Zs3Server"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --silent
+        echo "ALLOCATION=$(echo ${{./zbox newallocation --lock 5 --data 2 --parity 2 --silent | grep --only-matching -e "\b[0-9a-f]{3,}\b"}})" >> $GITHUB_ENV
+
+    - name: "Install Zs3Server"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        helm upgrade --install --wait \
+          --set zs3server.hostName=helm \
+          --set zs3server.host=0chain.net \
+          --set zs3server.client.image.tag=v0.0.2 \
+          --set zs3server.logsearchapi.image.tag=v0.0.1 \
+          --set zs3server.minio.image.tag=v0.0.1 \
+          --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
+          --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
+          zs3server -n helm 0chain-helm/zs3server
+
     - name: "Extract Logging From Pods"
       if: ${{ failure() && env.NAMESPACE != '' }}
       shell: 'script --return --quiet --command "bash {0}"'
