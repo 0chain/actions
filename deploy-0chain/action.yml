@@ -451,8 +451,10 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --silent
-        echo "ALLOCATION=$(echo ${{ './zbox newallocation --lock 5 --data 2 --parity 2 --silent | grep -o "[a-z0-9]\{64\}"'}})" >> $GITHUB_ENV
-        echo "Allocation hash: ${{ env.ALLOCATION }}"
+        ./zbox newallocation --lock 5 --data 2 --parity 2 --silent | grep -o "[a-z0-9]\{64\}" > allocation.txt
+        echo "Allocation hash: $(cat allocation.txt)"
+        echo "ALLOCATION=$(cat allocation.txt)" >> GITHUB_ENV
+        echo "Allocation hash env variable: ${{ env.ALLOCATION }}"
 
     - name: "Install Zs3Server"
       shell: 'script --return --quiet --command "bash {0}"'
