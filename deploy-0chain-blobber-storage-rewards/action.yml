@@ -342,9 +342,9 @@ runs:
             retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
-        # Wait for 6 blobbers to register for 60 seconds...
+        # Wait for 2 blobbers to register for 60 seconds...
         count=0
-        while [[ $count -le 5 ]]
+        while [[ $count -le 1 ]]
         do
           retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
@@ -353,11 +353,11 @@ runs:
           cat build.log
           echo
 
-          [[ $num -eq 6 ]] && break
+          [[ $num -eq 2 ]] && break
           sleep 10
           ((count++))
         done
-        if [[ $num -lt 6 ]]
+        if [[ $num -lt 2 ]]
         then
           echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
           cat build.log
