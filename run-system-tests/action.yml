@@ -45,7 +45,7 @@ inputs:
   run_cli_system_tests:
     required: false
     default: "true"
-    description: 'Subset of system tests to run'
+    description: 'Enable or disable CLI system tests'
   DEVOPS_CHANNEL_WEBHOOK_URL:
     required: false
     default: ""
