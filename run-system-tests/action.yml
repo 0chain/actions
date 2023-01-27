@@ -42,6 +42,10 @@ inputs:
     required: false
     default: ""
     description: 'Subset of system tests to run'
+  run_cli_system_tests:
+    required: false
+    default: "true"
+    description: 'Subset of system tests to run'
   DEVOPS_CHANNEL_WEBHOOK_URL:
     required: false
     default: ""
@@ -159,6 +163,13 @@ runs:
         echo "SETTING UP SYSTEM TESTS:"
         echo "======================================================"
         echo
+        if [ "${{ inputs.run_cli_system_tests }}" == "false" ];
+           then
+              echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+              echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+        
         if [ "${{ inputs.retry_failures }}" == "true" ];
            then
               echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
@@ -203,7 +214,7 @@ runs:
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
-    - name: "Run API CLI System Tests"
+    - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
       if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
@@ -245,7 +256,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == "true" }}
       run: |
         echo
         echo "======================================================"
