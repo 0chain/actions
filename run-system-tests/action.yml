@@ -77,6 +77,7 @@ runs:
         echo "0wallet CLI branch:     [${{ env.ZWALLET_BRANCH }}]"
         echo "Custom gosdk version:   [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:       [${{ inputs.test_file_filter }}]"
+        echo "Running CLI tests:      [${{ inputs.run_cli_system_tests }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
