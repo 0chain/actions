@@ -117,6 +117,10 @@ on:
          default: 'NOT OVERRIDDEN'
          required: false
          type: string
+       run_cli_system_tests:
+         required: false
+         default: "true"
+         description: 'Enable or disable CLI system tests'
        test_file_filter:
         description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
         default: ''
@@ -294,6 +298,7 @@ jobs:
         run_flaky_tests: false
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
+        run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
 
     - name: "Runner tidy up"
