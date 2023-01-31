@@ -440,7 +440,7 @@ runs:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "0box"
-        pr-number: ${{ steps.zerochain.outputs.pr }}
+        pr-number: ${{ steps.zbox.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
           | config  | value |
