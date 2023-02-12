@@ -58,40 +58,40 @@ on:
          required: false
          type: string   
        zbox_cli_branch:
-        description: '0Box CLI branch which the tests will use'
-        default: 'staging'
-        required: false
-        type: string
+         description: '0Box CLI branch which the tests will use'
+         default: 'staging'
+         required: false
+         type: string
        zwallet_cli_branch:
-        description: '0Wallet CLI branch which the tests will use'
-        default: 'staging'
-        required: false
-        type: string
+         description: '0Wallet CLI branch which the tests will use'
+         default: 'staging'
+         required: false
+         type: string
        blobber_branch:
-        description: 'blobber branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
+         description: 'blobber branch to deploy'
+         default: 'staging'
+         required: false
+         type: string
        validator_branch:
-        description: 'validator branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
+         description: 'validator branch to deploy'
+         default: 'staging'
+         required: false
+         type: string
        authorizer_branch:
          description: 'authorizer branch to deploy'
          default: 'staging'
          required: false
          type: string
        zbox_branch:
-        description: '0box branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
+         description: '0box branch to deploy'
+         default: 'staging'
+         required: false
+         type: string
        zblock_branch:
-        description: '0block branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
+         description: '0block branch to deploy'
+         default: 'staging'
+         required: false
+         type: string
        zdns_branch:
          description: '0dns branch to deploy'
          default: 'staging'
@@ -117,16 +117,21 @@ on:
          default: 'NOT OVERRIDDEN'
          required: false
          type: string
+       run_cli_system_tests:
+         required: false
+         default: 'true'
+         description: 'Enable or disable CLI system tests'
+         type: string
        test_file_filter:
-        description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
-        default: ''
-        required: false
-        type: string
+         description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
+         default: ''
+         required: false
+         type: string
        skip_tests:
-        description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
-        default: 'FALSE'
-        required: false
-        type: string
+         description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
+         default: 'FALSE'
+         required: false
+         type: string
 jobs:
   system-tests:
     timeout-minutes: 120
@@ -294,6 +299,7 @@ jobs:
         run_flaky_tests: false
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
+        run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
 
     - name: "Runner tidy up"
