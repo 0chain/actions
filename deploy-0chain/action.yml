@@ -447,7 +447,7 @@ runs:
           echo "==========================================================="
         fi
 
-    - name: "Install Zs3Server"
+    - name: "Setup Zs3Server: Create allocation"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --silent
