@@ -47,7 +47,7 @@ inputs:
   teardown_condition:
     description: 'Variable on which to teardown network'
     default: 'ALWAYS_TEARDOWN'
-    required: false
+    required: falseethereum_node_url
   miner_fee:
     description: 'Miner fee per transaction'
     default: '0'
@@ -64,6 +64,10 @@ inputs:
     required: true
     default: "NONE"
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+  ethereum_node_url:
+    required: false
+    default: "https://rpc.tenderly.co/fork/${{ secrets.TENDERLY_FORK_ID }}"
+    description: 'Ethereum node URL used for 0Box CLI internal logic and Authorizers registration'
 
 runs:
   using: "composite"
@@ -308,7 +312,7 @@ runs:
         min_submit: 50 # in percentage
         min_confirmation: 50 # in percentage
         confirmation_chain_length: 3
-        ethereum_node_url: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+        ethereum_node_url: ${{ inputs.ethereum_node_url }}
         authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
         token_address: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
@@ -391,7 +395,7 @@ runs:
         echo 'owner:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          EthereumNodeURL: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+          EthereumNodeURL: ${{ inputs.ethereum_node_url }}
           BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
           AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
@@ -401,7 +405,7 @@ runs:
         bridge:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          EthereumNodeURL: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+          EthereumNodeURL: ${{ inputs.ethereum_node_url }}
           AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
           BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
@@ -413,7 +417,7 @@ runs:
         block_worker: https://${{ env.NETWORK_URL }}/dns
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
         confirmation_chain_length: 3
-        ethereum_node_url: https://goerli.infura.io/v3/6141be73a15d47748af0dc14f53d57d7
+        ethereum_node_url: ${{ inputs.ethereum_node_url }}
         min_confirmation: 50
         min_submit: 50
         signature_scheme: bls0chain
