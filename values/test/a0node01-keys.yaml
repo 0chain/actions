@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+  a0node01_keys.txt: |
+    aaa92604ae00dc24856aa7b4b086fb2b4bb1275b54ef6290e02ee5fb791ed50d1ad1d517491339d792486e76f9b87a132f841214ab1d55b081f042376aed3f18
+    edf6680531d6c323c28d32af65d7a50135a56a67acc4dac319494ed887e5aa00
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2022-03-12T15:57:18Z"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:a0node01_keys.txt: {}
+    manager: kubectl-create
+    operation: Update
+    time: "2022-03-12T15:57:18Z"
+  name: a0node01-keys
+  namespace: dev-x
+  resourceVersion: "9824708"
+  uid: 04b023f3-5cd2-4c06-b378-78929a0fc845

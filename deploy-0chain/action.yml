@@ -188,6 +188,21 @@ runs:
         ./add-configmap.sh b0mnode03-dkg
         ./add-configmap.sh b0snode01-keys
         ./add-configmap.sh b0snode02-keys
+        ./add-configmap.sh b0bnode01-keys
+        ./add-configmap.sh b0bnode02-keys
+        ./add-configmap.sh b0bnode03-keys
+        ./add-configmap.sh b0bnode04-keys
+        ./add-configmap.sh b0bnode05-keys
+        ./add-configmap.sh b0bnode06-keys
+        ./add-configmap.sh b0vnode01-keys
+        ./add-configmap.sh b0vnode02-keys
+        ./add-configmap.sh b0vnode03-keys
+        ./add-configmap.sh b0vnode04-keys
+        ./add-configmap.sh b0vnode05-keys
+        ./add-configmap.sh b0vnode06-keys
+        ./add-configmap.sh a0node01-keys
+        ./add-configmap.sh a0node02-keys
+        ./add-configmap.sh a0node03-keys
         ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
