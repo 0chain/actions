@@ -459,6 +459,7 @@ runs:
     - name: "Install Zs3Server"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        helm repo update
         helm upgrade --install --wait \
           --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
           --set zs3server.host=devnet-0chain.net \
