@@ -66,7 +66,7 @@ inputs:
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
   ethereum_node_url:
     required: false
-    default: "https://rpc.tenderly.co/fork/${{ secrets.TENDERLY_FORK_ID }}"
+    default: "https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888"
     description: 'Ethereum node URL used for 0Box CLI internal logic and Authorizers registration'
 
 runs:
