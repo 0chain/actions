@@ -47,7 +47,7 @@ inputs:
   teardown_condition:
     description: 'Variable on which to teardown network'
     default: 'ALWAYS_TEARDOWN'
-    required: falseethereum_node_url
+    required: false
   miner_fee:
     description: 'Miner fee per transaction'
     default: '0'
