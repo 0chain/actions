@@ -4,8 +4,12 @@ inputs:
   kube_config:
     description: 'cluster details'
     required: true
-  zchain_image:
-    description: 'sharder and miner DOCKER IMAGE to deploy'
+  sharder_image:
+    description: 'sharder DOCKER IMAGE to deploy'
+    default: 'staging'
+    required: false
+  miner_image:
+    description: 'miner DOCKER IMAGE to deploy'
     default: 'staging'
     required: false
   blobber_image:
@@ -73,7 +77,8 @@ runs:
       run: |       
         echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-        echo "ZCHAIN_TAG=$(echo '${{inputs.zchain_image}}')" >> $GITHUB_ENV
+        echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
+        echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "BLOBBER_TAG=$(echo '${{inputs.blobber_image}}')" >> $GITHUB_ENV
         echo "VALIDATOR_TAG=$(echo '${{inputs.validator_image}}')" >> $GITHUB_ENV
         echo "AUTHORIZER_TAG=$(echo '${{inputs.authorizer_image}}')" >> $GITHUB_ENV
@@ -100,7 +105,8 @@ runs:
         echo "=================================================="
         echo
         echo "0Chain network URL:      [${{ env.NETWORK_URL }}]"
-        echo "0Chain docker image:     [${{ env.ZCHAIN_TAG }}]"
+        echo "Sharder docker image:    [${{ env.SHARDER_TAG }}]"
+        echo "Miner docker image:      [${{ env.MINER_TAG }}]"
         echo "Blobber docker image:    [${{ env.BLOBBER_TAG }}]"
         echo "Validator docker image:  [${{ env.VALIDATOR_TAG }}]"
         echo "Authorizer docker image: [${{ env.AUTHORIZER_TAG }}]"
@@ -189,7 +195,7 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
         sleep 2s && helm repo update
-        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.ZCHAIN_TAG }} --set commonConf.zchainDown.number_of_delegates=20 --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" --set commonConf.zchainUp.server_chain.transaction.timeout=600 --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.ZCHAIN_TAG }} --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} --set commonConf.zchainUp.server_chain.dkg=true --set commonConf.zchainUp.server_chain.view_change=false --set commonConf.zchainUp.server_chain.state.enabled=true --set commonConf.zchainUp.server_chain.block_rewards=true --set commonConf.zchainUp.server_chain.smart_contract.storage=true --set commonConf.zchainUp.server_chain.smart_contract.faucet=true --set commonConf.zchainUp.server_chain.smart_contract.interest=true --set commonConf.zchainUp.server_chain.smart_contract.miner=true --set commonConf.zchainUp.server_chain.smart_contract.multisig=true --set commonConf.zchainUp.server_chain.smart_contract.vesting=true --set commonConf.zchainUp.server_chain.smart_contract.zcn=true --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 --set commonConf.sc.smart_contracts.minersc.num_miner_delegates_rewarded=10 --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 --set commonConf.zchainUp.server_chain.dbs.settings.debug=true --set commonConf.zchainUp.server_chain.dbs.settings.aggregate_period=10 --set commonConf.zchainUp.server_chain.dbs.settings.page_limit=50  --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 --set commonConf.sc.smart_contracts.storagesc.min_alloc_duration="2s" -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set commonConf.zchainDown.number_of_delegates=20 --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" --set commonConf.zchainUp.server_chain.transaction.timeout=600 --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} --set commonConf.zchainUp.server_chain.dkg=true --set commonConf.zchainUp.server_chain.view_change=false --set commonConf.zchainUp.server_chain.state.enabled=true --set commonConf.zchainUp.server_chain.block_rewards=true --set commonConf.zchainUp.server_chain.smart_contract.storage=true --set commonConf.zchainUp.server_chain.smart_contract.faucet=true --set commonConf.zchainUp.server_chain.smart_contract.interest=true --set commonConf.zchainUp.server_chain.smart_contract.miner=true --set commonConf.zchainUp.server_chain.smart_contract.multisig=true --set commonConf.zchainUp.server_chain.smart_contract.vesting=true --set commonConf.zchainUp.server_chain.smart_contract.zcn=true --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 --set commonConf.sc.smart_contracts.minersc.num_miner_delegates_rewarded=10 --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 --set commonConf.zchainUp.server_chain.dbs.settings.debug=true --set commonConf.zchainUp.server_chain.dbs.settings.aggregate_period=10 --set commonConf.zchainUp.server_chain.dbs.settings.page_limit=50  --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 --set commonConf.sc.smart_contracts.storagesc.min_alloc_duration="2s" -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
