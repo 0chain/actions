@@ -229,7 +229,6 @@ jobs:
       if: ${{ inputs.skip_tests == 'FALSE' }}
       run: |
         ./get_tag.sh 0chain ${{ inputs.miner_branch }} miner
-        ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
         ./get_tag.sh blobber ${{ inputs.blobber_branch }} blobber
         ./get_tag.sh blobber ${{ inputs.validator_branch }} validator
         ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
@@ -269,8 +268,7 @@ jobs:
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
-        miner_image:  ${{ env.MINER_TAG }}
-        sharder_image: ${{ env.SHARDER_TAG }}
+        zchain_image:  ${{ env.MINER_TAG }}
         blobber_image: ${{ env.BLOBBER_TAG }}
         validator_image: ${{ env.VALIDATOR_TAG }}
         authorizer_image: ${{ env.AUTHORIZER_TAG }}
