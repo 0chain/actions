@@ -7,6 +7,9 @@ concurrency:
 on:
   workflow_call:
     secrets:
+      TENDERLY_FORK_ID:
+        description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
+        required: true
       DEVOPS_CHANNEL_WEBHOOK_URL:
         description: 'URL to notify slack if tests fail on staging'
         required: true
@@ -283,6 +286,7 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
+        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
@@ -300,8 +304,9 @@ jobs:
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
         run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
+        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
-
+        
     - name: "Runner tidy up"
       if: always()
       run: rm -rf ./*
