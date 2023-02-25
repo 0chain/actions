@@ -204,6 +204,8 @@ runs:
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/bridge.yaml
+        sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/owner.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
 
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
