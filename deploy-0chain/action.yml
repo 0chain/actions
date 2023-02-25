@@ -4,12 +4,12 @@ inputs:
   kube_config:
     description: 'cluster details'
     required: true
-  sharder_image:
-    description: 'sharder DOCKER IMAGE to deploy'
-    default: 'staging'
-    required: false
   miner_image:
     description: 'miner DOCKER IMAGE to deploy'
+    default: 'staging'
+    required: false
+  sharder_image:
+    description: 'sharder DOCKER IMAGE to deploy'
     default: 'staging'
     required: false
   blobber_image:
@@ -73,8 +73,8 @@ runs:
       run: |       
         echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-        echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
+        echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
         echo "BLOBBER_TAG=$(echo '${{inputs.blobber_image}}')" >> $GITHUB_ENV
         echo "VALIDATOR_TAG=$(echo '${{inputs.validator_image}}')" >> $GITHUB_ENV
         echo "AUTHORIZER_TAG=$(echo '${{inputs.authorizer_image}}')" >> $GITHUB_ENV
@@ -103,8 +103,8 @@ runs:
         echo "=================================================="
         echo
         echo "0Chain network URL:      [${{ env.NETWORK_URL }}]"
-        echo "Sharder docker image:    [${{ env.SHARDER_TAG }}]"
         echo "Miner docker image:      [${{ env.MINER_TAG }}]"
+        echo "Sharder docker image:    [${{ env.SHARDER_TAG }}]"
         echo "Blobber docker image:    [${{ env.BLOBBER_TAG }}]"
         echo "Validator docker image:  [${{ env.VALIDATOR_TAG }}]"
         echo "Authorizer docker image: [${{ env.AUTHORIZER_TAG }}]"
