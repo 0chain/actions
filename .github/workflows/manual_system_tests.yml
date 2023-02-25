@@ -283,7 +283,6 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ secrets.TENDERLY_FORK_ID }}'
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
@@ -301,7 +300,6 @@ jobs:
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
         run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
-        ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ secrets.TENDERLY_FORK_ID }}'
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
 
     - name: "Runner tidy up"
