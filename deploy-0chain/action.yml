@@ -64,6 +64,9 @@ inputs:
     required: true
     default: "NONE"
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+  TENDERLY_FORK_ID:
+    required: true
+    description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
 
 runs:
   using: "composite"
@@ -88,6 +91,7 @@ runs:
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
+        echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -111,6 +115,7 @@ runs:
         echo "0block docker image:     [${{ env.ZBLOCK_TAG }}]"
         echo "0Search docker image:    [${{ env.ZSEARCH_TAG }}]"
         echo "Explorer docker image:   [${{ env.EXPLORER_TAG }}]"
+        echo "Ethereum node url:       [${{ env.ETHEREUM_NODE_URL }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -205,7 +210,7 @@ runs:
         sleep 2s && helm repo update
         helm upgrade --install 0search --set zsearch.hostName=${{ env.NAMESPACE }} --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
-        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ inputs.ethereum_node_url }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
@@ -308,7 +313,7 @@ runs:
         min_submit: 50 # in percentage
         min_confirmation: 50 # in percentage
         confirmation_chain_length: 3
-        ethereum_node_url: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+        ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
         authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
         token_address: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
@@ -391,7 +396,7 @@ runs:
         echo 'owner:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          EthereumNodeURL: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+          EthereumNodeURL: ${{ env.ETHEREUM_NODE_URL }}
           BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
           AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
@@ -401,7 +406,7 @@ runs:
         bridge:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          EthereumNodeURL: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+          EthereumNodeURL: ${{ env.ETHEREUM_NODE_URL }}
           AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
           BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
@@ -413,7 +418,7 @@ runs:
         block_worker: https://${{ env.NETWORK_URL }}/dns
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
         confirmation_chain_length: 3
-        ethereum_node_url: https://goerli.infura.io/v3/6141be73a15d47748af0dc14f53d57d7
+        ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
         min_confirmation: 50
         min_submit: 50
         signature_scheme: bls0chain
