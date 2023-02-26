@@ -115,7 +115,7 @@ runs:
         echo "0block docker image:     [${{ env.ZBLOCK_TAG }}]"
         echo "0Search docker image:    [${{ env.ZSEARCH_TAG }}]"
         echo "Explorer docker image:   [${{ env.EXPLORER_TAG }}]"
-        echo "Ethereum node url: [${{ env.ETHEREUM_NODE_URL }}]"
+        echo "Ethereum node url:       [${{ env.ETHEREUM_NODE_URL }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
