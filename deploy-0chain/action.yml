@@ -91,6 +91,7 @@ runs:
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
+        echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/'${{ inputs.TENDERLY_FORK_ID }}')" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
