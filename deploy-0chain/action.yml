@@ -64,6 +64,9 @@ inputs:
     required: true
     default: "NONE"
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+  TENDERLY_FORK_ID:
+    required: true
+    description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
 
 runs:
   using: "composite"
@@ -88,6 +91,7 @@ runs:
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
+        echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -111,6 +115,7 @@ runs:
         echo "0block docker image:     [${{ env.ZBLOCK_TAG }}]"
         echo "0Search docker image:    [${{ env.ZSEARCH_TAG }}]"
         echo "Explorer docker image:   [${{ env.EXPLORER_TAG }}]"
+        echo "Ethereum node url:       [${{ env.ETHEREUM_NODE_URL }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -190,14 +195,22 @@ runs:
         ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
+        sleep 2s && helm repo update
         helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set commonConf.zchainDown.number_of_delegates=20 --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" --set commonConf.zchainUp.server_chain.transaction.timeout=600 --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} --set commonConf.zchainUp.server_chain.dkg=true --set commonConf.zchainUp.server_chain.view_change=false --set commonConf.zchainUp.server_chain.state.enabled=true --set commonConf.zchainUp.server_chain.block_rewards=true --set commonConf.zchainUp.server_chain.smart_contract.storage=true --set commonConf.zchainUp.server_chain.smart_contract.faucet=true --set commonConf.zchainUp.server_chain.smart_contract.interest=true --set commonConf.zchainUp.server_chain.smart_contract.miner=true --set commonConf.zchainUp.server_chain.smart_contract.multisig=true --set commonConf.zchainUp.server_chain.smart_contract.vesting=true --set commonConf.zchainUp.server_chain.smart_contract.zcn=true --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 --set commonConf.sc.smart_contracts.minersc.num_miner_delegates_rewarded=10 --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 --set commonConf.zchainUp.server_chain.dbs.settings.debug=true --set commonConf.zchainUp.server_chain.dbs.settings.aggregate_period=10 --set commonConf.zchainUp.server_chain.dbs.settings.page_limit=50  --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 --set commonConf.sc.smart_contracts.storagesc.min_alloc_duration="2s" -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
         helm upgrade --install blobber --wait --timeout 120s --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
         helm upgrade --install 0block --set zblock.hostName=${{ env.NAMESPACE }} --set zblock.host=devnet-0chain.net --set zblock.image.tag=${{ env.ZBLOCK_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zblock --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
         helm upgrade --install explorer --set explorer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set explorer.hostName=${{ env.NAMESPACE }} --set explorer.image.tag=${{ env.EXPLORER_TAG }} --set explorer.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/explorer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
         helm upgrade --install 0search --set zsearch.hostName=${{ env.NAMESPACE }} --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
+        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
@@ -300,7 +313,7 @@ runs:
         min_submit: 50 # in percentage
         min_confirmation: 50 # in percentage
         confirmation_chain_length: 3
-        ethereum_node_url: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+        ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
         authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
         token_address: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
@@ -383,7 +396,7 @@ runs:
         echo 'owner:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          EthereumNodeURL: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+          EthereumNodeURL: ${{ env.ETHEREUM_NODE_URL }}
           BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
           AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
@@ -393,7 +406,7 @@ runs:
         bridge:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          EthereumNodeURL: https://goerli.infura.io/v3/773bfe30452f40f998e5d0f2f8a29888
+          EthereumNodeURL: ${{ env.ETHEREUM_NODE_URL }}
           AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
           BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
@@ -405,7 +418,7 @@ runs:
         block_worker: https://${{ env.NETWORK_URL }}/dns
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
         confirmation_chain_length: 3
-        ethereum_node_url: https://goerli.infura.io/v3/6141be73a15d47748af0dc14f53d57d7
+        ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
         min_confirmation: 50
         min_submit: 50
         signature_scheme: bls0chain
