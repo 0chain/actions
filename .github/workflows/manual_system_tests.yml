@@ -115,6 +115,11 @@ on:
          default: 'staging'
          required: false
          type: string
+       zs3server_branch:
+         description: '0search branch to deploy'
+         default: 'master'
+         required: false
+         type: string
        gosdk_branch:
          description: 'gosdk branch to inject into the CLIs'
          default: 'NOT OVERRIDDEN'
@@ -242,9 +247,10 @@ jobs:
         ./get_tag.sh block-explorer ${{ inputs.explorer_branch }} explorer
         ./get_tag.sh 0proxy ${{ inputs.zproxy_branch }} 0proxy
         ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
+        ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@master
+      uses: 0chain/actions/notify-pull-request@fix/zs3image_input
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -263,12 +269,14 @@ jobs:
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
+        authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        zs3server_branch: ${{ inputs.zs3server_branch }}
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@master
+      uses: 0chain/actions/deploy-0chain@fix/zs3image_input
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -285,12 +293,16 @@ jobs:
         zsearch_image: ${{ env.ZSEARCH_TAG }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+        zs3_server: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        zs3_client: ${{ inputs.zs3server_branch }}
+        zs3_logsearchapi: ${{ inputs.zs3server_branch }}
+        zs3_minio: ${{ inputs.zs3server_branch }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@master
+      uses: 0chain/actions/run-system-tests@fix/zs3image_input
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
@@ -313,7 +325,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@master
+      uses: 0chain/actions/notify-pull-request@fix/zs3image_input
       continue-on-error: true
       with:
         state: ${{ job.status }}
@@ -333,3 +345,4 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        zs3server_branch: ${{ inputs.zs3server_branch }}
