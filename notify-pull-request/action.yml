@@ -90,6 +90,7 @@ runs:
         fi
         echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
+        echo ZBOX_SHA=$(./get_sha.sh 0box ${{ inputs.zbox_branch }}) >> $GITHUB_ENV
         echo AUTHORIZER_SHA=$(./get_sha.sh token_bridge_authserver ${{ inputs.authorizer_branch }}) >> $GITHUB_ENV
 
 
@@ -102,17 +103,16 @@ runs:
         repo: "system_test"
       id: system_tests
     - name: "Set zbox cli PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
+      uses: 0chain/actions/set-pr-status@master
       if: steps.system_tests.outputs.number
       with:
         pr_number: ${{ steps.system_tests.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/system_test"
-        context: ${{ github.workflow }}
+        status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        github_token: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
@@ -149,17 +149,16 @@ runs:
         repo: "zboxcli"
       id: zbox_cli
     - name: "Set zbox cli PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
+      uses: 0chain/actions/set-pr-status@master
       if: steps.zbox_cli.outputs.number
       with:
         pr_number: ${{ steps.zbox_cli.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/zboxcli"
-        context: ${{ github.workflow }}
+        status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        github_token: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
@@ -196,17 +195,16 @@ runs:
         repo: "zwalletcli"
       id: zwallet_cli
     - name: "Set zwallet cli PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
+      uses: 0chain/actions/set-pr-status@master
       if: steps.zwallet_cli.outputs.number
       with:
         pr_number: ${{ steps.zwallet_cli.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/zwalletcli"
-        context: ${{ github.workflow }}
+        status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        github_token: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
@@ -243,17 +241,16 @@ runs:
         repo: "0chain"
       id: zerochain
     - name: "Set 0chain branch PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
+      uses: 0chain/actions/set-pr-status@master
       if: steps.zerochain.outputs.number
       with:
         pr_number: ${{ steps.zerochain.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/0chain"
-        context: ${{ github.workflow }}
+        status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        github_token: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
@@ -290,17 +287,16 @@ runs:
         repo: "blobber"
       id: blobber
     - name: "Set blobber PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
+      uses: 0chain/actions/set-pr-status@master
       if: steps.blobber.outputs.number
       with:
         pr_number: ${{ steps.blobber.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/blobber"
-        context: ${{ github.workflow }}
+        status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        github_token: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
@@ -337,17 +333,16 @@ runs:
         repo: "token_bridge_authserver"
       id: authorizer
     - name: "Set authorizer PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
+      uses: 0chain/actions/set-pr-status@master
       if: steps.authorizer.outputs.number
       with:
         pr_number: ${{ steps.authorizer.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/token_bridge_authserver"
-        context: ${{ github.workflow }}
+        status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        github_token: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
@@ -384,23 +379,68 @@ runs:
         repo: "gosdk"
       id: gosdk
     - name: "Set gosdk PR status"
-      uses: niteoweb/pull_request_status_action@v1.0.0
+      uses: 0chain/actions/set-pr-status@master
       if: steps.gosdk.outputs.number
       with:
         pr_number: ${{ steps.gosdk.outputs.pr }}
         description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
         state: ${{ inputs.state }}
         repository: "0chain/gosdk"
-        context: ${{ github.workflow }}
+        status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        github_token: ${{ inputs.github_token }}
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
         repo: "gosdk"
         pr-number: ${{ steps.gosdk.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | config  | value |
+          | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
+
+
+
+    - name: "Get 0box branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.ZBOX_SHA }}
+        owner: "0chain"
+        repo: "0box"
+      id: zbox
+    - name: "Set 0box branch PR status"
+      uses: 0chain/actions/set-pr-status@master
+      if: steps.zbox.outputs.number
+      with:
+        pr_number: ${{ steps.zbox.outputs.pr }}
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/0box"
+        status_name: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        github_token: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
+        owner: "0chain"
+        repo: "0box"
+        pr-number: ${{ steps.zbox.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
           | config  | value |

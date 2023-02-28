@@ -57,7 +57,6 @@ blobber:
     # max_offer_duration restrict long contracts where,
     # in the future, prices can be changed
     maxOfferDuration: "744h" # 31 day
-    challengeCompletionTime: "2m" # duration to complete a challenge
     # these timeouts required by blobber to check client pools, perform
     # a task and redeem tokens, it should be big enough
     readLockTimeout: "1m"
@@ -104,7 +103,11 @@ blobber:
       frequency: "10"
       numWorkers: "5"
       maxRetries: "20"
+    pg:
+      user: postgres
+      password: password
     db:
+      automigrate: true # true to automigrate with gorm's Automigration
       name: "blobber_meta"
       user: "blobber_user"
       password: "blobber"

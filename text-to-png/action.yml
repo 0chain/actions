@@ -1,0 +1,58 @@
+name: "Text to PNG"
+description: "Convert a Text File (eg. command output) to png, plscing it in the same working directory as the text file and optionally archiving it to github"
+inputs:
+  file_location:
+    description: 'Text file (ANSI colour coding supported) to convert to a PNG'
+    required: true
+  archive_file:
+    description: 'Whether or not to archive the result png to github'
+    default: 'true'
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Setup Go"
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: "Convert file"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        file_path=$(readlink -f ${{ inputs.file_location }})
+        echo "FILE_PATH=$(echo $file_path)" >> $GITHUB_ENV
+        echo "FILENAME=$(basename $file_path)" >> $GITHUB_ENV
+        mkdir file-to-image
+        cd file-to-image
+        wget https://github.com/ansilove/ansigo/archive/refs/heads/master.zip
+        unzip master.zip
+        cd ansigo-master
+        GO111MODULE=off go build ./...
+        mv ansigo-master ./ansigo
+        ./ansigo $file_path
+        cd ../../
+        rm -rf file-to-image
+
+    - name: "Archive file"
+      if: ${{ inputs.archive_file == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.FILENAME }}.png
+        path: ${{ env.FILE_PATH }}.png
+
+    - name: "Create post run teardown script"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo '#!/bin/bash
+
+        rm -rf file-to-image || true
+        rm -rf ${{ env.FILE_PATH }}.png || true
+
+        ' > ./post.sh;
+        chmod 777 ./post.sh;      
+
+    - name: "Post: remove temp files"
+      uses: webiny/action-post-run@2.0.1
+      with:
+        run: ./post.sh
+        working-directory: ./
