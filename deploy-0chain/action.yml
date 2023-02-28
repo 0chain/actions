@@ -473,6 +473,8 @@ runs:
     - name: "Install Zs3Server"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        helm repo remove 0chain-helm
+        helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/dev/
         helm repo update
         helm upgrade --install --wait \
           --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
