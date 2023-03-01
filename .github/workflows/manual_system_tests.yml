@@ -250,7 +250,7 @@ jobs:
         ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@zs3image_input
+      uses: 0chain/actions/notify-pull-request@master
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -325,7 +325,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@zs3image_input
+      uses: 0chain/actions/notify-pull-request@master
       continue-on-error: true
       with:
         state: ${{ job.status }}
