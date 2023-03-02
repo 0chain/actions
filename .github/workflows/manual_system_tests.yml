@@ -7,6 +7,9 @@ concurrency:
 on:
   workflow_call:
     secrets:
+      SUBGRAPH_API_URL:
+        description: 'API URL of the subgraph, which is used by internal components'
+        required: true
       TENDERLY_FORK_ID:
         description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
         required: true
@@ -287,6 +290,7 @@ jobs:
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
