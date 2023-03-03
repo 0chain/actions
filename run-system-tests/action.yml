@@ -42,6 +42,13 @@ inputs:
     required: false
     default: ""
     description: 'Subset of system tests to run'
+  run_cli_system_tests:
+    required: false
+    default: "true"
+    description: 'Enable or disable CLI system tests'
+  TENDERLY_FORK_ID:
+    required: true
+    description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
   DEVOPS_CHANNEL_WEBHOOK_URL:
     required: false
     default: ""
@@ -68,10 +75,13 @@ runs:
         echo
         echo "System tests branch:    [${{ env.SYSTEM_TESTS_BRANCH }}]"
         echo "0Chain network URL:     [${{ env.NETWORK_URL }}]"
+        echo "0box network URL:       [0box.${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:        [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:     [${{ env.ZWALLET_BRANCH }}]"
+        echo "Ethereum node URL:      [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
         echo "Custom gosdk version:   [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:       [${{ inputs.test_file_filter }}]"
+        echo "Running CLI tests:      [${{ inputs.run_cli_system_tests }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -158,6 +168,13 @@ runs:
         echo "SETTING UP SYSTEM TESTS:"
         echo "======================================================"
         echo
+        if [ "${{ inputs.run_cli_system_tests }}" == "false" ];
+           then
+              echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+              echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+        
         if [ "${{ inputs.retry_failures }}" == "true" ];
            then
               echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
@@ -185,6 +202,12 @@ runs:
         go get github.com/vakenbolt/go-test-report
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/bridge.yaml
+        sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/owner.yaml
+        sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
 
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
@@ -201,7 +224,7 @@ runs:
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
-    - name: "Run API CLI System Tests"
+    - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
       if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
@@ -243,7 +266,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"

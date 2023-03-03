@@ -7,6 +7,9 @@ concurrency:
 on:
   workflow_call:
     secrets:
+      TENDERLY_FORK_ID:
+        description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
+        required: true
       DEVOPS_CHANNEL_WEBHOOK_URL:
         description: 'URL to notify slack if tests fail on staging'
         required: true
@@ -42,87 +45,97 @@ on:
         required: true
 
     inputs:
-       system_tests_branch:
+      system_tests_branch:
         description: 'system_tests branch containing the tests you wish to run'
         default: 'master'
         required: true
         type: string
-       miner_branch:
-         description: 'miner branch which the tests will use'
-         default: 'staging'
-         required: false
-         type: string  
-       sharder_branch:
-         description: 'sharder branch which the tests will use'
-         default: 'staging'
-         required: false
-         type: string   
-       zbox_cli_branch:
+      miner_branch:
+        description: 'miner branch which the tests will use'
+        default: 'staging'
+        required: false
+        type: string  
+      sharder_branch:
+        description: 'sharder branch which the tests will use'
+        default: 'staging'
+        required: false
+        type: string   
+      zbox_cli_branch:
         description: '0Box CLI branch which the tests will use'
         default: 'staging'
         required: false
         type: string
-       zwallet_cli_branch:
+      zwallet_cli_branch:
         description: '0Wallet CLI branch which the tests will use'
         default: 'staging'
         required: false
         type: string
-       blobber_branch:
+      blobber_branch:
         description: 'blobber branch to deploy'
         default: 'staging'
         required: false
         type: string
-       validator_branch:
+      validator_branch:
         description: 'validator branch to deploy'
         default: 'staging'
         required: false
         type: string
-       authorizer_branch:
-         description: 'authorizer branch to deploy'
-         default: 'staging'
-         required: false
-         type: string
-       zbox_branch:
+      authorizer_branch:
+        description: 'authorizer branch to deploy'
+        default: 'staging'
+        required: false
+        type: string
+      zbox_branch:
         description: '0box branch to deploy'
         default: 'staging'
         required: false
         type: string
-       zblock_branch:
+      zblock_branch:
         description: '0block branch to deploy'
         default: 'staging'
         required: false
         type: string
-       zdns_branch:
-         description: '0dns branch to deploy'
-         default: 'staging'
-         required: false
-         type: string
-       explorer_branch:
-         description: 'explorer branch to deploy'
-         default: 'staging'
-         required: false
-         type: string
-       zproxy_branch:
-         description: '0proxy branch to deploy'
-         default: 'staging'
-         required: false
-         type: string
-       zsearch_branch:
-         description: '0search branch to deploy'
-         default: 'staging'
-         required: false
-         type: string
-       gosdk_branch:
-         description: 'gosdk branch to inject into the CLIs'
-         default: 'NOT OVERRIDDEN'
-         required: false
-         type: string
-       test_file_filter:
+      zdns_branch:
+        description: '0dns branch to deploy'
+        default: 'staging'
+        required: false
+        type: string
+      explorer_branch:
+        description: 'explorer branch to deploy'
+        default: 'staging'
+        required: false
+        type: string
+      zproxy_branch:
+        description: '0proxy branch to deploy'
+        default: 'staging'
+        required: false
+        type: string
+      zsearch_branch:
+        description: '0search branch to deploy'
+        default: 'staging'
+        required: false
+        type: string
+      zs3server_branch:
+        description: '0search branch to deploy'
+        default: 'master'
+        required: false
+        type: string
+      gosdk_branch:
+        description: 'gosdk branch to inject into the CLIs'
+        default: 'NOT OVERRIDDEN'
+        required: false
+        type: string
+      run_cli_system_tests:
+        required: false
+        default: 'true'
+        description: 'Enable or disable CLI system tests'
+        type: string
+      test_file_filter:
         description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
         default: ''
         required: false
         type: string
-       skip_tests:
+      skip_tests:
         description: '(LAST RESORT ONLY) Skip system tests. This will allow a PR to merge without requiring a green test run.  *By using you certify that the code being merged is not causing system tests to fail*'
         default: 'FALSE'
         required: false
@@ -234,6 +247,7 @@ jobs:
         ./get_tag.sh block-explorer ${{ inputs.explorer_branch }} explorer
         ./get_tag.sh 0proxy ${{ inputs.zproxy_branch }} 0proxy
         ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
+        ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
       uses: 0chain/actions/notify-pull-request@chain-fee
@@ -257,6 +271,7 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        zs3server_branch: ${{ inputs.zs3server_branch }}
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
@@ -276,7 +291,12 @@ jobs:
         zsearch_image: ${{ env.ZSEARCH_TAG }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+        zs3_server: ${{ inputs.zs3server_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
+        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        zs3_client: ${{ inputs.zs3server_branch }}
+        zs3_logsearchapi: ${{ inputs.zs3server_branch }}
+        zs3_minio: ${{ inputs.zs3server_branch }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
@@ -293,8 +313,10 @@ jobs:
         run_flaky_tests: false
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
+        run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
+        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
-
+        
     - name: "Runner tidy up"
       if: always()
       run: rm -rf ./*
@@ -321,3 +343,4 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        zs3server_branch: ${{ inputs.zs3server_branch }}

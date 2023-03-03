@@ -90,6 +90,7 @@ runs:
         fi
         echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
+        echo ZBOX_SHA=$(./get_sha.sh 0box ${{ inputs.zbox_branch }}) >> $GITHUB_ENV
         echo AUTHORIZER_SHA=$(./get_sha.sh token_bridge_authserver ${{ inputs.authorizer_branch }}) >> $GITHUB_ENV
 
 
@@ -394,6 +395,52 @@ runs:
         owner: "0chain"
         repo: "gosdk"
         pr-number: ${{ steps.gosdk.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | config  | value |
+          | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | 0block  | ${{ inputs.zblock_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+          | explorer  | ${{ inputs.explorer_branch }}  |
+          | 0proxy  | ${{ inputs.zproxy_branch }}  |
+          | 0search  | ${{ inputs.zsearch_branch }}  |
+        repo-token: ${{ inputs.github_token }}
+
+
+
+    - name: "Get 0box branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.ZBOX_SHA }}
+        owner: "0chain"
+        repo: "0box"
+      id: zbox
+    - name: "Set 0box branch PR status"
+      uses: 0chain/actions/set-pr-status@master
+      if: steps.zbox.outputs.number
+      with:
+        pr_number: ${{ steps.zbox.outputs.pr }}
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/0box"
+        status_name: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        github_token: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
+        owner: "0chain"
+        repo: "0box"
+        pr-number: ${{ steps.zbox.outputs.pr }}
         message: |
           Manual system tests [${{ inputs.state }}] with the following config
           | config  | value |
