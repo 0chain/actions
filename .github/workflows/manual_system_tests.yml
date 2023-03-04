@@ -116,8 +116,8 @@ on:
         required: false
         type: string
       zs3server_branch:
-        description: '0search branch to deploy'
-        default: 'master'
+        description: 'ZS3server branch to deploy'
+        default: 'staging'
         required: false
         type: string
       gosdk_branch:
