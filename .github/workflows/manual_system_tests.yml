@@ -1,4 +1,5 @@
 name: "0Chain System Tests"
+run-name: "Manual 0Chain System tests checked out from [${{ inputs.system_tests_branch }}"
 
 concurrency:
   group: "manual-system-tests-${{ github.ref }}"
