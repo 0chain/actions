@@ -8,6 +8,9 @@ concurrency:
 on:
   workflow_call:
     secrets:
+      SUBGRAPH_API_URL:
+        description: 'API URL of the subgraph, which is used by internal components'
+        required: true
       TENDERLY_FORK_ID:
         description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
         required: true
@@ -296,6 +299,7 @@ jobs:
         zs3_server: ${{ inputs.zs3server_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
         zs3_client: ${{ inputs.zs3server_branch }}
         zs3_logsearchapi: ${{ inputs.zs3server_branch }}
         zs3_minio: ${{ inputs.zs3server_branch }}

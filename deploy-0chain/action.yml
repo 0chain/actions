@@ -67,6 +67,9 @@ inputs:
   TENDERLY_FORK_ID:
     required: true
     description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
+  SUBGRAPH_API_URL:
+    required: true
+    description: 'API URL of the subgraph, which is used by internal components'
   zs3_client:
     required: true
     default: "staging"
@@ -107,6 +110,7 @@ runs:
         echo "ZS3_LOGSEARCHAPI=$(echo ${{inputs.zs3_logsearchapi}})" >> $GITHUB_ENV
         echo "ZS3_MINIO=$(echo ${{inputs.zs3_minio}})" >> $GITHUB_ENV
         echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
+        echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -119,21 +123,22 @@ runs:
         echo "DEPLOYING 0CHAIN WITH THE FOLLOWING CONFIGURATION:"
         echo "=================================================="
         echo
-        echo "0Chain network URL:      [${{ env.NETWORK_URL }}]"
-        echo "Miner docker image:      [${{ env.MINER_TAG }}]"
-        echo "Sharder docker image:    [${{ env.SHARDER_TAG }}]"
-        echo "Blobber docker image:    [${{ env.BLOBBER_TAG }}]"
-        echo "Validator docker image:  [${{ env.VALIDATOR_TAG }}]"
-        echo "Authorizer docker image: [${{ env.AUTHORIZER_TAG }}]"
-        echo "0box docker image:       [${{ env.ZBOX_TAG }}]"
-        echo "0dns docker image:       [${{ env.ZDNS_TAG }}]"
-        echo "0block docker image:     [${{ env.ZBLOCK_TAG }}]"
-        echo "0Search docker image:    [${{ env.ZSEARCH_TAG }}]"
-        echo "Explorer docker image:   [${{ env.EXPLORER_TAG }}]"
-        echo "S3 server client docker image:   [${{ env.ZS3_CLIENT }}]"
+        echo "0Chain network URL:                    [${{ env.NETWORK_URL }}]"
+        echo "Miner docker image:                    [${{ env.MINER_TAG }}]"
+        echo "Sharder docker image:                  [${{ env.SHARDER_TAG }}]"
+        echo "Blobber docker image:                  [${{ env.BLOBBER_TAG }}]"
+        echo "Validator docker image:                [${{ env.VALIDATOR_TAG }}]"
+        echo "Authorizer docker image:               [${{ env.AUTHORIZER_TAG }}]"
+        echo "0box docker image:                     [${{ env.ZBOX_TAG }}]"
+        echo "0dns docker image:                     [${{ env.ZDNS_TAG }}]"
+        echo "0block docker image:                   [${{ env.ZBLOCK_TAG }}]"
+        echo "0Search docker image:                  [${{ env.ZSEARCH_TAG }}]"
+        echo "Explorer docker image:                 [${{ env.EXPLORER_TAG }}]"
+        echo "S3 server client docker image:         [${{ env.ZS3_CLIENT }}]"
         echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
-        echo "S3 server minio docker image:   [${{ env.ZS3_MINIO }}]"
-        echo "Ethereum node url:       [${{ env.ETHEREUM_NODE_URL }}]"
+        echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
+        echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
+        echo "Subgraph API URL:                      [${{ env.SUBGRAPH_API_URL }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -228,7 +233,7 @@ runs:
         sleep 2s && helm repo update
         helm upgrade --install 0search --set zsearch.hostName=${{ env.NAMESPACE }} --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
-        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
@@ -437,6 +442,7 @@ runs:
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
         confirmation_chain_length: 3
         ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
+        subgraph_api_url: ${{ env.SUBGRAPH_API_URL }}
         min_confirmation: 50
         min_submit: 50
         signature_scheme: bls0chain
