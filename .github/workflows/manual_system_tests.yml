@@ -1,4 +1,5 @@
 name: "0Chain System Tests"
+run-name: "Manual 0Chain System tests checked out from [${{ inputs.system_tests_branch }}"
 
 concurrency:
   group: "manual-system-tests-${{ github.ref }}"
@@ -7,6 +8,9 @@ concurrency:
 on:
   workflow_call:
     secrets:
+      SUBGRAPH_API_URL:
+        description: 'API URL of the subgraph, which is used by internal components'
+        required: true
       TENDERLY_FORK_ID:
         description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
         required: true
@@ -155,6 +159,8 @@ jobs:
         unset TAG
         unset MERGE_SHORT_SHA
 
+        #echo "SKIP_TESTS=${{ inputs.skip_tests }}" >> $GITHUB_ENV
+        echo "SKIP_TESTS=FALSE" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
@@ -234,7 +240,7 @@ jobs:
         chmod 777 ./get_tag.sh;
 
     - name: "Check docker images have been published"
-      if: ${{ inputs.skip_tests == 'FALSE' }}
+      if: ${{ env.SKIP_TESTS == 'FALSE' }}
       run: |
         ./get_tag.sh 0chain ${{ inputs.miner_branch }} miner
         ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
@@ -269,12 +275,12 @@ jobs:
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
-        skip_tests: ${{ inputs.skip_tests }}
+        skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
         zs3server_branch: ${{ inputs.zs3server_branch }}
 
     - name: "Deploy 0Chain"
-      if: ${{ inputs.skip_tests == 'FALSE' }}
+      if: ${{ env.SKIP_TESTS == 'FALSE' }}
       uses: 0chain/actions/deploy-0chain@chain-fee
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
@@ -294,12 +300,13 @@ jobs:
         zs3_server: ${{ inputs.zs3server_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
         zs3_client: ${{ inputs.zs3server_branch }}
         zs3_logsearchapi: ${{ inputs.zs3server_branch }}
         zs3_minio: ${{ inputs.zs3server_branch }}
 
     - name: "Run System tests"
-      if: ${{ inputs.skip_tests == 'FALSE' }}
+      if: ${{ env.SKIP_TESTS == 'FALSE' }}
       uses: 0chain/actions/run-system-tests@chain-fee
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
@@ -341,6 +348,7 @@ jobs:
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
-        skip_tests: ${{ inputs.skip_tests }}
+#        skip_tests: ${{ env.SKIP_TESTS }}
+        skip_tests: "ABILITY TO SKIP TESTS IS DISABLED. SKIP_TESTS OPTION IGNORED."
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
         zs3server_branch: ${{ inputs.zs3server_branch }}
