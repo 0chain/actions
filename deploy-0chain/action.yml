@@ -522,6 +522,33 @@ runs:
           --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
           zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
 
+    - name: "Setup s3-migration: Create allocation"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        export HOME="/root"
+        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
+        signature_scheme: bls0chain
+        min_submit: 50 # in percentage
+        min_confirmation: 50 # in percentage
+        confirmation_chain_length: 3
+        max_txn_query: 5
+        query_sleep_time: 5
+        ' > s3_mgrt_config.yaml
+
+        echo "==========================================================="
+        echo "REGISTERING WALLET FOR S3-MIGRATION"
+        echo "==========================================================="
+        echo '{"client_id":"1c68192b39ecaa27a5c8757aa74e88889332a4ad3621e02d664681a038e7408e","client_key":"b43ff00ac17e57af8c3f2eae4c3d256073f2a2cff875dc295037615e56d20b031998ad1493d370b2953eeab536f70ed436a9d4c5be67d88dbcb1440b4fefd59a","keys":[{"public_key":"b43ff00ac17e57af8c3f2eae4c3d256073f2a2cff875dc295037615e56d20b031998ad1493d370b2953eeab536f70ed436a9d4c5be67d88dbcb1440b4fefd59a","private_key":"b16ae2a151c06aecb2e969ef42188161db7e4b2bef8784cda37caaae4bb03722"}],"mnemonics":"sorry theory wash admit vivid oval setup oyster process into prefer galaxy clinic letter lobster desk grass grant tail whip diet holiday buzz child","version":"1.0","date_created":"1676981669","nonce":0}' > s3_mgrt_wallet.json
+        ./zwallet register --silent --configDir . --config ./s3_mgrt_config.yaml --wallet ./s3_mgrt_wallet.json
+        ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./s3_mgrt_config.yaml --wallet ./s3_mgrt_wallet.json --silent
+
+        echo "==========================================================="
+        echo "CREATING ALLOCATION FOR S3-MIGRATION"
+        echo "==========================================================="
+        ./zbox newallocation --lock 5 --data 2 --parity 2 --configDir . --config ./s3_mgrt_config.yaml --wallet ./s3_mgrt_wallet.json --silent | grep -o "[a-z0-9]\{64\}" > s3_mgrt_allocation.txt
+        echo "Allocation hash: $(cat s3_mgrt_allocation.txt)"
+        echo "ALLOCATION=$(cat s3_mgrt_allocation.txt)" >> $GITHUB_ENV
+
     - name: "Extract Logging From Pods"
       if: ${{ failure() && env.NAMESPACE != '' }}
       shell: 'script --return --quiet --command "bash {0}"'
@@ -531,7 +558,6 @@ runs:
         echo "Extracting Logging From Pods"
         echo "======================================================"
        
-
         echo '#!/bin/bash
         app=$1
         output=$2
