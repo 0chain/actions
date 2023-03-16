@@ -15,6 +15,10 @@ inputs:
     required: true
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: 'staging'
+  s3migration_cli_branch:
+    required: true
+    description: 'S3 Migrations CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
   deploy_report_page:
     required: true
     default: "true"
@@ -64,6 +68,7 @@ runs:
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
+        echo "S3_MIGRATION_BRANCH=$(echo ${{inputs.s3migration_cli_branch}})" >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -78,6 +83,7 @@ runs:
         echo "0box network URL:       [0box.${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:        [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:     [${{ env.ZWALLET_BRANCH }}]"
+        echo "S3 migration CLI branch:[${{ env.S3_MIGRATION_BRANCH }}]"
         echo "Ethereum node URL:      [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
         echo "Custom gosdk version:   [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:       [${{ inputs.test_file_filter }}]"
@@ -105,10 +111,69 @@ runs:
         fetch-depth: 1
         path: ./zboxcli
 
+    - name: "Checkout s3-migration CLI"
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.TOKEN }}
+        ref: ${{ env.S3_MIGRATION_BRANCH }}
+        repository: 0chain/s3-migration
+        fetch-depth: 1
+        path: ./s3-migration
+
     - name: "Setup Go"
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
+  
+    - name: "Build CLI Binaries for s3-migration"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "BUILDING S3-MIGRATION CLI BINARIES:"
+        echo "======================================================"
+        echo
+        echo "Building s3-migration [${{ env.S3_MIGRATION_BRANCH }}]..."
+        cd s3-migration
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
+        then
+          echo "Upgrading s3-migration to GOSDK [${{ inputs.custom_go_sdk_version }}]"
+          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+          go mod tidy || { echo "::error title=Failed to upgrade gosdk on s3-migration CLI::failed to upgrade s3-migration CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        fi
+        make build > build.log 2>&1 || { cat build.log && echo "::error title=s3-migration CLI build failed::s3-migration CLI build failed" && exit 1; }
+        mv s3mgrt ..
+        echo "CLI build SUCCESS!"
+
+    - name: "Setup s3-migration: Create allocation"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        export HOME="/root"
+        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
+        signature_scheme: bls0chain
+        min_submit: 50 # in percentage
+        min_confirmation: 50 # in percentage
+        confirmation_chain_length: 3
+        max_txn_query: 5
+        query_sleep_time: 5
+        ' > s3_mgrt_config.yaml
+
+        echo "==========================================================="
+        echo "REGISTERING WALLET FOR S3-MIGRATION"
+        echo "==========================================================="
+        echo '{"client_id":"1c68192b39ecaa27a5c8757aa74e88889332a4ad3621e02d664681a038e7408e","client_key":"b43ff00ac17e57af8c3f2eae4c3d256073f2a2cff875dc295037615e56d20b031998ad1493d370b2953eeab536f70ed436a9d4c5be67d88dbcb1440b4fefd59a","keys":[{"public_key":"b43ff00ac17e57af8c3f2eae4c3d256073f2a2cff875dc295037615e56d20b031998ad1493d370b2953eeab536f70ed436a9d4c5be67d88dbcb1440b4fefd59a","private_key":"b16ae2a151c06aecb2e969ef42188161db7e4b2bef8784cda37caaae4bb03722"}],"mnemonics":"sorry theory wash admit vivid oval setup oyster process into prefer galaxy clinic letter lobster desk grass grant tail whip diet holiday buzz child","version":"1.0","date_created":"1676981669","nonce":0}' > s3_mgrt_wallet.json
+        ./zwallet register --silent --configDir . --config ./s3_mgrt_config.yaml --wallet ./s3_mgrt_wallet.json
+        ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./s3_mgrt_config.yaml --wallet ./s3_mgrt_wallet.json --silent
+
+        echo "==========================================================="
+        echo "CREATING ALLOCATION FOR S3-MIGRATION"
+        echo "==========================================================="
+        ./zbox newallocation --lock 5 --data 2 --parity 2 --configDir . --config ./s3_mgrt_config.yaml --wallet ./s3_mgrt_wallet.json --silent | grep -o "[a-z0-9]\{64\}" > s3_mgrt_allocation.txt
+        echo "Allocation hash: $(cat s3_mgrt_allocation.txt)"
+        echo "ALLOCATION=$(cat s3_mgrt_allocation.txt)" >> $GITHUB_ENV
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'

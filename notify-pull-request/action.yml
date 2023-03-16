@@ -12,6 +12,10 @@ inputs:
     required: true
     description: '0Wallet CLI branch to notify'
     default: 'staging'
+  s3migration_cli_branch:
+    required: true
+    description: 's3-migration CLI branch to notify'
+    default: 'staging'
   gosdk_branch:
     required: true
     description: '0Wallet CLI branch to notify'
@@ -84,6 +88,7 @@ runs:
         echo SYSTEM_TEST_SHA=$(./get_sha.sh system_test ${{ inputs.system_tests_branch }}) >> $GITHUB_ENV
         echo ZBOX_CLI_SHA=$(./get_sha.sh zboxcli ${{ inputs.zbox_cli_branch }}) >> $GITHUB_ENV
         echo ZWALLET_CLI_SHA=$(./get_sha.sh zwalletcli ${{ inputs.zwallet_cli_branch }}) >> $GITHUB_ENV
+        echo S3_MIGRATION_CLI_SHA=$(./get_sha.sh zwalletcli ${{ inputs.s3migration_cli_branch }}) >> $GITHUB_ENV
         echo GOSDK_SHA=NONE >> $GITHUB_ENV
         if [ "${{ inputs.gosdk_branch }}" != "NOT OVERRIDDEN" ]; then
           echo GOSDK_SHA=$(./get_sha.sh gosdk ${{ inputs.gosdk_branch }}) >> $GITHUB_ENV
@@ -93,8 +98,6 @@ runs:
         echo ZBOX_SHA=$(./get_sha.sh 0box ${{ inputs.zbox_branch }}) >> $GITHUB_ENV
         echo AUTHORIZER_SHA=$(./get_sha.sh token_bridge_authserver ${{ inputs.authorizer_branch }}) >> $GITHUB_ENV
 
-
-
     - name: "Get system tests branch PR"
       uses: stewartie4/gh-find-current-pr@master
       with:
@@ -102,6 +105,7 @@ runs:
         owner: "0chain"
         repo: "system_test"
       id: system_tests
+
     - name: "Set zbox cli PR status"
       uses: 0chain/actions/set-pr-status@master
       if: steps.system_tests.outputs.number
@@ -113,6 +117,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
+
     - uses: stewartie4/add-pr-comment@master
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
