@@ -258,7 +258,7 @@ jobs:
         ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@s3mgrt
+      uses: 0chain/actions/notify-pull-request@add/s3-migrt
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -284,7 +284,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@s3mgrt
+      uses: 0chain/actions/deploy-0chain@add/s3-migrt
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -312,7 +312,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@s3mgrt
+      uses: 0chain/actions/run-system-tests@add/s3-migrt
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
@@ -336,7 +336,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@s3mgrt
+      uses: 0chain/actions/notify-pull-request@add/s3-migrt
       continue-on-error: true
       with:
         state: ${{ job.status }}
