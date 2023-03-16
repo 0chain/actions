@@ -88,7 +88,7 @@ runs:
         echo SYSTEM_TEST_SHA=$(./get_sha.sh system_test ${{ inputs.system_tests_branch }}) >> $GITHUB_ENV
         echo ZBOX_CLI_SHA=$(./get_sha.sh zboxcli ${{ inputs.zbox_cli_branch }}) >> $GITHUB_ENV
         echo ZWALLET_CLI_SHA=$(./get_sha.sh zwalletcli ${{ inputs.zwallet_cli_branch }}) >> $GITHUB_ENV
-        echo S3_MIGRATION_CLI_SHA=$(./get_sha.sh zwalletcli ${{ inputs.s3migration_cli_branch }}) >> $GITHUB_ENV
+        echo S3_MIGRATION_CLI_SHA=$(./get_sha.sh s3-migration ${{ inputs.s3migration_cli_branch }}) >> $GITHUB_ENV
         echo GOSDK_SHA=NONE >> $GITHUB_ENV
         if [ "${{ inputs.gosdk_branch }}" != "NOT OVERRIDDEN" ]; then
           echo GOSDK_SHA=$(./get_sha.sh gosdk ${{ inputs.gosdk_branch }}) >> $GITHUB_ENV
