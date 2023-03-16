@@ -57,9 +57,6 @@ inputs:
     required: false
     default: ""
     description: 'notification url'
-  SVC_ACCOUNT_SECRET:
-    required: true
-    description: 'API URL of the subgraph, which is used by internal components'
 
 runs:
   using: "composite"
@@ -72,7 +69,6 @@ runs:
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
         echo "S3_MIGRATION_BRANCH=$(echo ${{inputs.s3migration_cli_branch}})" >> $GITHUB_ENV
-        echo "SVC_ACCOUNT_SECRET=$(echo ${{inputs.SVC_ACCOUNT_SECRET}})" >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -118,7 +114,7 @@ runs:
     - name: "Checkout s3-migration CLI"
       uses: actions/checkout@v3
       with:
-        token: ${{ inputs.SVC_ACCOUNT_SECRET }}
+        token: ${{ inputs.svc_account_secret }}
         ref: ${{ env.S3_MIGRATION_BRANCH }}
         repository: 0chain/s3-migration
         fetch-depth: 1
