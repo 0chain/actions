@@ -148,9 +148,6 @@ on:
         default: 'FALSE'
         required: false
         type: string
-      DEVOPS_CHANNEL_WEBHOOK_URL:
-        description: 'URL to notify slack if tests fail on staging'
-        required: false
 jobs:
   system-tests:
     timeout-minutes: 120
