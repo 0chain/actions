@@ -60,6 +60,10 @@ inputs:
     required: true
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: 'staging'
+  s3migration_cli_branch:
+    required: true
+    description: 's3-migration CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
   custom_go_sdk_version:
     required: true
     default: "NONE"
@@ -105,6 +109,7 @@ runs:
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
+        echo "S3_MIGRATION_BRANCH=$(echo ${{inputs.s3migration_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
         echo "ZS3_CLIENT=$(echo ${{inputs.zs3_client}})" >> $GITHUB_ENV
         echo "ZS3_LOGSEARCHAPI=$(echo ${{inputs.zs3_logsearchapi}})" >> $GITHUB_ENV
@@ -521,6 +526,38 @@ runs:
           --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
           --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
           zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
+
+    - name: "Checkout s3-migration CLI"
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.TOKEN }}
+        ref: ${{ env.S3_MIGRATION_BRANCH }}
+        repository: 0chain/s3-migration
+        fetch-depth: 1
+        path: ./s3-migration
+  
+    - name: "Build CLI Binaries for s3-migration"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "BUILDING S3-MIGRATION CLI BINARIES:"
+        echo "======================================================"
+        echo
+        echo "Building s3-migration [${{ env.S3_MIGRATION_BRANCH }}]..."
+        cd s3-migration
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
+        then
+          echo "Upgrading s3-migration to GOSDK [${{ inputs.custom_go_sdk_version }}]"
+          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+          go mod tidy || { echo "::error title=Failed to upgrade gosdk on s3-migration CLI::failed to upgrade s3-migration CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        fi
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=s3-migration CLI build failed::s3-migration CLI build failed" && exit 1; }
+        mv s3mgrt ..
+        echo "CLI build SUCCESS!"
 
     - name: "Setup s3-migration: Create allocation"
       shell: 'script --return --quiet --command "bash {0}"'
