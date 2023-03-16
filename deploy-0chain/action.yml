@@ -74,6 +74,9 @@ inputs:
   SUBGRAPH_API_URL:
     required: true
     description: 'API URL of the subgraph, which is used by internal components'
+  SVC_ACCOUNT_SECRET:
+    required: true
+    description: 'API URL of the subgraph, which is used by internal components'
   zs3_client:
     required: true
     default: "staging"
@@ -116,6 +119,7 @@ runs:
         echo "ZS3_MINIO=$(echo ${{inputs.zs3_minio}})" >> $GITHUB_ENV
         echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
         echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
+        echo "SVC_ACCOUNT_SECRET=$(echo ${{ inputs.SVC_ACCOUNT_SECRET }})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -530,7 +534,7 @@ runs:
     - name: "Checkout s3-migration CLI"
       uses: actions/checkout@v3
       with:
-        token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        token: ${{ env.SVC_ACCOUNT_SECRET }}
         ref: ${{ env.S3_MIGRATION_BRANCH }}
         repository: 0chain/s3-migration
         fetch-depth: 1
