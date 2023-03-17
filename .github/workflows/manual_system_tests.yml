@@ -20,6 +20,18 @@ on:
       SVC_ACCOUNT_SECRET:
         description: 'A token used for cross-repo actions'
         required: true
+      AWS_ACCESS_KEY:
+        default: 'AWUBSASKJS'
+        description: 'AWS access key for s3-migration'
+        required: false
+      AWS_SECRET_KEY:
+        default: 'LKNLKNOIN'
+        description: 'AWS secret key for s3-migration'
+        required: false
+      S3_BUCKET:
+        default: 'lisdbfno'
+        description: 'AWS s3 bucket name for s3-migration'
+        required: false
       DEV1KC:
         description: 'dev-1 k8s config'
         required: true
@@ -319,7 +331,10 @@ jobs:
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         s3migration_cli_branch: ${{ inputs.s3migration_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        svc_account_secret: ${{ github.token }}
+        aws_access_key: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        aws_secret_key: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        s3_bucket: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
         deploy_report_page: false
         archive_results: true
         run_flaky_tests: false

@@ -38,6 +38,15 @@ inputs:
   svc_account_secret:
     required: false
     description: 'secret used to publish test results - will use your own credentials if not supplied'
+  aws_access_key:
+    required: false
+    description: 'AWS access key for s3-migration'
+  aws_secret_key:
+    required: false
+    description: 'AWS secret key for s3-migration'
+  s3_bucket:
+    required: false
+    description: 'AWS s3 bucket name for s3-migration'
   custom_go_sdk_version:
     required: true
     default: "NONE"
@@ -172,6 +181,9 @@ runs:
         ./zbox newallocation --lock 5 --data 2 --parity 2 --configDir . --config ./s3_mgrt_config.yaml --wallet ./s3_mgrt_wallet.json --silent | grep -o "[a-z0-9]\{64\}" > s3_mgrt_allocation.txt
         echo "Allocation hash: $(cat s3_mgrt_allocation.txt)"
         echo "ALLOCATION=$(cat s3_mgrt_allocation.txt)" >> $GITHUB_ENV
+        echo ${{ inputs.aws_access_key }}
+        echo ${{ inputs.aws_secret_key }}
+        echo ${{ inputs.s3_bucket }}
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
