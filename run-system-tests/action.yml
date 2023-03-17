@@ -152,7 +152,7 @@ runs:
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on s3-migration CLI::failed to upgrade s3-migration CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make build > build.log 2>&1 || { cat build.log && echo "::error title=s3-migration CLI build failed::s3-migration CLI build failed" && exit 1; }
-        mv s3mgrt ..
+        mv s3mgrt ../tests/cli_tests
         echo "CLI build SUCCESS!"
 
     - name: "Install dependencies"
@@ -208,6 +208,7 @@ runs:
     - name: "Setup s3-migration: Create allocation"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        cd tests/cli_tests
         export HOME="/root"
         echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
         signature_scheme: bls0chain
