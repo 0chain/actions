@@ -21,15 +21,12 @@ on:
         description: 'A token used for cross-repo actions'
         required: true
       AWS_ACCESS_KEY:
-        default: 'AWUBSASKJS'
         description: 'AWS access key for s3-migration'
         required: false
       AWS_SECRET_KEY:
-        default: 'LKNLKNOIN'
         description: 'AWS secret key for s3-migration'
         required: false
       S3_BUCKET:
-        default: 'lisdbfno'
         description: 'AWS s3 bucket name for s3-migration'
         required: false
       DEV1KC:
