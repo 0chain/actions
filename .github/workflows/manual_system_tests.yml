@@ -328,9 +328,9 @@ jobs:
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         s3migration_cli_branch: ${{ inputs.s3migration_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        aws_access_key: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        aws_secret_key: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        s3_bucket: ${{ secrets.SVC_ACCOUNT_SECRET }}
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+        s3_bucket: ${{ secrets.S3_BUCKET }}
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
         deploy_report_page: false
         archive_results: true
