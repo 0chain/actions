@@ -15,6 +15,10 @@ inputs:
     required: true
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: 'staging'
+  s3migration_cli_branch:
+    required: true
+    description: 's3-migration CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
   deploy_report_page:
     required: true
     default: "true"
