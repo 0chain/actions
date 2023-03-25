@@ -382,7 +382,7 @@ runs:
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
 
-        cd tests/cli_tests
+        cd tests
         
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
@@ -452,7 +452,7 @@ runs:
         fi
 
     - name: "Run Flaky CLI System Tests"
-      if:  ${{ env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
+      if:  ${{ env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' && env.RUN_LITE_SUITE == 'false' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
