@@ -253,7 +253,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_API_SYSTEM_TESTS && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_API_SYSTEM_TESTS == "true" && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -283,7 +283,7 @@ runs:
         exit $api_system_tests_exit_code
 
     - name: "Archive API Test Config & Console Output"
-      if: ${{ always() && env.RUN_API_SYSTEM_TESTS && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.RUN_API_SYSTEM_TESTS == "true" && env.RUN_SUBSET_OF_TESTS == 'false' }}
       uses: actions/upload-artifact@v3
       with:
         name: API-System-Test-${{ env.TEST_TIME }}
@@ -402,7 +402,7 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == "true" && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -432,7 +432,7 @@ runs:
         exit $tokenomics_system_tests_exit_code
 
     - name: "Archive Tokenomics Test Config & Console Output"
-      if: ${{ always() && env.RUN_TOKENOMICS_SYSTEM_TESTS && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.RUN_TOKENOMICS_SYSTEM_TESTS == "true" && env.RUN_SUBSET_OF_TESTS == 'false' }}
       uses: actions/upload-artifact@v3
       with:
         name: Tokenomics-System-Test-${{ env.TEST_TIME }}
