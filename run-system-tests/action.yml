@@ -42,6 +42,10 @@ inputs:
     required: false
     default: ""
     description: 'Subset of system tests to run'
+  run_lite_suite:
+    required: false
+    default: false
+    description: 'Run a "lite" tests suite that check basic functionality'
   run_cli_system_tests:
     required: false
     default: "true"
@@ -189,6 +193,13 @@ runs:
               echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
         fi
 
+        if [[ "${{ inputs.run_lite_suite }}" == "true" ]];
+          then
+            echo RUN_LITE_SUITE=true >> $GITHUB_ENV
+          else
+            echo RUN_LITE_SUITE=false >> $GITHUB_ENV
+        fi
+
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
@@ -226,7 +237,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_LITE_SUITE == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -256,7 +267,7 @@ runs:
         exit $api_system_tests_exit_code
 
     - name: "Archive API Test Config & Console Output"
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_LITE_SUITE == 'false' }}
       uses: actions/upload-artifact@v3
       with:
         name: API-System-Test-${{ env.TEST_TIME }}
@@ -266,7 +277,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' && env.RUN_LITE_SUITE == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -304,7 +315,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' && env.RUN_LITE_SUITE == 'false' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [ -n "${{ env.NAMESPACE }}" ]; then
@@ -359,6 +370,46 @@ runs:
           else
             echo TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+
+        exit $system_tests_exit_code
+    
+    - name: "Run Lite System Tests Suite"
+      if:  ${{env.RUN_LITE_SUITE == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+        fi
+
+        cd tests/cli_tests
+        
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+        export HOME="/root"
+
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  'LITE/' ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > SUBSET_TEST_RUNNER_COMMAND.sh && chmod 777 SUBSET_TEST_RUNNER_COMMAND.sh
+
+        echo
+        echo "======================================================"
+        echo "RUNNING LITE SYSTEM TESTS SUITE"
+        echo "======================================================"
+        echo
+
+        system_tests_exit_code=0
+        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=System Tests Lite Suite faled!::System Tests Lite Suite faled. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
         exit $system_tests_exit_code
