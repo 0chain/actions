@@ -884,7 +884,7 @@ commonConf:
           challenge_request: 100
           challenge_response: 1600
           add_validator: 100
-          validator-health-check: 100
+          validator_health_check: 100
           shut-down-validator: 100
           kill-validator: 100
           add_blobber: 100
