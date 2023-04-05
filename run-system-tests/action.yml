@@ -118,7 +118,7 @@ runs:
     - name: "Setup Go"
       uses: actions/setup-go@v3
       with:
-        go-version: 1.20
+        go-version: ^1.20.0
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
