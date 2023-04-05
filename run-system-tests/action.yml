@@ -221,9 +221,11 @@ runs:
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
-        
-        go get gotest.tools/gotestsum
-        go get github.com/vakenbolt/go-test-report
+
+
+        go install gotest.tools/gotestsum@latest
+        go install github.com/vakenbolt/go-test-report@latest
+
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
@@ -265,14 +267,12 @@ runs:
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
-
-        go install gotest.tools/gotestsum@latest
-        go install github.com/vakenbolt/go-test-report@latest
+        GOROOT=$(echo $(go env GOROOT))
 
         cd tests/api_tests
         api_system_tests_exit_code=0
-        gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
-        cat test-output.json | go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        ${GOROOT}/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
+        cat test-output.json | ${GOROOT}/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/
         if [[ $api_system_tests_exit_code == 0 ]];
