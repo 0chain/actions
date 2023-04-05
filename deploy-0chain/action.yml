@@ -140,6 +140,11 @@ runs:
         echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
         echo "Subgraph API URL:                      [${{ env.SUBGRAPH_API_URL }}]"
 
+    - name: "Install packages"
+      run: |
+        apt-get update 
+        apt-get install unzip
+
     - name: "Install helm"
       uses: azure/setup-helm@v3
       with:
