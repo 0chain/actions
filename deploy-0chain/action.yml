@@ -548,6 +548,10 @@ runs:
         echo '#!/bin/bash
         app=$1
         output=$2
+        export HOME="/root"
+        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
+        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
 
         Green="\033[0;32m"
  
