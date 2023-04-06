@@ -215,6 +215,8 @@ runs:
         ./add-configmap.sh b0mnode03-dkg
         ./add-configmap.sh b0snode01-keys
         ./add-configmap.sh b0snode02-keys
+        ./add-configmap.sh b0bnode07-keys
+        ./add-configmap.sh b0vnode07-keys
         ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
