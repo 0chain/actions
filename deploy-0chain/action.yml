@@ -223,7 +223,7 @@ runs:
         sleep 2s && helm repo update
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
-        helm upgrade --install blobber --wait --timeout 120s --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=7 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
         helm upgrade --install 0block --set zblock.hostName=${{ env.NAMESPACE }} --set zblock.host=devnet-0chain.net --set zblock.image.tag=${{ env.ZBLOCK_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zblock --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
@@ -377,14 +377,14 @@ runs:
         }
         export HOME="/root"
         retry ./zwallet register --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
-        for i in {1..12}
+        for i in {1..14}
         do
             retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
-        # Wait for 6 blobbers to register for 60 seconds...
+        # Wait for 7 blobbers to register for 60 seconds...
         count=0
-        while [[ $count -le 5 ]]
+        while [[ $count -le 6 ]]
         do
           retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
@@ -393,13 +393,13 @@ runs:
           cat build.log
           echo
 
-          [[ $num -eq 6 ]] && break
+          [[ $num -eq 7 ]] && break
           sleep 10
           ((count++))
         done
-        if [[ $num -lt 6 ]]
+        if [[ $num -lt 7 ]]
         then
-          echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
+          echo "::error title=Number of blobbers registered is less than 7:: Only ${num}/7 blobbers are registered. Exiting run..."
           cat build.log
           exit 1
         fi
