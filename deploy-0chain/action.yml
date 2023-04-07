@@ -179,6 +179,7 @@ runs:
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap $1
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
         ' > ./add-configmap.sh;
+        kubectl get po --all-namespaces --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '{if ($4 ~ /Evicted/) system ("kubectl -n " $1 " delete pods " $2)}'
         chmod 777 ./add-configmap.sh;
 
         echo '#!/bin/bash
