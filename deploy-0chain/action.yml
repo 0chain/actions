@@ -28,20 +28,8 @@ inputs:
     description: '0box DOCKER IMAGE to deploy'
     default: 'staging'
     required: false
-  zblock_image:
-    description: '0block DOCKER IMAGE to deploy'
-    default: 'staging'
-    required: false
   zdns_image:
     description: '0dns DOCKER IMAGE to deploy'
-    default: 'staging'
-    required: false
-  explorer_image:
-    description: 'Explorer DOCKER IMAGE to deploy'
-    default: 'latest'
-    required: false
-  zsearch_image:
-    description: '0Search DOCKER IMAGE to deploy'
     default: 'staging'
     required: false
   teardown_condition:
@@ -98,9 +86,6 @@ runs:
         echo "AUTHORIZER_TAG=$(echo '${{inputs.authorizer_image}}')" >> $GITHUB_ENV
         echo "ZBOX_TAG=$(echo '${{inputs.zbox_image}}')" >> $GITHUB_ENV
         echo "ZDNS_TAG=$(echo '${{inputs.zdns_image}}')" >> $GITHUB_ENV
-        echo "ZBLOCK_TAG=$(echo '${{inputs.zblock_image}}')" >> $GITHUB_ENV
-        echo "EXPLORER_TAG=$(echo '${{inputs.explorer_image}}')" >> $GITHUB_ENV
-        echo "ZSEARCH_TAG=$(echo '${{inputs.zsearch_image}}')" >> $GITHUB_ENV
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
@@ -131,9 +116,6 @@ runs:
         echo "Authorizer docker image:               [${{ env.AUTHORIZER_TAG }}]"
         echo "0box docker image:                     [${{ env.ZBOX_TAG }}]"
         echo "0dns docker image:                     [${{ env.ZDNS_TAG }}]"
-        echo "0block docker image:                   [${{ env.ZBLOCK_TAG }}]"
-        echo "0Search docker image:                  [${{ env.ZSEARCH_TAG }}]"
-        echo "Explorer docker image:                 [${{ env.EXPLORER_TAG }}]"
         echo "S3 server client docker image:         [${{ env.ZS3_CLIENT }}]"
         echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
         echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
@@ -197,6 +179,7 @@ runs:
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap $1
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
         ' > ./add-configmap.sh;
+        kubectl get po --all-namespaces --kubeconfig ./kube/${{ env.NAMESPACE }}-config | awk '{if ($4 ~ /Evicted/) system ("kubectl -n " $1 " delete pods " $2)}'
         chmod 777 ./add-configmap.sh;
 
         echo '#!/bin/bash
@@ -227,13 +210,7 @@ runs:
         sleep 2s && helm repo update
         helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=7 --set validator.validatorCount=7 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
-        helm upgrade --install 0block --set zblock.hostName=${{ env.NAMESPACE }} --set zblock.host=devnet-0chain.net --set zblock.image.tag=${{ env.ZBLOCK_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zblock --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        sleep 2s && helm repo update
-        helm upgrade --install explorer --set explorer.config.blockWorker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set explorer.hostName=${{ env.NAMESPACE }} --set explorer.image.tag=${{ env.EXPLORER_TAG }} --set explorer.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/explorer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        sleep 2s && helm repo update
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        sleep 2s && helm repo update
-        helm upgrade --install 0search --set zsearch.hostName=${{ env.NAMESPACE }} --set zsearch.host=devnet-0chain.net --set zsearch.image.tag=${{ env.ZSEARCH_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zsearch --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
