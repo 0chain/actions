@@ -94,28 +94,13 @@ on:
         default: 'staging'
         required: false
         type: string
-      zblock_branch:
-        description: '0block branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
       zdns_branch:
         description: '0dns branch to deploy'
         default: 'staging'
         required: false
         type: string
-      explorer_branch:
-        description: 'explorer branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
-      zproxy_branch:
-        description: '0proxy branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
-      zsearch_branch:
-        description: '0search branch to deploy'
+      s3migration_cli_branch:
+        description: 's3-migration cli branch to deploy'
         default: 'staging'
         required: false
         type: string
@@ -246,11 +231,7 @@ jobs:
         ./get_tag.sh blobber ${{ inputs.validator_branch }} validator
         ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
         ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
-        ./get_tag.sh 0block ${{ inputs.zblock_branch }} 0block
         ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
-        ./get_tag.sh block-explorer ${{ inputs.explorer_branch }} explorer
-        ./get_tag.sh 0proxy ${{ inputs.zproxy_branch }} 0proxy
-        ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
         ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
@@ -267,11 +248,7 @@ jobs:
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
-        zblock_branch: ${{ inputs.zblock_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
-        explorer_branch: ${{ inputs.explorer_branch }}
-        zproxy_branch: ${{ inputs.zproxy_branch }}
-        zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
@@ -289,11 +266,7 @@ jobs:
         validator_image: ${{ env.VALIDATOR_TAG }}
         authorizer_image: ${{ env.AUTHORIZER_TAG }}
         zbox_image: ${{ env.ZBOX_TAG }}
-        zblock_image: ${{ env.ZBLOCK_TAG }}
         zdns_image: ${{ env.ZDNS_TAG }}
-        explorer_image: ${{ env.EXPLORER_TAG }}
-        zproxy_image: ${{ env.ZPROXY_TAG }}
-        zsearch_image: ${{ env.ZSEARCH_TAG }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         zs3_server: ${{ inputs.zs3server_branch }}
@@ -341,11 +314,7 @@ jobs:
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
-        zblock_branch: ${{ inputs.zblock_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
-        explorer_branch: ${{ inputs.explorer_branch }}
-        zproxy_branch: ${{ inputs.zproxy_branch }}
-        zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ inputs.skip_tests }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}

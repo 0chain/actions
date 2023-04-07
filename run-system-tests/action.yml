@@ -302,7 +302,7 @@ runs:
         echo
 
         if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
         
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
@@ -335,7 +335,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zproxy|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
 
         cd tests/cli_tests
@@ -446,7 +446,7 @@ runs:
       run: |
         if [ -n "${{ env.NAMESPACE }}" ];
           then
-            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zblock|zdns|zsearch|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_post_test_run.txt
+            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_post_test_run.txt
             echo "Pod status pre test run (some restarts are normal as the network stabilises):"
             cat pod_status_pre_test_run.txt
             echo "Pod status post test run (no further restarts should have taken place for the network to be considered stable):"
