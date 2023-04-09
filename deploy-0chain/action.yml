@@ -371,13 +371,13 @@ runs:
           cat build.log
           echo
 
-          [[ $num -eq 7 ]] && break
+          [[ $num -eq 6 ]] && break
           sleep 10
           ((count++))
         done
-        if [[ $num -lt 7 ]]
+        if [[ $num -lt 6 ]]
         then
-          echo "::error title=Number of blobbers registered is less than 7:: Only ${num}/7 blobbers are registered. Exiting run..."
+          echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
           cat build.log
           exit 1
         fi
