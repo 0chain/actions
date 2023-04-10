@@ -15,6 +15,10 @@ inputs:
     required: true
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: 'staging'
+  s3_migration_cli_branch:
+    required: false
+    description: 'S3 Migration CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
   deploy_report_page:
     required: true
     default: "true"
@@ -71,6 +75,7 @@ runs:
         echo "SYSTEM_TESTS_BRANCH=$(echo $(([ -z '${{inputs.system_tests_branch}}' ] && echo  ${GITHUB_REF#refs/*/}) || echo '${{inputs.system_tests_branch}}'))" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
+        echo "S3_MIGRATION_BRANCH=$(echo ${{inputs.s3_migration_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
@@ -86,6 +91,7 @@ runs:
         echo "0box network URL:         [0box.${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:          [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:       [${{ env.ZWALLET_BRANCH }}]"
+        echo "s3 migration CLI branch:  [${{ env.S3_MIGRATION_BRANCH }}]"
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
         echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
@@ -114,6 +120,14 @@ runs:
         repository: 0chain/zboxcli
         fetch-depth: 1
         path: ./zboxcli
+
+    - name: "Checkout S3 Migration CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.S3_MIGRATION_BRANCH }}
+        repository: 0chain/s3-migration
+        fetch-depth: 1
+        path: ./s3-migration
 
     - name: "Setup Go"
       uses: actions/setup-go@v3
@@ -144,6 +158,7 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
+        
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
@@ -158,6 +173,7 @@ runs:
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ../tests/cli_tests
+        
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
@@ -168,6 +184,18 @@ runs:
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ../tests/cli_tests
+        
+        echo "Building s3 migration CLI [${{ env.S3_MIGRATION_BRANCH }}]..."
+        cd ../s3-migration
+        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
+        then
+          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
+          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+          go mod tidy -compat=1.17 || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        fi
+        make build > build.log 2>&1 || { cat build.log && echo "::error title=s3 migration CLI build failed::s3 migration CLI build failed" && exit 1; }
+        mv s3mgrt ../tests/cli_tests
+        
         echo "CLI build SUCCESS!"
 
     - name: "Set up system tests"
