@@ -354,7 +354,7 @@ runs:
             done
         }
         export HOME="/root"
-        retry ./zwallet register --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        # retry ./zwallet register --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         for i in {1..14}
         do
             retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
