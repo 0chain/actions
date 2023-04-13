@@ -47,6 +47,12 @@ on:
       DEV9KC:
         description: 'dev-9 k8s config'
         required: true
+      GRAPHNODE_NETWORK:
+        required: true
+        description: 'graph node network name for example goerli.'
+      GRAPHNODE_ETHEREUM_NODE_URL:
+        required: true
+        description: 'Ethereum node url.'
 
     inputs:
       system_tests_branch:
@@ -235,7 +241,7 @@ jobs:
         ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@master
+      uses: 0chain/actions/notify-pull-request@add-graphnode
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -256,7 +262,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@master
+      uses: 0chain/actions/deploy-0chain@add-graphnode
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -276,10 +282,12 @@ jobs:
         zs3_client: ${{ inputs.zs3server_branch }}
         zs3_logsearchapi: ${{ inputs.zs3server_branch }}
         zs3_minio: ${{ inputs.zs3server_branch }}
+        graphnode_network: ${{ inputs.GRAPHNODE_NETWORK }}
+        graphnode_ethereum_node_url: ${{ inputs.GRAPHNODE_ETHEREUM_NODE_URL }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@master
+      uses: 0chain/actions/run-system-tests@add-graphnode
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
@@ -302,7 +310,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@master
+      uses: 0chain/actions/notify-pull-request@add-graphnode
       continue-on-error: true
       with:
         state: ${{ job.status }}
