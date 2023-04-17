@@ -27,11 +27,11 @@ jobs:
         run: |
           sudo apt update && sudo apt install python3-pip -y
           sudo pip3 install github-backup
-          github-backup -O 0chain -P -t ${{ secrets.ACCESS_TOKEN }} --output-directory=/github-backup/actions --all -O -R actions
+          sudo github-backup -O 0chain -P -t ${{ secrets.ACCESS_TOKEN }} --output-directory=/github-backup/actions --all -O -R actions
           
       - name: Create zip
         if: steps.get_info.outputs.GIT_COMMIT_DATE == steps.get_info.outputs.YESTERDAY_DATE
-        run: zip -r actions.zip /github-backup/actions
+        run: sudo zip -r actions.zip /github-backup/actions
         
       - name: Set AWS credentials
         if: steps.get_info.outputs.GIT_COMMIT_DATE == steps.get_info.outputs.YESTERDAY_DATE
