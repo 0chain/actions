@@ -58,12 +58,12 @@ on:
         description: 'miner branch which the tests will use'
         default: 'staging'
         required: false
-        type: string  
+        type: string
       sharder_branch:
         description: 'sharder branch which the tests will use'
         default: 'staging'
         required: false
-        type: string   
+        type: string
       zbox_cli_branch:
         description: '0Box CLI branch which the tests will use'
         default: 'staging'
@@ -235,7 +235,7 @@ jobs:
         ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@chain-fee
+      uses: 0chain/actions/notify-pull-request@master
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -256,7 +256,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/deploy-0chain@chain-fee
+      uses: ./0chain/actions/deploy-0chain
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
@@ -279,7 +279,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
-      uses: 0chain/actions/run-system-tests@chain-fee
+      uses: 0chain/actions/run-system-tests@master
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
@@ -295,14 +295,14 @@ jobs:
         run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
-        
+
     - name: "Runner tidy up"
       if: always()
       run: rm -rf ./*
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@chain-fee
+      uses: 0chain/actions/notify-pull-request@master
       continue-on-error: true
       with:
         state: ${{ job.status }}
