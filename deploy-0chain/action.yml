@@ -76,8 +76,13 @@ runs:
   steps:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
+<<<<<<< HEAD
       run: |
         echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
+=======
+      run: |       
+        echo "ACTIONS_BRANCH=fix-config" >> $GITHUB_ENV
+>>>>>>> 0a1d908abd89b2d228bee27a0eafc85d88074e8f
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
@@ -440,7 +445,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
-        echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > /root/.zcn/owner_wallet.json
+        echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > owner_wallet.json
         echo 'owner:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
@@ -460,7 +465,7 @@ runs:
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
           GasLimit: 300000
           Value: 0
-          ConsensusThreshold: 75' > /root/.zcn/bridge.yaml
+          ConsensusThreshold: 75' > bridge.yaml
         cat bridge.yaml
         echo 'authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
         block_worker: https://${{ env.NETWORK_URL }}/dns
@@ -529,7 +534,7 @@ runs:
         echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
         ./zwallet register --silent --configDir . --config ./config.yaml --wallet ./zs3wallet.json
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5 --data 2 --parity 2 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent |grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
+        ./zbox newallocation --lock 5 --data 2 --parity 2 --size 10000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
         echo "Allocation hash: $(cat allocation.txt)"
         echo "ALLOCATION=$(cat allocation.txt)" >> $GITHUB_ENV
 
