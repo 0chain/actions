@@ -132,7 +132,7 @@ on:
 jobs:
   system-tests:
     timeout-minutes: 120
-    runs-on: [ tests-suite ]
+    runs-on: [ ubuntu ]
     steps:
 
     - uses: actions/checkout@v3
