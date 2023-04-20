@@ -417,7 +417,7 @@ runs:
         count=0
         while [[ $count -le 6 ]]
         do
-          retry ./zbox ls-validators --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
+          retry ./zbox ls-validators --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep "id" | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
 
           echo "List Validators [$count] output:"
