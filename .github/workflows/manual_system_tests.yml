@@ -20,6 +20,12 @@ on:
       SVC_ACCOUNT_SECRET:
         description: 'A token used for cross-repo actions'
         required: true
+      S3_ACCESS_KEY:
+        description: 'S3 access key for migration tests'
+        required: false
+      S3_SECRET_KEY:
+        description: 's3 secret key for migration tests'
+        required: false
       DEV1KC:
         description: 'dev-1 k8s config'
         required: true
@@ -295,6 +301,8 @@ jobs:
         run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+        S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         
     - name: "Runner tidy up"
       if: always()
