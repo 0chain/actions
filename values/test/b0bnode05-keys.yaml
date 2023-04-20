@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+  b0bnode05_keys.txt: |
+    293511382e9c87342795e0bf31f0d38821488d889a011c09adc8179f6a4bdb0e95adb975ee65a86a429258a8fb885a0b079c4659cd641cdff2f49362e3acac90
+    a3ae273a1edc23c93a807c19b25958f049bdb3af9ef19aff8074e4c8ab38a205
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2022-02-24T15:59:37Z"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:b0bnode05_keys.txt: {}
+    manager: kubectl-create
+    operation: Update
+    time: "2022-02-24T15:59:37Z"
+  name: b0bnode05-keys
+  namespace: dev-x
+  resourceVersion: "6221"
+  uid: 32a84038-92ed-4dcb-91b9-02c8ba99b975
