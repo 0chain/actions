@@ -77,7 +77,7 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |       
-        echo "ACTIONS_BRANCH=fix-config" >> $GITHUB_ENV
+        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
@@ -227,7 +227,6 @@ runs:
         sleep 2s && helm repo update
 
         helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
-          --set commonConf.zchainDown.number_of_delegates=20 \
           --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
           --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
           --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
@@ -238,14 +237,6 @@ runs:
           --set miner.host=devnet-0chain.net \
           --set miner.image.tag=${{ env.MINER_TAG }} \
           --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[0]=contributeMpk \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[1]=mint \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[2]=shareSignsOrShares \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[3]=wait \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[4]=pour \
-          --set commonConf.zchainUp.server_chain.transaction.max_fee=1 \
-          --set cassandraResources.limits.cpu=1Gi \
-          --set cassandraResources.limits.memory=2Gi \
           --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
           --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
           --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
@@ -254,8 +245,7 @@ runs:
           --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
           --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
           --set commonConf.sc.smart_contracts.storagesc.time_unit="2s" \
-          -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config \
-          --version 1.0.1 || exit 1;
+          -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
 
         sleep 2s && helm repo update
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
