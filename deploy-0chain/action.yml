@@ -77,7 +77,7 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |       
-        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
+        echo "ACTIONS_BRANCH=use-v4" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
@@ -259,6 +259,10 @@ runs:
         chmod 777 ./deploy.sh;
         ./deploy.sh
 
+    - name: "Setup Go"
+      uses: actions/setup-go@v4
+      with:
+        go-version: ^1.20
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -275,12 +279,6 @@ runs:
         repository: 0chain/zboxcli
         fetch-depth: 1
         path: ./zboxcli
-
-    - name: "Setup Go"
-      uses: actions/setup-go@v3
-      with:
-        go-version: ^1.20
-        cache: false
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
