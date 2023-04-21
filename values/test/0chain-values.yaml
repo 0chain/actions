@@ -456,6 +456,7 @@ commonConf:
         payload:
           max_size: 98304 # bytes
         timeout: 30 # seconds
+        max_fee: 1 # max ZCN fee
         min_fee: 0
         exempt:
           - add_miner
@@ -466,6 +467,7 @@ commonConf:
           - sharder_keep
           - shareSignsOrShares
           - wait
+          - pour
       client:
         signature_scheme: bls0chain # ed25519 or bls0chain
         discover: true
@@ -882,7 +884,7 @@ commonConf:
           challenge_request: 100
           challenge_response: 1600
           add_validator: 100
-          validator-health-check: 100
+          validator_health_check: 100
           shut-down-validator: 100
           kill-validator: 100
           add_blobber: 100
