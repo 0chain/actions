@@ -100,13 +100,7 @@ runs:
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
-        echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
-        echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
         echo "HOME=/root" >> $GITHUB_ENV
-
-        # go env
-        # go env -w GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod
-        # go env -w GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build
 
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -135,137 +129,137 @@ runs:
       run: |
         sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y
 
-    # - name: "Install helm"
-    #   uses: azure/setup-helm@v1
-    #   with:
-    #     version: 'v3.2.2'
+    - name: "Install helm"
+      uses: azure/setup-helm@v1
+      with:
+        version: 'v3.2.2'
 
-    # - name: "Install kubectl"
-    #   uses: azure/setup-kubectl@v1
-    #   id: install
+    - name: "Install kubectl"
+      uses: azure/setup-kubectl@v1
+      id: install
 
-    # - name: "Configure helm & kubectl"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     echo
-    #     echo "=================================================="
-    #     echo "CONFIGURING HELM"
-    #     echo "=================================================="
-    #     echo
-    #     cd ..
-    #     helm repo remove 0chain-helm
-    #     helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/dev/
-    #     helm repo update
-    #     mkdir -p ./kube
-    #     echo "${{ inputs.kube_config }}" | xargs | base64 -d > ./kube/${{ env.NAMESPACE }}-config
+    - name: "Configure helm & kubectl"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "=================================================="
+        echo "CONFIGURING HELM"
+        echo "=================================================="
+        echo
+        cd ..
+        helm repo remove 0chain-helm
+        helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/dev/
+        helm repo update
+        mkdir -p ./kube
+        echo "${{ inputs.kube_config }}" | xargs | base64 -d > ./kube/${{ env.NAMESPACE }}-config
 
-    # - name: "Remove existing 0Chain network and data"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     cd ..
-    #     echo '#!/bin/bash
-    #     echo
-    #     echo "=================================================="
-    #     echo "REMOVING EXISTING 0CHAIN NETWORK"
-    #     echo "=================================================="
-    #     echo
+    - name: "Remove existing 0Chain network and data"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd ..
+        echo '#!/bin/bash
+        echo
+        echo "=================================================="
+        echo "REMOVING EXISTING 0CHAIN NETWORK"
+        echo "=================================================="
+        echo
 
-    #     output=$(helm list -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | wc -l);
-    #     if [ $output -gt 1 ]; then
-    #         helm list --short -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | xargs -L1 helm delete -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config"
-    #         sleep 30
-    #     fi
-    #         helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-    #         kubectl wait --for=condition=complete --timeout 900s job/helm-clean-directory -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-    #         kubectl delete all --all -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-    #     ' > ./teardown.sh;
-    #     chmod 777 ./teardown.sh;
-    #     ./teardown.sh
+        output=$(helm list -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | wc -l);
+        if [ $output -gt 1 ]; then
+            helm list --short -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | xargs -L1 helm delete -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config"
+            sleep 30
+        fi
+            helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            kubectl wait --for=condition=complete --timeout 900s job/helm-clean-directory -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            kubectl delete all --all -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        ' > ./teardown.sh;
+        chmod 777 ./teardown.sh;
+        ./teardown.sh
 
-    # - name: "Deploy 0Chain network"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     cd ..
+    - name: "Deploy 0Chain network"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd ..
 
-    #     echo '#!/bin/bash
-    #     echo "ACTIONS branch:" ${{ env.ACTIONS_BRANCH }}
-    #     sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
-    #     kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap $1
-    #     kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
-    #     ' > ./add-configmap.sh;
-    #     chmod 777 ./add-configmap.sh;
+        echo '#!/bin/bash
+        echo "ACTIONS branch:" ${{ env.ACTIONS_BRANCH }}
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap $1
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
+        ' > ./add-configmap.sh;
+        chmod 777 ./add-configmap.sh;
 
-    #     echo '#!/bin/bash
-    #     echo
-    #     echo "=================================================="
-    #     echo "DEPLOYING 0CHAIN NETWORK"
-    #     echo "=================================================="
-    #     echo
+        echo '#!/bin/bash
+        echo
+        echo "=================================================="
+        echo "DEPLOYING 0CHAIN NETWORK"
+        echo "=================================================="
+        echo
 
-    #     ./add-configmap.sh magicblock
-    #     ./add-configmap.sh b0mnode01-keys
-    #     ./add-configmap.sh b0mnode01-dkg
-    #     ./add-configmap.sh b0mnode02-keys
-    #     ./add-configmap.sh b0mnode02-dkg
-    #     ./add-configmap.sh b0mnode03-keys
-    #     ./add-configmap.sh b0mnode03-dkg
-    #     ./add-configmap.sh b0snode01-keys
-    #     ./add-configmap.sh b0snode02-keys
-    #     ./add-configmap.sh b0bnode01-keys
-    #     ./add-configmap.sh b0bnode02-keys
-    #     ./add-configmap.sh b0bnode03-keys
-    #     ./add-configmap.sh b0bnode04-keys
-    #     ./add-configmap.sh b0bnode05-keys
-    #     ./add-configmap.sh b0bnode06-keys
-    #     ./add-configmap.sh b0bnode07-keys
-    #     ./add-configmap.sh b0vnode01-keys
-    #     ./add-configmap.sh b0vnode02-keys
-    #     ./add-configmap.sh b0vnode03-keys
-    #     ./add-configmap.sh b0vnode04-keys
-    #     ./add-configmap.sh b0vnode05-keys
-    #     ./add-configmap.sh b0vnode06-keys
-    #     ./add-configmap.sh b0vnode07-keys
-    #     ./add-configmap.sh a0node01-keys
-    #     ./add-configmap.sh a0node02-keys
-    #     ./add-configmap.sh a0node03-keys
-    #     ./add-configmap.sh initial-state
-    #     ./add-configmap.sh delegate-wallet-json
-    #     ./add-configmap.sh nodes
+        ./add-configmap.sh magicblock
+        ./add-configmap.sh b0mnode01-keys
+        ./add-configmap.sh b0mnode01-dkg
+        ./add-configmap.sh b0mnode02-keys
+        ./add-configmap.sh b0mnode02-dkg
+        ./add-configmap.sh b0mnode03-keys
+        ./add-configmap.sh b0mnode03-dkg
+        ./add-configmap.sh b0snode01-keys
+        ./add-configmap.sh b0snode02-keys
+        ./add-configmap.sh b0bnode01-keys
+        ./add-configmap.sh b0bnode02-keys
+        ./add-configmap.sh b0bnode03-keys
+        ./add-configmap.sh b0bnode04-keys
+        ./add-configmap.sh b0bnode05-keys
+        ./add-configmap.sh b0bnode06-keys
+        ./add-configmap.sh b0bnode07-keys
+        ./add-configmap.sh b0vnode01-keys
+        ./add-configmap.sh b0vnode02-keys
+        ./add-configmap.sh b0vnode03-keys
+        ./add-configmap.sh b0vnode04-keys
+        ./add-configmap.sh b0vnode05-keys
+        ./add-configmap.sh b0vnode06-keys
+        ./add-configmap.sh b0vnode07-keys
+        ./add-configmap.sh a0node01-keys
+        ./add-configmap.sh a0node02-keys
+        ./add-configmap.sh a0node03-keys
+        ./add-configmap.sh initial-state
+        ./add-configmap.sh delegate-wallet-json
+        ./add-configmap.sh nodes
 
-    #     sleep 2s && helm repo update
+        sleep 2s && helm repo update
 
-    #     helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
-    #       --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
-    #       --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
-    #       --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
-    #       --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
-    #       --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
-    #       --set commonConf.zchainUp.server_chain.transaction.timeout=600 \
-    #       --set miner.hostName=${{ env.NAMESPACE }} \
-    #       --set miner.host=devnet-0chain.net \
-    #       --set miner.image.tag=${{ env.MINER_TAG }} \
-    #       --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
-    #       --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
-    #       --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
-    #       --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
-    #       --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
-    #       --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
-    #       --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
-    #       --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
-    #       --set commonConf.sc.smart_contracts.storagesc.time_unit="2s" \
-    #       -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
+          --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
+          --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
+          --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
+          --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
+          --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
+          --set commonConf.zchainUp.server_chain.transaction.timeout=600 \
+          --set miner.hostName=${{ env.NAMESPACE }} \
+          --set miner.host=devnet-0chain.net \
+          --set miner.image.tag=${{ env.MINER_TAG }} \
+          --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
+          --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
+          --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
+          --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
+          --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
+          --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
+          --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
+          --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
+          --set commonConf.sc.smart_contracts.storagesc.time_unit="2s" \
+          -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
 
-    #     sleep 2s && helm repo update
-    #     helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-    #     sleep 2s && helm repo update
-    #     helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=7 --set validator.validatorCount=7 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-    #     sleep 2s && helm repo update
-    #     helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-    #     sleep 2s && helm repo update
-    #     helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-    #     ' > ./deploy.sh;
-    #     chmod 777 ./deploy.sh;
-    #     ./deploy.sh
+        sleep 2s && helm repo update
+        helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
+        helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=7 --set validator.validatorCount=7 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
+        helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        sleep 2s && helm repo update
+        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        ' > ./deploy.sh;
+        chmod 777 ./deploy.sh;
+        ./deploy.sh
 
     - name: "Setup Go"
       # uses: actions/setup-go@v3
