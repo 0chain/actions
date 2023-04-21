@@ -118,7 +118,7 @@ runs:
         path: ./zboxcli
 
     - name: "Setup Go"
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v3
       with:
         go-version: 1.18
 
