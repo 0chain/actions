@@ -74,6 +74,11 @@ runs:
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
         echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
+        echo "HOME=/root" >> $GITHUB_ENV
+        
+        go env
+        go env -w GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod
+        go env -w GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -120,7 +125,7 @@ runs:
     - name: "Setup Go"
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18
+        go-version: ^1.20
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
