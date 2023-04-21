@@ -77,7 +77,7 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |       
-        echo "ACTIONS_BRANCH='gocache'" >> $GITHUB_ENV
+        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
@@ -262,18 +262,12 @@ runs:
         ./deploy.sh
 
     - name: "Setup Go"
-      # uses: actions/setup-go@v3
-      # with:
-      #   go-version: ^1.20
-      #   cache: false
       shell: bash
       run: |
         [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
         rm -rf /usr/local/go && tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
         echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
         export PATH=$PATH:/usr/local/go/bin
-        # go env -w GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod
-        # go env -w GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build
         go env
 
 
