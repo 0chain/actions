@@ -12,9 +12,10 @@ runs:
   using: "composite"
   steps:
     - name: "Setup Go"
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v4
       with:
         go-version: ^1.20
+        cache: false
 
     - name: "Convert file"
       shell: 'script --return --quiet --command "bash {0}"'
