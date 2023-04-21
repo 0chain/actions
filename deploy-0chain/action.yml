@@ -274,10 +274,13 @@ runs:
       #   cache: false
       shell: bash
       run: |
-        cd /root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool
-        [ -f ./go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+        wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
         rm -rf /usr/local/go && tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
         echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
+        export PATH=$PATH:/usr/local/go/bin
+        go env -w GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod
+        go env -w GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build
+        echo "HOME=/root" >> $GITHUB_ENV
 
 
     - name: "Checkout 0wallet CLI"
