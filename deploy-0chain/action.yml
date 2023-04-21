@@ -100,6 +100,9 @@ runs:
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
+        echo "GOMODCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod' >> $GITHUB_ENV
+        echo "GOCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build' >> $GITHUB_ENV
+
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -265,6 +268,8 @@ runs:
         go-version: ^1.20
         cache: false
 
+   
+
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
       with:
@@ -292,8 +297,7 @@ runs:
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
 
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"

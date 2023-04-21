@@ -72,6 +72,8 @@ runs:
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
+        echo "GOMODCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod' >> $GITHUB_ENV
+        echo "GOCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build' >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -147,10 +149,7 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-     
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
+  
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
@@ -218,11 +217,6 @@ runs:
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
         
-
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
-        
         go install gotest.tools/gotestsum@latest
         go install github.com/vakenbolt/go-test-report@latest
 
@@ -263,9 +257,6 @@ runs:
         echo "======================================================"
         echo
         
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
         GOPATH=$(echo $(go env GOPATH))
 
         cd tests/api_tests
@@ -306,10 +297,7 @@ runs:
         if [ -n "${{ env.NAMESPACE }}" ]; then
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
-        
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
+
 
         GOPATH=$(echo $(go env GOPATH))
 
@@ -342,10 +330,6 @@ runs:
         fi
 
         cd tests/cli_tests
-        
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
 
         testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
         echo "Attempting to resolve filter to test files..."
@@ -412,10 +396,6 @@ runs:
         echo "RUNNING TOKENOMICS SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
 
         cd tests/tokenomics_tests
         tokenomics_system_tests_exit_code=0
@@ -479,10 +459,6 @@ runs:
         echo "RUNNING FLAKY SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
 
         GOPATH=$(echo $(go env GOPATH))
         
