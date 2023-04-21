@@ -116,9 +116,10 @@ runs:
         path: ./zboxcli
 
     - name: "Setup Go"
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v4
       with:
         go-version: ^1.20
+        cache: false
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -146,7 +147,7 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+     
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
@@ -217,7 +218,7 @@ runs:
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
@@ -262,7 +263,6 @@ runs:
         echo "======================================================"
         echo
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
@@ -307,7 +307,6 @@ runs:
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
@@ -344,7 +343,6 @@ runs:
 
         cd tests/cli_tests
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
@@ -415,7 +413,6 @@ runs:
         echo "======================================================"
         echo
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"
@@ -483,7 +480,6 @@ runs:
         echo "======================================================"
         echo
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         export HOME="/root"

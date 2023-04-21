@@ -263,6 +263,7 @@ runs:
       uses: actions/setup-go@v4
       with:
         go-version: ^1.20
+        cache: false
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -290,7 +291,7 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
+
         export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
         export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
