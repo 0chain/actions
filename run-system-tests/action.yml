@@ -72,8 +72,8 @@ runs:
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
-        echo "GOMODCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod' >> $GITHUB_ENV
-        echo "GOCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build' >> $GITHUB_ENV
+        echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
+        echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'

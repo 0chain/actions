@@ -100,9 +100,9 @@ runs:
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
-        echo "GOMODCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod'" >> $GITHUB_ENV
-        echo "GOCACHE='/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build'" >> $GITHUB_ENV
-        echo "HOME='/root'" >> $GITHUB_ENV
+        echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
+        echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
+        echo "HOME=/root" >> $GITHUB_ENV
 
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
