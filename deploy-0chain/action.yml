@@ -76,8 +76,8 @@ runs:
   steps:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
-      run: |       
-        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
+      run: |
+        echo "ACTIONS_BRANCH=debug-zbox-config" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
         echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
@@ -436,7 +436,7 @@ runs:
         done
         ' > ./stake_blobbers.sh;
         chmod 777 ./stake_blobbers.sh;
-        
+
     - name: "Register Authorizers"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
