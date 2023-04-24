@@ -159,7 +159,7 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-  
+
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
@@ -194,14 +194,14 @@ runs:
           else
               echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
-        
+
         if [ "${{ inputs.run_api_system_tests }}" == "false" ];
            then
               echo RUN_API_SYSTEM_TESTS=false >> $GITHUB_ENV
           else
               echo RUN_API_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
-        
+
         if [ "${{ inputs.retry_failures }}" == "true" ];
            then
               echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
@@ -215,7 +215,7 @@ runs:
            else
               echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
         fi
-        
+
          if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
            then
               echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
@@ -226,7 +226,7 @@ runs:
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
-        
+
         go install gotest.tools/gotestsum@latest
         go install github.com/vakenbolt/go-test-report@latest
 
@@ -240,9 +240,9 @@ runs:
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
 
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./config/zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
 
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
@@ -254,8 +254,8 @@ runs:
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
         cd tests/cli_tests
-        (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
-        (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
+        (./zwallet version --configDir ./config --config ./config/zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
+        (./zbox version --configDir ./config --config ./config/zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -266,7 +266,7 @@ runs:
         echo "RUNNING API SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
+
         GOPATH=$(echo $(go env GOPATH))
 
         cd tests/api_tests
@@ -361,7 +361,7 @@ runs:
             echo "::error title=Test functions not found!::No test functions found in any of the test files requested [$testFiles]" && exit 1
         fi
 
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  '$testFunctions' ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > SUBSET_TEST_RUNNER_COMMAND.sh && chmod 777 SUBSET_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  '$testFunctions' ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > SUBSET_TEST_RUNNER_COMMAND.sh && chmod 777 SUBSET_TEST_RUNNER_COMMAND.sh
 
         echo
         echo "======================================================"
@@ -471,7 +471,7 @@ runs:
         echo
 
         GOPATH=$(echo $(go env GOPATH))
-        
+
         cd tests/cli_tests
         rm -rf cmdlog.log || true
         rm -rf test-output.json || true
@@ -521,7 +521,7 @@ runs:
         echo "> Show blobbers"
         echo "-----------------------------"
         cd tests/cli_tests
-        ./zbox --configDir ./config --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
+        ./zbox --configDir ./config --config ./config/zbox_config.yaml --wallet ../ignore ls-blobbers --all
         cd ../..
 
         echo "-----------------------------"
