@@ -100,6 +100,8 @@ runs:
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
+        echo "HOME=/root" >> $GITHUB_ENV
+
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -121,6 +123,11 @@ runs:
         echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
         echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
         echo "Subgraph API URL:                      [${{ env.SUBGRAPH_API_URL }}]"
+
+    - name: Install deps
+      shell: bash
+      run: |
+        sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -204,36 +211,47 @@ runs:
         ./add-configmap.sh b0bnode04-keys
         ./add-configmap.sh b0bnode05-keys
         ./add-configmap.sh b0bnode06-keys
-        ./add-configmap.sh b0bnode07-keys
         ./add-configmap.sh b0vnode01-keys
         ./add-configmap.sh b0vnode02-keys
         ./add-configmap.sh b0vnode03-keys
         ./add-configmap.sh b0vnode04-keys
         ./add-configmap.sh b0vnode05-keys
         ./add-configmap.sh b0vnode06-keys
-        ./add-configmap.sh b0vnode07-keys
         ./add-configmap.sh a0node01-keys
         ./add-configmap.sh a0node02-keys
         ./add-configmap.sh a0node03-keys
+
         ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
         sleep 2s && helm repo update
-        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} --set commonConf.zchainDown.number_of_delegates=20 --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" --set commonConf.zchainUp.server_chain.transaction.timeout=600 --set miner.hostName=${{ env.NAMESPACE }} --set miner.host=devnet-0chain.net --set miner.image.tag=${{ env.MINER_TAG }} --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[0]=contributeMpk \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[1]=mint \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[2]=shareSignsOrShares \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[3]=wait \
-          --set commonConf.zchainUp.server_chain.transaction.exempt[4]=pour \
-          --set commonConf.zchainUp.server_chain.transaction.max_fee=1 \
-          --set cassandraResources.limits.cpu=1Gi \
-          --set cassandraResources.limits.memory=2Gi \
-          --set commonConf.zchainUp.server_chain.dkg=true --set commonConf.zchainUp.server_chain.view_change=false --set commonConf.zchainUp.server_chain.state.enabled=true --set commonConf.zchainUp.server_chain.block_rewards=true --set commonConf.zchainUp.server_chain.smart_contract.storage=true --set commonConf.zchainUp.server_chain.smart_contract.faucet=true --set commonConf.zchainUp.server_chain.smart_contract.interest=true --set commonConf.zchainUp.server_chain.smart_contract.miner=true --set commonConf.zchainUp.server_chain.smart_contract.multisig=true --set commonConf.zchainUp.server_chain.smart_contract.vesting=true --set commonConf.zchainUp.server_chain.smart_contract.zcn=true --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 --set commonConf.sc.smart_contracts.minersc.num_miner_delegates_rewarded=10 --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 --set commonConf.sc.smart_contracts.storagesc.min_alloc_duration="2s" -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+
+        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
+          --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
+          --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
+          --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
+          --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
+          --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
+          --set commonConf.zchainUp.server_chain.transaction.timeout=600 \
+          --set miner.hostName=${{ env.NAMESPACE }} \
+          --set miner.host=devnet-0chain.net \
+          --set miner.image.tag=${{ env.MINER_TAG }} \
+          --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
+          --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
+          --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
+          --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
+          --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
+          --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
+          --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
+          --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
+          --set commonConf.sc.smart_contracts.storagesc.time_unit="2s" \
+          -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+
         sleep 2s && helm repo update
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
-        helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=7 --set validator.validatorCount=7 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=6 --set validator.validatorCount=6 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
@@ -241,6 +259,16 @@ runs:
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
+
+    - name: "Setup Go"
+      shell: bash
+      run: |
+        [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+        rm -rf /usr/local/go && tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
+        export PATH=$PATH:/usr/local/go/bin
+        go env
+
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -258,11 +286,6 @@ runs:
         fetch-depth: 1
         path: ./zboxcli
 
-    - name: "Setup Go"
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
-
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -273,9 +296,8 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
+
+
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
@@ -397,13 +419,13 @@ runs:
           cat build.log
           echo
 
-          [[ $num -eq 7 ]] && break
+          [[ $num -eq 6 ]] && break
           sleep 10
           ((count++))
         done
-        if [[ $num -lt 7 ]]
+        if [[ $num -lt 6 ]]
         then
-          echo "::error title=Number of blobbers registered is less than 7:: Only ${num}/7 blobbers are registered. Exiting run..."
+          echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
           cat build.log
           exit 1
         fi
@@ -446,7 +468,10 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
-        echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > /root/.zcn/owner_wallet.json
+        echo '> owner_wallet.json'
+        echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > owner_wallet.json
+        cat owner_wallet.json
+        echo '> bridge.yaml'
         echo 'owner:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
@@ -466,8 +491,9 @@ runs:
           WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
           GasLimit: 300000
           Value: 0
-          ConsensusThreshold: 75' > /root/.zcn/bridge.yaml
+          ConsensusThreshold: 75' > bridge.yaml
         cat bridge.yaml
+        echo '> config.yaml'
         echo 'authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
         block_worker: https://${{ env.NETWORK_URL }}/dns
         bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
@@ -481,13 +507,17 @@ runs:
         token_address: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
         ' > config.yaml
         cat config.yaml
+        pwd
+        ls
         echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > wallet.json
-        ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./config.yaml --wallet ./wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --config ./config.yaml --wallet ./wallet.json
+
+        ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         # ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432
-        ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./config.yaml --wallet ./wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --config ./config.yaml --wallet ./wallet.json
+        ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         # ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a
+
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -535,7 +565,7 @@ runs:
         echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
         ./zwallet register --silent --configDir . --config ./config.yaml --wallet ./zs3wallet.json
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5 --data 2 --parity 2 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent |grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
+        ./zbox newallocation --lock 5 --data 2 --parity 2 --size 10000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
         echo "Allocation hash: $(cat allocation.txt)"
         echo "ALLOCATION=$(cat allocation.txt)" >> $GITHUB_ENV
 
