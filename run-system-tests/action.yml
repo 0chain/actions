@@ -270,11 +270,12 @@ runs:
         fi
 
         go run ./wasmsdk/demo &
+        cd ..
 
-      - name: Run Wasm Tests
-        uses: cypress-io/github-action@v5
-        with:
-          project: ./wasmsdk/cyress
+    - name: Run Wasm Tests
+      uses: cypress-io/github-action@v5
+      with:
+        project: ./wasmsdk/cyress
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
