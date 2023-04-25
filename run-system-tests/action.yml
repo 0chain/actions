@@ -261,21 +261,26 @@ runs:
     - name: "Set up wasm tests"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+
+        echo "======================================================"
+        echo "Clone wasm cypress tests"
+        echo "======================================================"
         git clone https://github.com/0chain/gosdk.git
         cd gosdk
 
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
-          git checkout ${{ inputs.custom_go_sdk_version }}
+          git checkout ${{ inputs.custom_go_sdk_version }} && cd ..
         fi
 
+        curl -v http://127.0.0.1:8080 && curl -v http://127.0.0.1:8080/shutdown
         go run ./wasmsdk/demo &
-        cd ..
+
 
     - name: Run Wasm Tests
       uses: cypress-io/github-action@v5
       with:
-        project: ./wasmsdk/cyress
+        project: ./gosdk/wasmsdk/cyress
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
