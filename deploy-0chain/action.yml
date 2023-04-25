@@ -376,9 +376,9 @@ runs:
 
         echo '#!/bin/bash
         echo
-        echo "==========================================================="
-        echo "STAKING BLOBBERS USING ZWALLETCLI & ZBOXCLI BINARIES"
-        echo "==========================================================="
+        echo "===================================================================="
+        echo "STAKING BLOBBERS AND VALIDATORS USING ZWALLETCLI & ZBOXCLI BINARIES"
+        echo "===================================================================="
         echo
         exec 6>&1 # Save stdout to file descriptor 6
         function retry {
@@ -437,7 +437,7 @@ runs:
         
         # Validator staking
         count=0
-        while [[ $count -le 6 ]]
+        while [[ $count -le 5 ]]
         do
           retry ./zbox ls-validators --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep "id" | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
@@ -446,13 +446,13 @@ runs:
           cat build.log
           echo
 
-          [[ $num -eq 7 ]] && break
+          [[ $num -eq 6 ]] && break
           sleep 10
           ((count++))
         done
-        if [[ $num -lt 7 ]]
+        if [[ $num -lt 6 ]]
         then
-          echo "::error title=Number of Validators registered is less than 7:: Only ${num}/7 validators are registered. Exiting run..."
+          echo "::error title=Number of Validators registered is less than 6:: Only ${num}/6 validators are registered. Exiting run..."
           cat build.log
           exit 1
         fi
@@ -461,8 +461,8 @@ runs:
         do
             retry ./zbox sp-lock --validator_id $id --tokens 5 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
-        ' > ./stake_blobbers.sh;
-        chmod 777 ./stake_blobbers.sh;
+        ' > ./stake_validators.sh;
+        chmod 777 ./stake_validators.sh;
         
     - name: "Register Authorizers"
       shell: 'script --return --quiet --command "bash {0}"'
