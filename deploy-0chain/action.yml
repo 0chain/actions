@@ -551,9 +551,9 @@ runs:
         helm upgrade --install --wait \
           --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
           --set zs3server.host=devnet-0chain.net \
-          --set zs3server.client.image.tag=${{ env.ZS3_CLIENT }} \
-          --set zs3server.logsearchapi.image.tag=${{ env.ZS3_LOGSEARCHAPI }} \
-          --set zs3server.minio.image.tag=${{ env.ZS3_MINIO }} \
+          --set zs3server.client.image.tag=pr-23-4a10c669 \
+          --set zs3server.logsearchapi.image.tag=pr-23-4a10c669 \
+          --set zs3server.minio.image.tag=pr-23-4a10c669 \
           --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
           --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
           zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
