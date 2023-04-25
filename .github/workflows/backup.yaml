@@ -44,4 +44,4 @@ jobs:
       - name: Backup to s3
         if: steps.get_info.outputs.GIT_COMMIT_DATE == steps.get_info.outputs.YESTERDAY_DATE
         run: |
-          aws s3 cp actions.zip s3://${{ secrets.MIRROR_TARGET }}/actions.zip
+          sudo aws s3 cp actions.zip s3://${{ secrets.MIRROR_TARGET }}/actions.zip
