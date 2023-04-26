@@ -285,6 +285,7 @@ runs:
       with:
         working-directory: ./gosdk/wasmsdk/cypress
         cache-key: node--on-${{ runner.os }}-hash-${{ hashFiles('yarn.lock') }}
+        start: yarn start
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
