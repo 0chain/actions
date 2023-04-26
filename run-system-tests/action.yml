@@ -140,17 +140,21 @@ runs:
         echo "INSTALL REQUIRED DEPENDENCIES"
         echo "======================================================"
         echo
-        echo "installing youtube-dl..."
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/yarn.gpg
+        echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+        echo
+        echo "1> installing youtube-dl..."
         sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         sudo chmod a+rx /usr/local/bin/youtube-dl
-        echo "installing ffmpeg..."
+        echo
+        echo "2> installing ffmpeg..."
         sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
         sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
         echo "Test dependencies install SUCCESS!"
 
-        echo "installing cypress dependencies..."
-        apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-        npm install -g yarn
+        echo "3> installing cypress dependencies..."
+        apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
