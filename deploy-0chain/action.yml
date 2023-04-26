@@ -434,7 +434,7 @@ runs:
         do
             retry ./zbox sp-lock --blobber_id $id --tokens 5 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
-        
+
         # Validator staking
         count=0
         while [[ $count -le 5 ]]
@@ -463,7 +463,7 @@ runs:
         done
         ' > ./stake_validators.sh;
         chmod 777 ./stake_validators.sh;
-        
+
     - name: "Register Authorizers"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -522,7 +522,7 @@ runs:
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        timeout 300 ./stake_blobbers.sh
+        timeout 300 ./stake_validators.sh
         if [[ $? -ne 0 ]]
         then
           cat build.log
@@ -535,7 +535,7 @@ runs:
           echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
           echo -e "${RED}======================================================${NC}"
           echo
-          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
+          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_validators.sh $1;
           ' > ./retry.sh;
           chmod 777 ./retry.sh;
           timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
