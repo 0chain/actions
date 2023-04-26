@@ -277,11 +277,14 @@ runs:
         CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -o ./wasmsdk/demo/zcn.wasm  ./wasmsdk
 
         go build -o ./wasmsdk/demo/demo ./wasmsdk/demo
+        cd ./wasmsdk/cypress && yarn install
+        cd ../../..
 
     - name: Run Wasm Tests
       uses: cypress-io/github-action@v5
       with:
         working-directory: ./gosdk/wasmsdk/cypress
+        cache-key: node--on-${{ runner.os }}-hash-${{ hashFiles('yarn.lock') }}
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
