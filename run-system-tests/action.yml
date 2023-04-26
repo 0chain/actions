@@ -282,6 +282,8 @@ runs:
         curl -v http://127.0.0.1:8080 && curl -v http://127.0.0.1:8080/shutdown
         go run ./wasmsdk/demo &
 
+        curl -v http://127.0.0.1:8080
+
 
     - name: Run Wasm Tests
       uses: cypress-io/github-action@v5
