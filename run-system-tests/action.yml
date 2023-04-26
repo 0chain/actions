@@ -274,6 +274,8 @@ runs:
           git checkout ${{ inputs.custom_go_sdk_version }}
         fi
 
+        CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -o ./wasmsdk/demo/zcn.wasm  ./wasmsdk
+        
         HTTPCODE=$(curl --silent --write-out %{response_code}  "http://127.0.0.1:8080")
         $ if test $HTTPCODE -eq 200; then
            curl --silent http://127.0.0.1:8080/shutdown
