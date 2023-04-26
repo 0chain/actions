@@ -280,7 +280,7 @@ runs:
     - name: Run Wasm Tests
       uses: cypress-io/github-action@v5
       with:
-        working-directory: ./gosdk/wasmsdk/cyress
+        working-directory: ./gosdk/wasmsdk/cypress
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
