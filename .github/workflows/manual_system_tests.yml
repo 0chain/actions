@@ -254,28 +254,28 @@ jobs:
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
         zs3server_branch: ${{ inputs.zs3server_branch }}
 
-    # - name: "Deploy 0Chain"
-    #   if: ${{ inputs.skip_tests == 'FALSE' }}
-    #   uses: 0chain/actions/deploy-0chain@wasm_cypress
-    #   with:
-    #     kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
-    #     teardown_condition: "TESTS_PASSED"
-    #     miner_image:  ${{ env.MINER_TAG }}
-    #     sharder_image: ${{ env.SHARDER_TAG }}
-    #     blobber_image: ${{ env.BLOBBER_TAG }}
-    #     validator_image: ${{ env.VALIDATOR_TAG }}
-    #     authorizer_image: ${{ env.AUTHORIZER_TAG }}
-    #     zbox_image: ${{ env.ZBOX_TAG }}
-    #     zdns_image: ${{ env.ZDNS_TAG }}
-    #     zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
-    #     zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-    #     zs3_server: ${{ inputs.zs3server_branch }}
-    #     custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-    #     TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
-    #     SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
-    #     zs3_client: ${{ inputs.zs3server_branch }}
-    #     zs3_logsearchapi: ${{ inputs.zs3server_branch }}
-    #     zs3_minio: ${{ inputs.zs3server_branch }}
+    - name: "Deploy 0Chain"
+      if: ${{ inputs.skip_tests == 'FALSE' }}
+      uses: 0chain/actions/deploy-0chain@wasm_cypress
+      with:
+        kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
+        teardown_condition: "TESTS_PASSED"
+        miner_image:  ${{ env.MINER_TAG }}
+        sharder_image: ${{ env.SHARDER_TAG }}
+        blobber_image: ${{ env.BLOBBER_TAG }}
+        validator_image: ${{ env.VALIDATOR_TAG }}
+        authorizer_image: ${{ env.AUTHORIZER_TAG }}
+        zbox_image: ${{ env.ZBOX_TAG }}
+        zdns_image: ${{ env.ZDNS_TAG }}
+        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+        zs3_server: ${{ inputs.zs3server_branch }}
+        custom_go_sdk_version: ${{ env.GOSDK_SHA }}
+        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
+        zs3_client: ${{ inputs.zs3server_branch }}
+        zs3_logsearchapi: ${{ inputs.zs3server_branch }}
+        zs3_minio: ${{ inputs.zs3server_branch }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
