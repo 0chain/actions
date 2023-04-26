@@ -102,6 +102,9 @@ runs:
 
         echo "HOME=/root" >> $GITHUB_ENV
 
+        echo "ZCN_WASM_TESTS=true" >> $GITHUB_ENV
+        echo "ZCN_WASM_GOSDK=$(echo ${{  inputs.custom_go_sdk_version }})" >> $GITHUB_ENV
+       
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
