@@ -132,7 +132,6 @@ runs:
         # go env -w GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build
         go env
 
-
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
