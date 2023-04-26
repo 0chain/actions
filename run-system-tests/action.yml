@@ -266,7 +266,7 @@ runs:
         echo "======================================================"
         echo "SETTING WASM TESTS:"
         echo "======================================================"
-        git clone https://github.com/0chain/gosdk.git
+        git clone -q https://github.com/0chain/gosdk.git
         cd gosdk
 
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
@@ -275,9 +275,9 @@ runs:
         fi
 
         CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -o ./wasmsdk/demo/zcn.wasm  ./wasmsdk
-        
+
         HTTPCODE=$(curl --silent --write-out %{response_code}  "http://127.0.0.1:8080")
-        $ if test $HTTPCODE -eq 200; then
+        if test $HTTPCODE -eq 200; then
            curl --silent http://127.0.0.1:8080/shutdown
         fi
         go run ./wasmsdk/demo &
