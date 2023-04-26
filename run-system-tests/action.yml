@@ -148,6 +148,10 @@ runs:
         sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
         echo "Test dependencies install SUCCESS!"
 
+        echo "installing cypress dependencies..."
+        apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+        npm install -g yarn
+
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -260,7 +264,6 @@ runs:
     - name: "Set up wasm tests"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        npm install -g yarn
         echo "======================================================"
         echo "Clone wasm cypress tests"
         echo "======================================================"
