@@ -143,7 +143,7 @@ runs:
         # Version Spec of the version to use in SemVer notation.
         # It also emits such aliases as lts, latest, nightly and canary builds
         # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
-        node-version: '18.0.0'
+        node-version: '16.0.0'
 
     - name: "Configure helm & kubectl"
       shell: 'script --return --quiet --command "bash {0}"'
