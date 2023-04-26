@@ -280,10 +280,19 @@ runs:
         if test $HTTPCODE -eq 200; then
            curl --silent http://127.0.0.1:8080/shutdown
         fi
-        go run ./wasmsdk/demo &
+        cd ./wasmsdk/demo && go build -o demo .
+        ./demo &
+        sleep 3
+        cd ../../..
 
-        curl -v http://127.0.0.1:8080
-        cd ..
+        HTTPCODE=$(curl --silent --write-out %{response_code}  "http://127.0.0.1:8080")
+        if test $HTTPCODE -eq 200; then
+          echo "WASM DEMO SERVER IS RUNNING"
+        else
+          echo "WASM DEMO SERVER IS DOWN"
+          exit 1
+        fi
+
 
 
     - name: Run Wasm Tests
