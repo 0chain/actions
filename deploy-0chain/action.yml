@@ -101,6 +101,7 @@ runs:
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
         echo "HOME=/root" >> $GITHUB_ENV
+        echo "CYPRESS_NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
        
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
