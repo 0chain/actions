@@ -261,7 +261,7 @@ runs:
     - name: "Set up wasm tests"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-
+        npm install -g yarn
         echo "======================================================"
         echo "Clone wasm cypress tests"
         echo "======================================================"
