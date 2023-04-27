@@ -125,11 +125,13 @@ runs:
       shell: bash
       run: |
         [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
-        rm -rf /usr/local/go && tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        [ -d /usr/local/go ] &&  rm -rf /usr/local/go
+        [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
+        && tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
         echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
         export PATH=$PATH:/usr/local/go/bin
-        # go env -w GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod
-        # go env -w GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build
+        ln -s /usr/local/go/bin/go /usr/local/bin/go 
+        which go
         go env
 
 
