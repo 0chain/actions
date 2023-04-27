@@ -130,7 +130,6 @@ runs:
         tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
         echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
         export PATH=$PATH:/usr/local/go/bin
-        # ln -s /usr/local/go/bin/go /usr/local/bin/go 
         which go
         go env
 
