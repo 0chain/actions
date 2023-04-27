@@ -232,7 +232,7 @@ jobs:
         ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
         ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
         ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
-        ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
+        # ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
       uses: 0chain/actions/notify-pull-request@stake/validator
