@@ -101,7 +101,8 @@ runs:
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
         echo "HOME=/root" >> $GITHUB_ENV
-
+        echo "CYPRESS_NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
+       
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -137,6 +138,13 @@ runs:
     - name: "Install kubectl"
       uses: azure/setup-kubectl@v1
       id: install
+
+    - uses: actions/setup-node@v3
+      with:
+        # Version Spec of the version to use in SemVer notation.
+        # It also emits such aliases as lts, latest, nightly and canary builds
+        # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
+        node-version: '16.0.0'
 
     - name: "Configure helm & kubectl"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -267,6 +275,7 @@ runs:
         [ -d /usr/local/go ] &&  rm -rf /usr/local/go
         [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
         tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+
         echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
         export PATH=$PATH:/usr/local/go/bin
         which go
