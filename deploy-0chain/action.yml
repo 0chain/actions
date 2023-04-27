@@ -387,9 +387,9 @@ runs:
 
         echo '#!/bin/bash
         echo
-        echo "==========================================================="
-        echo "STAKING BLOBBERS USING ZWALLETCLI & ZBOXCLI BINARIES"
-        echo "==========================================================="
+        echo "===================================================================="
+        echo "STAKING BLOBBERS AND VALIDATORS USING ZWALLETCLI & ZBOXCLI BINARIES"
+        echo "===================================================================="
         echo
         exec 6>&1 # Save stdout to file descriptor 6
         function retry {
@@ -426,7 +426,7 @@ runs:
           retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
           num=$(cat build.log | wc -l)
 
-          echo "Stake [$count] output:"
+          echo "List Blobbers [$count] output:"
           cat build.log
           echo
 
@@ -445,9 +445,36 @@ runs:
         do
             retry ./zbox sp-lock --blobber_id $id --tokens 5 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
-        ' > ./stake_blobbers.sh;
-        chmod 777 ./stake_blobbers.sh;
-        
+
+        # Validator staking
+        count=0
+        while [[ $count -le 5 ]]
+        do
+          retry ./zbox ls-validators --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep "id" | grep -o "[a-z0-9]\{64\}" > build.log
+          num=$(cat build.log | wc -l)
+
+          echo "List Validators [$count] output:"
+          cat build.log
+          echo
+
+          [[ $num -eq 6 ]] && break
+          sleep 10
+          ((count++))
+        done
+        if [[ $num -lt 6 ]]
+        then
+          echo "::error title=Number of Validators registered is less than 6:: Only ${num}/6 validators are registered. Exiting run..."
+          cat build.log
+          exit 1
+        fi
+        readarray -t validator_ids < build.log
+        for id in "${validator_ids[@]}"
+        do
+            retry ./zbox sp-lock --validator_id $id --tokens 5 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        done
+        ' > ./stake_validators.sh;
+        chmod 777 ./stake_validators.sh;
+
     - name: "Register Authorizers"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -506,7 +533,7 @@ runs:
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        timeout 300 ./stake_blobbers.sh
+        timeout 300 ./stake_validators.sh
         if [[ $? -ne 0 ]]
         then
           cat build.log
@@ -519,7 +546,7 @@ runs:
           echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
           echo -e "${RED}======================================================${NC}"
           echo
-          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_blobbers.sh $1;
+          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_validators.sh $1;
           ' > ./retry.sh;
           chmod 777 ./retry.sh;
           timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
