@@ -324,7 +324,7 @@ jobs:
       continue-on-error: true
       with:
         state: ${{ job.status }}
-        message: "manual run against [${{ inputs.system_tests_branch }}] tests"
+        message: "manual run against [${{ inputs.system_tests_branch }}]. Smoke tests [${{ inputs.run_smoke_tests }}]"
         system_tests_branch: ${{ inputs.system_tests_branch }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
