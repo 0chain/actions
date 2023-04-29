@@ -283,6 +283,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
+        echo "======================================================"
         echo "SETTING WASM TESTS:"
         echo "======================================================"
         git clone -q https://github.com/0chain/gosdk.git
