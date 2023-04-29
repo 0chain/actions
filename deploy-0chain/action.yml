@@ -373,10 +373,6 @@ runs:
         min_submit: 50 # in percentage
         min_confirmation: 50 # in percentage
         confirmation_chain_length: 3
-        ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
-        authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
-        bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
-        token_address: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
         store_unlock_duration_sec: 2
         ' > zbox_config.yaml
 
@@ -479,17 +475,14 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
-        echo '> owner_wallet.json'
-        echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > owner_wallet.json
-        cat owner_wallet.json
         echo '> bridge.yaml'
         echo 'owner:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
           EthereumNodeURL: ${{ env.ETHEREUM_NODE_URL }}
-          BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
-          WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
-          AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
+          BridgeAddress: 0xf260c644Acfbfd87bdC77Fe32c8d6a56C9eec879
+          WzcnAddress: 0xC79aD1e07f790d0Cf6AA3D09FeC393A09DC53d64
+          AuthorizersAddress: 0xd5867B4a1F8e7BD91276b5C85a4EDC9D33400496
           GasLimit: 300000
           Value: 0
           ConsensusThreshold: 75
@@ -497,17 +490,19 @@ runs:
           Password: “\”02289b9\“”
           EthereumAddress: 0xD8c9156e782C68EE671C09b6b92de76C97948432
           EthereumNodeURL: ${{ env.ETHEREUM_NODE_URL }}
-          AuthorizersAddress: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
-          BridgeAddress: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
-          WzcnAddress: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
+          AuthorizersAddress: 0xd5867B4a1F8e7BD91276b5C85a4EDC9D33400496
+          BridgeAddress: 0xf260c644Acfbfd87bdC77Fe32c8d6a56C9eec879
+          WzcnAddress: 0xC79aD1e07f790d0Cf6AA3D09FeC393A09DC53d64
           GasLimit: 300000
           Value: 0
           ConsensusThreshold: 75' > bridge.yaml
         cat bridge.yaml
+
         echo '> config.yaml'
-        echo 'authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
+        echo 'authorizers_address: 0xd5867B4a1F8e7BD91276b5C85a4EDC9D33400496
         block_worker: https://${{ env.NETWORK_URL }}/dns
-        bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
+        bridge_address: 0xf260c644Acfbfd87bdC77Fe32c8d6a56C9eec879
+        token_address: 0xC79aD1e07f790d0Cf6AA3D09FeC393A09DC53d64
         confirmation_chain_length: 3
         ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
         subgraph_api_url: ${{ env.SUBGRAPH_API_URL }}
@@ -515,20 +510,14 @@ runs:
         min_submit: 50
         signature_scheme: bls0chain
         store_unlock_duration_sec: 2
-        token_address: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
         ' > config.yaml
         cat config.yaml
-        pwd
-        ls
+
         echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > wallet.json
 
-        ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config config.yaml --wallet wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
-        # ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432
-        ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config config.yaml --wallet wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
-        # ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a
-
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key 70bc09454fb72cd8f511f4911cdaf3dd79ed45eff60593e004a97501b570c624d318e7db4faa88bdfb55daec20b949fd251462a4e543bcebc859e57cdc908900 --client_id d8d8f187f309fa3c24b0c10609bd518d3d9997fa1e0c433095994fe21b924d87 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key 3be133e96f8be29766eb9e9f2be3f621ee49de3ebd27556ff502b2084326bd242181298eba068bbf51f9744a0dbd6090864f4d1e71cda20adf616f288203da21 --client_id 94f6236714edea74f580a98fbd015886dac2afbfdafc857703afb91f3234d6ac --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key 994c58b36ef2b12fe2ae94e041507690d84ee16ab991f21448f510501c84ed10b883afd15944c163dc607ab7b29ad14529355d679f45266fee8a1c94b7cc75a0 --client_id 46d1d0369f26d273859dd03ba3d460cf43d6b980cd9951994004d51bf0e92b5a --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -567,10 +556,6 @@ runs:
         min_submit: 50 # in percentage
         min_confirmation: 50 # in percentage
         confirmation_chain_length: 3
-        ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
-        authorizers_address: 0xB132C20A02AD7C38d88805F0e3fFDdfb54224C58
-        bridge_address: 0x2405e40161ea6da91AE0e95061e7A8462b4D5eEa
-        token_address: 0x10140fbca3a468A1c35F132D75659eF0EB5d95DB
         store_unlock_duration_sec: 2
         ' > config.yaml
         echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
