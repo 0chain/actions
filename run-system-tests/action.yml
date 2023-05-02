@@ -81,11 +81,11 @@ runs:
         echo "HOME=/root" >> $GITHUB_ENV
         echo "CYPRESS_NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         
-        if [ "${{ inputs.run_smoke_tests }}" == "false" ];
+        if [ "${{ inputs.run_smoke_tests }}" == "true" ];
         then
-           echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
-        else
            echo RUN_SMOKE_TESTS=true >> $GITHUB_ENV
+        else
+           echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
         fi
         
     - name: "VIEW TEST CONFIGURATION"
