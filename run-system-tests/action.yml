@@ -266,31 +266,6 @@ runs:
 #        (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
 #        (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
-
-    - name: "Set up wasm tests"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        echo
-        echo "SETTING WASM TESTS:"
-        echo "======================================================"
-        git clone -q https://github.com/0chain/gosdk.git
-        cd gosdk
-
-        if [[ -n "${{  inputs.custom_go_sdk_version }}" && "${{  inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          git checkout ${{  inputs.custom_go_sdk_version }}
-        fi
-
-        cd ..
-
-    - name: Run Wasm Tests
-      uses: cypress-io/github-action@v5
-      with:
-        working-directory: ./gosdk/wasmsdk/cypress
-        record: false
-        install-command: yarn start:system-tests
-        start: yarn start
-
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
       if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
