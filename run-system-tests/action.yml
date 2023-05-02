@@ -54,6 +54,10 @@ inputs:
     required: false
     default: "false"
     description: 'Enable or disable tokenomics system tests'
+  run_smoke_tests:
+    required: false
+    default: "false"
+    description: 'Run subset of system tests (smoke tests)'
   TENDERLY_FORK_ID:
     required: true
     description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
@@ -77,6 +81,13 @@ runs:
         echo "HOME=/root" >> $GITHUB_ENV
         echo "CYPRESS_NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         
+        if [ "${{ inputs.run_smoke_tests }}" == "false" ];
+        then
+           echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
+        else
+           echo RUN_SMOKE_TESTS=true >> $GITHUB_ENV
+        fi
+        
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -96,6 +107,7 @@ runs:
         echo "Running CLI tests:        [${{ inputs.run_cli_system_tests }}]"
         echo "Running API tests:        [${{ inputs.run_api_system_tests }}]"
         echo "Running Tokenomics tests: [${{ inputs.run_tokenomics_system_tests }}]"
+        echo "Running smoke tests:      [${{ inputs.run_smoke_tests }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -141,8 +153,8 @@ runs:
         echo "======================================================"
         echo
         echo "1> importing yarn package..."
-        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/yarn.gpg
-        echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+        sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor >> /etc/apt/trusted.gpg.d/yarn.gpg
+        sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
        
         echo
         echo "2> installing youtube-dl..."
@@ -225,12 +237,13 @@ runs:
               echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
         fi
         
-         if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
+        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
            then
               echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
-          else
+           else
               echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
+        
 
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
@@ -248,10 +261,10 @@ runs:
         sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/owner.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
 
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
 
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
@@ -263,14 +276,14 @@ runs:
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
         cd tests/cli_tests
-#        (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
-#        (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
-
+        (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
+        (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
     - name: "Set up wasm tests"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
+        echo "======================================================"
         echo "SETTING WASM TESTS:"
         echo "======================================================"
         git clone -q https://github.com/0chain/gosdk.git
