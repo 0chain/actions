@@ -70,6 +70,12 @@ inputs:
     required: true
     default: "staging"
     description: 'zs3server minio DOCKER IMAGE to deploy'
+  graphnode_network:
+    required: true
+    description: 'graph node network name for example goerli.'
+  graphnode_ethereum_node_url:
+    required: true
+    description: 'Ethereum node url.'
 
 runs:
   using: "composite"
@@ -264,6 +270,7 @@ runs:
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install graph-node --wait -n ${{ env.NAMESPACE }} --set graphNode.hostName=${{ env.NAMESPACE }} --set graphNode.host=devnet-0chain.net --set graphNode.image.tag=latest --set graphNode.config.ethereum_node_url=${{ inputs.graphnode_ethereum_node_url }} --set graphNode.config.network=${{ inputs.graphnode_network }} --set graphNode.env.private_fork=true 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
