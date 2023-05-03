@@ -489,7 +489,7 @@ runs:
                 echo "::error title=0Chain crashed during test run!::One or more 0Chain components (listed below) crashed during the test run, therefore the build is NOT STABLE"
                 comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt
                 comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt > diff_file.txt
-                awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config | tail -200 ; done
+                awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config | tail -200 ; done || true
                 exit 1
             fi
           else
