@@ -54,6 +54,10 @@ inputs:
     required: false
     default: "false"
     description: 'Enable or disable tokenomics system tests'
+  run_smoke_tests:
+    required: false
+    default: "false"
+    description: 'Run subset of system tests (smoke tests)'
   TENDERLY_FORK_ID:
     required: true
     description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
@@ -72,7 +76,18 @@ runs:
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
         echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
-
+        echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
+        echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
+        echo "HOME=/root" >> $GITHUB_ENV
+        echo "CYPRESS_NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
+        
+        if [ "${{ inputs.run_smoke_tests }}" == "true" ];
+        then
+           echo RUN_SMOKE_TESTS=true >> $GITHUB_ENV
+        else
+           echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
+        fi
+        
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -92,6 +107,7 @@ runs:
         echo "Running CLI tests:        [${{ inputs.run_cli_system_tests }}]"
         echo "Running API tests:        [${{ inputs.run_api_system_tests }}]"
         echo "Running Tokenomics tests: [${{ inputs.run_tokenomics_system_tests }}]"
+        echo "Running smoke tests:      [${{ inputs.run_smoke_tests }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -116,9 +132,17 @@ runs:
         path: ./zboxcli
 
     - name: "Setup Go"
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+        [ -d /usr/local/go ] &&  rm -rf /usr/local/go
+        [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
+        tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        
+        echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
+        export PATH=$PATH:/usr/local/go/bin
+        which go
+        go env
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -128,13 +152,23 @@ runs:
         echo "INSTALL REQUIRED DEPENDENCIES"
         echo "======================================================"
         echo
-        echo "installing youtube-dl..."
+        echo "1> importing yarn package..."
+        sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor >> /etc/apt/trusted.gpg.d/yarn.gpg
+        sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
+       
+        echo
+        echo "2> installing youtube-dl..."
         sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         sudo chmod a+rx /usr/local/bin/youtube-dl
-        echo "installing ffmpeg..."
+        echo
+        echo "3> installing ffmpeg..."
         sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
         sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
         echo "Test dependencies install SUCCESS!"
+
+        echo "4> installing cypress dependencies..."
+        apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -146,15 +180,12 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
+  
         if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy -compat=1.17 || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ../tests/cli_tests
@@ -164,7 +195,7 @@ runs:
         then
           echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
           go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy -compat=1.17 || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ../tests/cli_tests
@@ -206,24 +237,21 @@ runs:
               echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
         fi
         
-         if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
+        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
            then
               echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
-          else
+           else
               echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
+        
 
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
-        
-        go get gotest.tools/gotestsum
-        go get github.com/vakenbolt/go-test-report
+        go install gotest.tools/gotestsum@latest
+        go install github.com/vakenbolt/go-test-report@latest
+
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
@@ -233,10 +261,10 @@ runs:
         sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/owner.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
 
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
 
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
@@ -251,6 +279,31 @@ runs:
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
+    - name: "Set up wasm tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "SETTING WASM TESTS:"
+        echo "======================================================"
+        git clone -q https://github.com/0chain/gosdk.git
+        cd gosdk
+
+        if [[ -n "${{  inputs.custom_go_sdk_version }}" && "${{  inputs.custom_go_sdk_version }}" != "NONE" ]];
+        then
+          git checkout ${{  inputs.custom_go_sdk_version }}
+        fi
+
+        cd ..
+
+    - name: Run Wasm Tests
+      uses: cypress-io/github-action@v5
+      with:
+        working-directory: ./gosdk/wasmsdk/cypress
+        record: false
+        install-command: yarn start:system-tests
+        start: yarn start
+
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
       if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
@@ -261,15 +314,12 @@ runs:
         echo "======================================================"
         echo
         
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
+        GOPATH=$(echo $(go env GOPATH))
 
         cd tests/api_tests
         api_system_tests_exit_code=0
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/
         if [[ $api_system_tests_exit_code == 0 ]];
@@ -304,18 +354,16 @@ runs:
         if [ -n "${{ env.NAMESPACE }}" ]; then
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
-        
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
+
+
+        GOPATH=$(echo $(go env GOPATH))
 
         cd tests/cli_tests
         system_tests_exit_code=0
         echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
         echo
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
@@ -339,11 +387,6 @@ runs:
         fi
 
         cd tests/cli_tests
-        
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
 
         testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
         echo "Attempting to resolve filter to test files..."
@@ -374,8 +417,9 @@ runs:
         echo
 
         system_tests_exit_code=0
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        GOPATH=$(echo $(go env GOPATH))
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
@@ -409,16 +453,12 @@ runs:
         echo "RUNNING TOKENOMICS SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
 
         cd tests/tokenomics_tests
         tokenomics_system_tests_exit_code=0
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TOKENOMICS_TEST_RUNNER_COMMAND.sh || tokenomics_system_tests_exit_code=$?
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics/index.html --title "0Chain Tokenomics System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        GOPATH=$(echo $(go env GOPATH))
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TOKENOMICS_TEST_RUNNER_COMMAND.sh || tokenomics_system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics/index.html --title "0Chain Tokenomics System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics ../../${{ env.BRANCH_DIR }}/latest/
         if [[ $tokenomics_system_tests_exit_code == 0 ]];
@@ -461,6 +501,8 @@ runs:
                 echo TESTS_PASSED=false >> $GITHUB_ENV
                 echo "::error title=0Chain crashed during test run!::One or more 0Chain components (listed below) crashed during the test run, therefore the build is NOT STABLE"
                 comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt
+                comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt > diff_file.txt
+                awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config | tail -200 ; done || true
                 exit 1
             fi
           else
@@ -476,17 +518,14 @@ runs:
         echo "RUNNING FLAKY SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
-        export GOPATH="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go"
-        export GOMODCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod"
-        export GOCACHE="/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build"
-        export HOME="/root"
+
+        GOPATH=$(echo $(go env GOPATH))
         
         cd tests/cli_tests
         rm -rf cmdlog.log || true
         rm -rf test-output.json || true
-        ~/go/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname --raw-command -- ../../FLAKY_TEST_RUNNER_COMMAND.sh || true
-        cat test-output.json | ~/go/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli/index.html --title "0Chain Flaky system test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname --raw-command -- ../../FLAKY_TEST_RUNNER_COMMAND.sh || true
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli/index.html --title "0Chain Flaky system test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli ../../${{ env.BRANCH_DIR }}/latest/
         echo "FLAKY_TESTS_RAN=true" >> $GITHUB_ENV
 

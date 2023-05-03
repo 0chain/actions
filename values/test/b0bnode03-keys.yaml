@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+  b0bnode03_keys.txt: |
+    f8c0b793ab8ebf1bc53f3387370e6c1690c3b116ee6f96a0c50359e55888971075863b208ae461a6fe06f859a32211e1b901bc1bb2fc281bd5bbd28f0949cf0f
+    1165cc28cd8b96e4b2c88c753d98ec5d5eaca7e596693363db49f3261ddfb615
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2022-02-24T15:59:37Z"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:b0bnode03_keys.txt: {}
+    manager: kubectl-create
+    operation: Update
+    time: "2022-02-24T15:59:37Z"
+  name: b0bnode03-keys
+  namespace: dev-x
+  resourceVersion: "6219"
+  uid: eb928686-2cea-437a-ae81-924cf6f68cd6
