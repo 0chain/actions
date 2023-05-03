@@ -132,7 +132,7 @@ runs:
         echo "Subgraph API URL:                      [${{ env.SUBGRAPH_API_URL }}]"
 
     - name: Install deps
-      shell: bash
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y
 
