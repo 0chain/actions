@@ -58,6 +58,10 @@ inputs:
     required: false
     default: "false"
     description: 'Run subset of system tests (smoke tests)'
+  run_frontend_tests:
+    required: false
+    default: "false"
+    description: 'Run frontend system tests (cypress tests)'
   TENDERLY_FORK_ID:
     required: true
     description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
@@ -209,6 +213,13 @@ runs:
         echo "SETTING UP SYSTEM TESTS:"
         echo "======================================================"
         echo
+        if [ "${{ inputs.run_frontend_tests }}" == "true" ];
+           then
+              echo RUN_FRONTEND_TESTS=true >> $GITHUB_ENV
+          else
+              echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
+        fi   
+        
         if [ "${{ inputs.run_cli_system_tests }}" == "false" ];
            then
               echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
@@ -279,7 +290,8 @@ runs:
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
-    - name: "Set up wasm tests"
+    - name: "Set up frontend tests"
+      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -296,7 +308,8 @@ runs:
 
         cd ..
 
-    - name: Run Wasm Tests
+    - name: Run frontend Tests
+      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
       uses: cypress-io/github-action@v5
       with:
         working-directory: ./gosdk/wasmsdk/cypress
