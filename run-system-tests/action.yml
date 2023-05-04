@@ -92,7 +92,7 @@ runs:
             echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
         fi
         
-        if [ "${{ inputs.run_frontend_tests }}" == "true" ];
+        if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("${{ inputs.custom_go_sdk_version }}" != "" && "${{ inputs.custom_go_sdk_version }}" != "NONE") ]];
           then
             echo RUN_FRONTEND_TESTS=true >> $GITHUB_ENV
           else
