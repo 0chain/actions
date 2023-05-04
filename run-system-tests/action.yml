@@ -58,6 +58,10 @@ inputs:
     required: false
     default: "false"
     description: 'Run subset of system tests (smoke tests)'
+  run_frontend_tests:
+    required: false
+    default: "false"
+    description: 'Run frontend system tests (cypress tests)'
   TENDERLY_FORK_ID:
     required: true
     description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
@@ -82,10 +86,52 @@ runs:
         echo "CYPRESS_NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         
         if [ "${{ inputs.run_smoke_tests }}" == "true" ];
-        then
-           echo RUN_SMOKE_TESTS=true >> $GITHUB_ENV
-        else
-           echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
+          then
+            echo RUN_SMOKE_TESTS=true >> $GITHUB_ENV
+          else
+            echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
+        fi
+        
+        if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("${{ inputs.custom_go_sdk_version }}" != "" && "${{ inputs.custom_go_sdk_version }}" != "NONE") ]];
+          then
+            echo RUN_FRONTEND_TESTS=true >> $GITHUB_ENV
+          else
+            echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
+        fi   
+        
+        if [ "${{ inputs.run_cli_system_tests }}" == "false" ];
+          then
+            echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+        
+        if [ "${{ inputs.run_api_system_tests }}" == "false" ];
+          then
+            echo RUN_API_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_API_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+        
+        if [ "${{ inputs.retry_failures }}" == "true" ];
+          then
+            echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
+          else
+            echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
+        fi
+
+        if [[ -z "${{ inputs.test_file_filter }}" ]];
+          then
+            echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
+        fi
+        
+        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
+          then
+            echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
         
     - name: "VIEW TEST CONFIGURATION"
@@ -104,10 +150,11 @@ runs:
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
         echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
-        echo "Running CLI tests:        [${{ inputs.run_cli_system_tests }}]"
-        echo "Running API tests:        [${{ inputs.run_api_system_tests }}]"
-        echo "Running Tokenomics tests: [${{ inputs.run_tokenomics_system_tests }}]"
-        echo "Running smoke tests:      [${{ inputs.run_smoke_tests }}]"
+        echo "Running CLI tests:        [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
+        echo "Running API tests:        [${{ env.RUN_API_SYSTEM_TESTS }}]"
+        echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
+        echo "Running smoke tests:      [${{ env.RUN_SMOKE_TESTS }}]"
+        echo "Running frontend tests:   [${{ env.RUN_FRONTEND_TESTS }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -209,41 +256,6 @@ runs:
         echo "SETTING UP SYSTEM TESTS:"
         echo "======================================================"
         echo
-        if [ "${{ inputs.run_cli_system_tests }}" == "false" ];
-           then
-              echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
-          else
-              echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
-        fi
-        
-        if [ "${{ inputs.run_api_system_tests }}" == "false" ];
-           then
-              echo RUN_API_SYSTEM_TESTS=false >> $GITHUB_ENV
-          else
-              echo RUN_API_SYSTEM_TESTS=true >> $GITHUB_ENV
-        fi
-        
-        if [ "${{ inputs.retry_failures }}" == "true" ];
-           then
-              echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
-          else
-              echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
-        fi
-
-        if [[ -z "${{ inputs.test_file_filter }}" ]];
-           then
-              echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
-           else
-              echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
-        fi
-        
-        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
-           then
-              echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
-           else
-              echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
-        fi
-        
 
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
@@ -279,7 +291,8 @@ runs:
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
 
-    - name: "Set up wasm tests"
+    - name: "Set up frontend tests"
+      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -296,7 +309,8 @@ runs:
 
         cd ..
 
-    - name: Run Wasm Tests
+    - name: Run frontend Tests
+      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
       uses: cypress-io/github-action@v5
       with:
         working-directory: ./gosdk/wasmsdk/cypress

@@ -140,6 +140,11 @@ on:
         default: 'false'
         description: 'Run subset of system tests (smoke tests)'
         type: string
+      run_frontend_tests:
+        required: false
+        default: 'false'
+        description: 'Run frontend system tests (cypress tests)'
+        type: string
       test_file_filter:
         description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
         default: ''
@@ -319,6 +324,7 @@ jobs:
         run_api_system_tests: ${{ inputs.run_api_system_tests }}
         run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
         run_smoke_tests: ${{ inputs.run_smoke_tests }}
+        run_frontend_tests: ${{ inputs.run_frontend_tests }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
         
