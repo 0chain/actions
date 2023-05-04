@@ -587,7 +587,7 @@ runs:
           --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
           zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
 
-    - name: "Extract Logging From Pods"
+    - name: "Extract Logs From Pods"
       if: ${{ failure() && env.NAMESPACE != '' }}
       continue-on-error: true
       shell: 'script --return --quiet --command "bash {0}"'
@@ -652,7 +652,7 @@ runs:
         ./logging.sh blobber-validator-05 ./logs/validator-05
         ./logging.sh blobber-validator-06 ./logs/validator-06
 
-    - name: "Archive Sharder Logging"
+    - name: "Archive Sharder Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
@@ -662,7 +662,7 @@ runs:
           ./logs/sharder-01
           ./logs/sharder-02
         retention-days: 5
-    - name: "Archive Miner Logging"
+    - name: "Archive Miner Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
@@ -674,7 +674,7 @@ runs:
           ./logs/miner-03
         retention-days: 5
 
-    - name: "Archive Blobber Logging"
+    - name: "Archive Blobber Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
@@ -689,7 +689,7 @@ runs:
           ./logs/blobber-06
         retention-days: 5
 
-    - name: "Archive Validator Logging"
+    - name: "Archive Validator Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
@@ -705,6 +705,7 @@ runs:
         retention-days: 5
 
     - name: "Create post run teardown script"
+      continue-on-error: true
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ..
@@ -730,6 +731,7 @@ runs:
         chmod 777 ./post.sh;
 
     - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
+      continue-on-error: true
       uses: webiny/action-post-run@2.0.1
       with:
         run: ./post.sh

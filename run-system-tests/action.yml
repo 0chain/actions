@@ -333,6 +333,7 @@ runs:
         exit $api_system_tests_exit_code
 
     - name: "Archive API Test Config & Console Output"
+      continue-on-error: true
       if: ${{ always() && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       uses: actions/upload-artifact@v3
       with:
@@ -435,6 +436,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Archive CLI Config & Console Output"
+      continue-on-error: true
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.archive_results == 'true' }}
       uses: actions/upload-artifact@v3
       with:
@@ -472,6 +474,7 @@ runs:
         exit $tokenomics_system_tests_exit_code
 
     - name: "Archive Tokenomics Test Config & Console Output"
+      continue-on-error: true
       if: ${{ always() && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       uses: actions/upload-artifact@v3
       with:
@@ -530,6 +533,7 @@ runs:
         echo "FLAKY_TESTS_RAN=true" >> $GITHUB_ENV
 
     - name: "Archive Flaky Test CLI Config & Console Output"
+      continue-on-error: true
       if: ${{ always() && env.FLAKY_TESTS_RAN == 'true' && inputs.archive_results  == 'true'}}
       uses: actions/upload-artifact@v3
       with:
@@ -540,7 +544,8 @@ runs:
           ./${{ env.BRANCH_DIR }}/latest/flaky_cli/index.html
 
 
-    - name: "Extract Logging From Pods"
+    - name: "Extract Logs From Pods"
+      continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -605,7 +610,8 @@ runs:
         ./logging.sh blobber-validator-05 ./logs/validator-05
         ./logging.sh blobber-validator-06 ./logs/validator-06
 
-    - name: "Archive Sharder Logging"
+    - name: "Archive Sharder Logs"
+      continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
       with:
@@ -614,7 +620,9 @@ runs:
           ./logs/sharder-01
           ./logs/sharder-02
         retention-days: 5
-    - name: "Archive Miner Logging"
+
+    - name: "Archive Miner Logs"
+      continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
       with:
@@ -625,7 +633,8 @@ runs:
           ./logs/miner-03
         retention-days: 5
 
-    - name: "Archive Blobber Logging"
+    - name: "Archive Blobber Logs"
+      continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
       with:
@@ -639,7 +648,8 @@ runs:
           ./logs/blobber-06
         retention-days: 5
 
-    - name: "Archive Validator Logging"
+    - name: "Archive Validator Logs"
+      continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
       uses: actions/upload-artifact@v3
       with:
@@ -654,6 +664,7 @@ runs:
         retention-days: 5
 
     - name: "Deploy report pages"
+      continue-on-error: true
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
@@ -666,11 +677,13 @@ runs:
         user_email: "github-actions[bot]@users.noreply.github.com"
 
     - name: "Wait for report deployment to complete"
+      continue-on-error: true
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: counter=0; while [ $counter -lt 5 ] && curl -o /dev/null -Isw '%{http_code}\n' "https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html?t=$(date +%s)" | grep -v 200 > /dev/null; do sleep 10 && echo "Waiting for report page to deploy..." && ((counter=counter+1)); done
 
     - name: "Report Links"
+      continue-on-error: true
       if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -687,6 +700,7 @@ runs:
         fi
 
     - name: "Notify Slack"
+      continue-on-error: true
       if: ${{ failure() && github.ref == 'refs/heads/staging' && github.event_name != 'workflow_dispatch' && github.event.repository.name != 'system_test' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |

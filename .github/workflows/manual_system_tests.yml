@@ -324,6 +324,7 @@ jobs:
         
     - name: "Runner tidy up"
       if: always()
+      continue-on-error: true
       run: rm -rf ./*
 
     - name: "Set PR status as ${{ job.status }}"
