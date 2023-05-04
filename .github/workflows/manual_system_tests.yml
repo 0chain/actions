@@ -53,6 +53,12 @@ on:
       DEV9KC:
         description: 'dev-9 k8s config'
         required: true
+      GRAPHNODE_NETWORK:
+        required: true
+        description: 'graph node network name for example goerli.'
+      GRAPHNODE_ETHEREUM_NODE_URL:
+        required: true
+        description: 'Ethereum node url.'
 
     inputs:
       system_tests_branch:
@@ -124,6 +130,26 @@ on:
         required: false
         default: 'true'
         description: 'Enable or disable CLI system tests'
+        type: string
+      run_api_system_tests:
+        required: false
+        default: 'true'
+        description: 'Enable or disable API system tests'
+        type: string
+      run_tokenomics_system_tests:
+        required: false
+        default: 'false'
+        description: 'Enable or disable tokenomics system tests'
+        type: string
+      run_smoke_tests:
+        required: false
+        default: 'false'
+        description: 'Run subset of system tests (smoke tests)'
+        type: string
+      run_frontend_tests:
+        required: false
+        default: 'false'
+        description: 'Run frontend system tests (cypress tests)'
         type: string
       test_file_filter:
         description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
@@ -238,7 +264,7 @@ jobs:
         ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
         ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
         ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
-        ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
+        # ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
       uses: 0chain/actions/notify-pull-request@master
@@ -282,6 +308,8 @@ jobs:
         zs3_client: ${{ inputs.zs3server_branch }}
         zs3_logsearchapi: ${{ inputs.zs3server_branch }}
         zs3_minio: ${{ inputs.zs3server_branch }}
+        graphnode_network: ${{ inputs.GRAPHNODE_NETWORK }}
+        graphnode_ethereum_node_url: ${{ inputs.GRAPHNODE_ETHEREUM_NODE_URL }}
 
     - name: "Run System tests"
       if: ${{ inputs.skip_tests == 'FALSE' }}
@@ -299,6 +327,10 @@ jobs:
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
         run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
+        run_api_system_tests: ${{ inputs.run_api_system_tests }}
+        run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
+        run_smoke_tests: ${{ inputs.run_smoke_tests }}
+        run_frontend_tests: ${{ inputs.run_frontend_tests }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
         S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
@@ -306,6 +338,7 @@ jobs:
         
     - name: "Runner tidy up"
       if: always()
+      continue-on-error: true
       run: rm -rf ./*
 
     - name: "Set PR status as ${{ job.status }}"
@@ -314,7 +347,7 @@ jobs:
       continue-on-error: true
       with:
         state: ${{ job.status }}
-        message: "manual run against [${{ inputs.system_tests_branch }}] tests"
+        message: "manual run against [${{ inputs.system_tests_branch }}]. Smoke tests [${{ inputs.run_smoke_tests }}]"
         system_tests_branch: ${{ inputs.system_tests_branch }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
