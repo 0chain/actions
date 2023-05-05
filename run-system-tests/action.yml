@@ -199,6 +199,7 @@ runs:
         repository: 0chain/s3-migration
         fetch-depth: 1
         path: ./s3-migration
+        token: "${{ inputs.svc_account_secret }}"
 
     - name: "Setup Go"
       shell: 'script --return --quiet --command "bash {0}"'
