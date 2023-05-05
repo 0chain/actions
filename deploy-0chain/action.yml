@@ -102,6 +102,8 @@ runs:
         echo "ZS3_MINIO=$(echo ${{inputs.zs3_minio}})" >> $GITHUB_ENV
         echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
         echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
+        echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
+        echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
 
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -129,7 +131,8 @@ runs:
         echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
         echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
         echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
-        echo "Subgraph API URL:                      [${{ env.SUBGRAPH_API_URL }}]"
+        echo "Graphnode network:                     [${{ env.GRAPHNODE_NETWORK }}]"
+        echo "Graphnode ethereum node url            [${{ env.GRAPHNODE_ETHEREUM_NODE_URL }}]"
 
     - name: Install deps
       shell: bash
@@ -270,7 +273,7 @@ runs:
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install graph-node --wait -n ${{ env.NAMESPACE }} --set graphNode.hostName=${{ env.NAMESPACE }} --set graphNode.host=devnet-0chain.net --set graphNode.image.tag=latest --set graphNode.config.ethereum_node_url=${{ inputs.graphnode_ethereum_node_url }} --set graphNode.config.network=${{ inputs.graphnode_network }} --set graphNode.env.private_fork=true 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install graph-node --wait -n ${{ env.NAMESPACE }} --set graphNode.hostName=${{ env.NAMESPACE }} --set graphNode.host=devnet-0chain.net --set graphNode.image.tag=latest --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} --set graphNode.env.private_fork=true 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
