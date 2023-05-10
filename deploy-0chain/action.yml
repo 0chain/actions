@@ -137,7 +137,7 @@ runs:
     - name: Install deps
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y || true
+        sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y &> /dev/null
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
