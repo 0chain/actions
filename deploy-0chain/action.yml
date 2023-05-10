@@ -262,7 +262,7 @@ runs:
           --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
           --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
           --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
-          --set commonConf.sc.smart_contracts.storagesc.time_unit="2s" \
+          --set commonConf.sc.smart_contracts.storagesc.time_unit="1m" \
           -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
 
         sleep 2s && helm repo update
