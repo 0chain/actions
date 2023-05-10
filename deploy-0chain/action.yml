@@ -135,9 +135,9 @@ runs:
         echo "Graphnode ethereum node url            [${{ env.GRAPHNODE_ETHEREUM_NODE_URL }}]"
 
     - name: Install deps
-      shell: bash
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y
+        sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y || true
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
