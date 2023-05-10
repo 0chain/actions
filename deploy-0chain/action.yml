@@ -135,9 +135,9 @@ runs:
         echo "Graphnode ethereum node url            [${{ env.GRAPHNODE_ETHEREUM_NODE_URL }}]"
 
     - name: Install deps
-      shell: bash
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y
+        sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y &> /dev/null
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -262,7 +262,7 @@ runs:
           --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
           --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
           --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
-          --set commonConf.sc.smart_contracts.storagesc.time_unit="2s" \
+          --set commonConf.sc.smart_contracts.storagesc.time_unit="1m" \
           -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
 
         sleep 2s && helm repo update
@@ -270,7 +270,7 @@ runs:
         sleep 2s && helm repo update
         helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=6 --set validator.validatorCount=6 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
-        helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.config.graph_node.network=${{ env.NAMESPACE }} --set zbox.config.graph_node.domain=devnet-0chain.net --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install graph-node --wait -n ${{ env.NAMESPACE }} --set graphNode.hostName=${{ env.NAMESPACE }} --set graphNode.host=devnet-0chain.net --set graphNode.image.tag=latest --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} --set graphNode.env.private_fork=true 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
