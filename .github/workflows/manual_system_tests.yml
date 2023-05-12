@@ -320,7 +320,7 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        svc_account_secret: ${{ github.token }}
+        svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
         deploy_report_page: false
         archive_results: true
         run_flaky_tests: false
