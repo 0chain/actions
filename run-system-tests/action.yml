@@ -249,6 +249,8 @@ runs:
         echo "======================================================"
         echo
         
+        export HOME="/root"
+        
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
   
