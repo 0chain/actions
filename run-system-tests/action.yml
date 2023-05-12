@@ -193,7 +193,6 @@ runs:
         path: ./zboxcli
 
     - name: "Checkout S3 Migration CLI"
-      continue-on-error: true
       uses: actions/checkout@v3
       with:
         ref: ${{ env.S3_MIGRATION_BRANCH }}
@@ -242,7 +241,6 @@ runs:
 
 
     - name: "Build CLI Binaries"
-      continue-on-error: true
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
