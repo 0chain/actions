@@ -352,7 +352,7 @@ runs:
         cd ..
 
     - name: Run frontend Tests
-      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
+      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       uses: cypress-io/github-action@v5
       with:
         working-directory: ./gosdk/wasmsdk/cypress
