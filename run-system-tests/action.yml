@@ -566,7 +566,7 @@ runs:
 
         cd tests/tokenomics_tests
 
-        testFunctions=$(echo ${{ inputs.tokenomics_test_filter }} | sed 's/,/ /g')
+        testFunctions=$(echo ${{ inputs.tokenomics_test_filter }})
         echo "Attempting to resolve filter to test files..."
         echo "Filter: $testFunctions"
 
