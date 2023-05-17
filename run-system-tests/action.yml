@@ -207,7 +207,7 @@ runs:
     - name: "Checkout S3 Migration CLI"
       uses: actions/checkout@v3
       with:
-        ref: ${{ env.S3_MIGRATION_BRANC\H }}
+        ref: ${{ env.S3_MIGRATION_BRANCH }}
         repository: 0chain/s3-migration
         fetch-depth: 1
         path: ./s3-migration
