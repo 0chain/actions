@@ -570,16 +570,16 @@ runs:
         echo "Attempting to resolve filter to test files..."
              
         echo $testFiles
-#        ls $(echo $testFiles)
-#
-#        fileListResult="$?"
-#
-#        if [ "$fileListResult" != "0" ];
-#          then
-#            echo "::error title=Test files do not exist!::One or more of the test files requested [$testFiles] could not be found" && exit 1
-#          else
-#            echo "SUCCESS!"
-#        fi
+        # ls $(echo $testFiles)
+
+        # fileListResult="$?"
+
+        # if [ "$fileListResult" != "0" ];
+        #   then
+        #     echo "::error title=Test files do not exist!::One or more of the test files requested [$testFiles] could not be found" && exit 1
+        #   else
+        #     echo "SUCCESS!"
+        # fi
 
 
         testFunctions=$(grep -o '^[^\/]*func Test.*' $(echo $testFiles) | sed 's/^[^/]*func \(Test[A-Za-z0-9_]*\).*$/\1/' | paste -sd "|" -)
