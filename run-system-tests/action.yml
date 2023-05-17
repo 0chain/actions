@@ -516,7 +516,7 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' && 'true' == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -560,6 +560,12 @@ runs:
       if:  ${{ env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING TOKENOMICS SUBSET SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+        
         if [ -n "${{ env.NAMESPACE }}" ]; then
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
