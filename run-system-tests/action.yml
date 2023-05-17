@@ -374,7 +374,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -402,7 +402,7 @@ runs:
 
     - name: "Archive API Test Config & Console Output"
       continue-on-error: true
-      if: ${{ always() && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       uses: actions/upload-artifact@v3
       with:
         name: API-System-Test-${{ env.TEST_TIME }}
@@ -412,7 +412,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -448,7 +448,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [ -n "${{ env.NAMESPACE }}" ]; then
