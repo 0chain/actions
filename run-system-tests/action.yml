@@ -46,6 +46,10 @@ inputs:
     required: false
     default: ""
     description: 'Subset of system tests to run'
+  tokenomics_test_filter:
+    required: false
+    default: ""
+    description: 'Subset of tokenomics tests to run'
   run_cli_system_tests:
     required: false
     default: "true"
@@ -140,6 +144,13 @@ runs:
             echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
         fi
         
+        if [[ -z "${{ inputs.tokenomics_test_filter }}" ]];
+          then
+            echo RUN_TOKENOMICS_SUBSET_OF_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_TOKENOMICS_SUBSET_OF_TESTS=true >> $GITHUB_ENV
+        fi
+        
         if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
           then
             echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
@@ -164,6 +175,7 @@ runs:
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
         echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
+        echo "Tokenomics test filter:   [${{ inputs.tokenomics_test_filter }}]"
         echo "Running CLI tests:        [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
         echo "Running API tests:        [${{ env.RUN_API_SYSTEM_TESTS }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
@@ -504,7 +516,7 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -545,7 +557,7 @@ runs:
         exit $tokenomics_system_tests_exit_code
         
     - name: "Run subset of TOKENOMICS System Tests"
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if:  ${{ env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [ -n "${{ env.NAMESPACE }}" ]; then
@@ -554,7 +566,7 @@ runs:
 
         cd tests/tokenomics_tests
 
-        testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
+        testFiles=$(echo ${{ inputs.tokenomics_test_filter }} | sed 's/,/ /g')
         echo "Attempting to resolve filter to test files..."
         ls $(echo $testFiles)
 
