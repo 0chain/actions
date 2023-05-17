@@ -566,26 +566,28 @@ runs:
         echo "======================================================"
         echo
         
-        if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
-        fi
 
         cd tests/tokenomics_tests
 
         testFiles=$(echo ${{ inputs.tokenomics_test_filter }} | sed 's/,/ /g')
         echo "Attempting to resolve filter to test files..."
-        ls $(echo $testFiles)
+             
+         echo $testFiles
+#        ls $(echo $testFiles)
+#
+#        fileListResult="$?"
+#
+#        if [ "$fileListResult" != "0" ];
+#          then
+#            echo "::error title=Test files do not exist!::One or more of the test files requested [$testFiles] could not be found" && exit 1
+#          else
+#            echo "SUCCESS!"
+#        fi
 
-        fileListResult="$?"
-
-        if [ "$fileListResult" != "0" ];
-          then
-            echo "::error title=Test files do not exist!::One or more of the test files requested [$testFiles] could not be found" && exit 1
-          else
-            echo "SUCCESS!"
-        fi
 
         testFunctions=$(grep -o '^[^\/]*func Test.*' $(echo $testFiles) | sed 's/^[^/]*func \(Test[A-Za-z0-9_]*\).*$/\1/' | paste -sd "|" -)
+             
+        echo $testFunctions
 
         if [ -z "$testFunctions" ];
           then
