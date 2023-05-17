@@ -195,7 +195,7 @@ runs:
     - name: "Checkout S3 Migration CLI"
       uses: actions/checkout@v3
       with:
-        ref: ${{ env.S3_MIGRATION_BRANCH }}
+        ref: ${{ env.S3_MIGRATION_BRANC\H }}
         repository: 0chain/s3-migration
         fetch-depth: 1
         path: ./s3-migration
@@ -523,11 +523,82 @@ runs:
           then
             echo TOKENOMICS_TESTS_PASSED=true >> $GITHUB_ENV
           else
+            echo TOKENOMICS_TESTS_PASSED=false >>
+
+        cd tests/tokenomics_tests
+        tokenomics_system_tests_exit_code=0
+        GOPATH=$(echo $(go env GOPATH))
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TOKENOMICS_TEST_RUNNER_COMMAND.sh || tokenomics_system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics/index.html --title "0Chain Tokenomics System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics ../../${{ env.BRANCH_DIR }}/latest/
+        if [[ $tokenomics_system_tests_exit_code == 0 ]];
+          then
+            echo TOKENOMICS_TESTS_PASSED=true >> $GITHUB_ENV
+          else
             echo TOKENOMICS_TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi $GITHUB_ENV
             echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
         exit $tokenomics_system_tests_exit_code
+        
+    - name: "Run subset of TOKENOMICS System Tests"
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+        fi
+
+        cd tests/tokenomics_tests
+
+        testFiles=$(echo ${{ inputs.test_file_filter }} | sed 's/,/ /g')
+        echo "Attempting to resolve filter to test files..."
+        ls $(echo $testFiles)
+
+        fileListResult="$?"
+
+        if [ "$fileListResult" != "0" ];
+          then
+            echo "::error title=Test files do not exist!::One or more of the test files requested [$testFiles] could not be found" && exit 1
+          else
+            echo "SUCCESS!"
+        fi
+
+        testFunctions=$(grep -o '^[^\/]*func Test.*' $(echo $testFiles) | sed 's/^[^/]*func \(Test[A-Za-z0-9_]*\).*$/\1/' | paste -sd "|" -)
+
+        if [ -z "$testFunctions" ];
+          then
+            echo "::error title=Test functions not found!::No test functions found in any of the test files requested [$testFiles]" && exit 1
+        fi
+
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  '$testFunctions' ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > SUBSET_TEST_RUNNER_COMMAND.sh && chmod 777 SUBSET_TEST_RUNNER_COMMAND.sh
+
+        echo
+        echo "======================================================"
+        echo "RUNNING [$(echo $testFunctions | awk '{ print toupper($0) }')] SYSTEM TESTS"
+        echo "======================================================"
+        echo
+
+        system_tests_exit_code=0
+        GOPATH=$(echo $(go env GOPATH))
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+
+        exit $system_tests_exit_code
 
     - name: "Archive Tokenomics Test Config & Console Output"
       continue-on-error: true
