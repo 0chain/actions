@@ -138,28 +138,23 @@ runs:
         fi
              
         echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
-
-#        if [[ -z "${{ inputs.test_file_filter }}" ]];
+        echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
+        echo RUN_TOKENOMICS_SUBSET_OF_TESTS=true >> $GITHUB_ENV
+        
+#        if [[ -z "${{ inputs.tokenomics_test_filter }}" ]];
 #          then
-#            echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
+#            echo RUN_TOKENOMICS_SUBSET_OF_TESTS=false >> $GITHUB_ENV
 #          else
-#            echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
+#            echo RUN_TOKENOMICS_SUBSET_OF_TESTS=true >> $GITHUB_ENV
 #        fi
         
-        if [[ -z "${{ inputs.tokenomics_test_filter }}" ]];
-          then
-            echo RUN_TOKENOMICS_SUBSET_OF_TESTS=false >> $GITHUB_ENV
-          else
-            echo RUN_TOKENOMICS_SUBSET_OF_TESTS=true >> $GITHUB_ENV
-        fi
-        
-        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
-          then
-            echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
-          else
-            echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
-        fi
-        
+#        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
+#          then
+#            echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
+#          else
+#            echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
+#        fi
+#
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
