@@ -255,6 +255,7 @@ runs:
           --set miner.host=devnet-0chain.net \
           --set miner.image.tag=${{ env.MINER_TAG }} \
           --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
+          --set commonConf.zchainUp.server_chain.transaction.max_fee=0.01 \
           --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
           --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
           --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
