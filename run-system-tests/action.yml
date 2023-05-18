@@ -270,7 +270,8 @@ runs:
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
-        mv zwallet ../tests/cli_tests
+        cp zwallet ../tests/cli_tests
+        cp zwallet ../tests/tokenomics_tests
         
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
@@ -281,7 +282,8 @@ runs:
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
-        mv zbox ../tests/cli_tests
+        cp zbox ../tests/cli_tests
+        cp zbox ../tests/tokenomics_tests
         
         echo "Building s3 migration CLI [${{ env.S3_MIGRATION_BRANCH }}]..."
         cd ../s3-migration
@@ -292,7 +294,8 @@ runs:
           go mod tidy -compat=1.17 || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make build > build.log 2>&1 || { cat build.log && echo "::error title=s3 migration CLI build failed::s3 migration CLI build failed" && exit 1; }
-        mv s3mgrt ../tests/cli_tests
+        cp s3mgrt ../tests/cli_tests
+        cp s3mgrt ../tests/tokenomics_tests
         
         echo "CLI build SUCCESS!"
 
