@@ -565,6 +565,8 @@ runs:
         
 
         cd tests/tokenomics_tests
+        
+        echo $(ls)
 
         testFunctions=$(echo ${{ inputs.tokenomics_test_filter }})
         echo "Attempting to resolve filter to test files..."
