@@ -450,7 +450,7 @@ runs:
         readarray -t blobber_ids < build.log
         for id in "${blobber_ids[@]}"
         do
-            retry ./zbox sp-lock --blobber_id $id --tokens 30 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zbox sp-lock --blobber_id $id --tokens 10 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
         # Validator staking
@@ -481,7 +481,7 @@ runs:
         readarray -t validator_ids < build.log
         for id in "${validator_ids[@]}"
         do
-            retry ./zbox sp-lock --validator_id $id --tokens 30 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zbox sp-lock --validator_id $id --tokens 10 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
         ' > ./stake_validators.sh;
         chmod 777 ./stake_validators.sh;
