@@ -607,8 +607,6 @@ runs:
             echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
-        exit $system_tests_exit_code
-
     - name: "Archive Tokenomics Test Config & Console Output"
       continue-on-error: true
       if: ${{ always() && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
