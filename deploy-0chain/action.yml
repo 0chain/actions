@@ -423,7 +423,7 @@ runs:
         retry ./zwallet create-wallet --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         for i in {1..25}
         do
-            retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 30 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
         # Wait for 7 blobbers to register for 60 seconds...
@@ -450,7 +450,7 @@ runs:
         readarray -t blobber_ids < build.log
         for id in "${blobber_ids[@]}"
         do
-            retry ./zbox sp-lock --blobber_id $id --tokens 8 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zbox sp-lock --blobber_id $id --tokens 30 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
         # Validator staking
