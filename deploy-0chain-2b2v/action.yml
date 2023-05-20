@@ -424,34 +424,6 @@ runs:
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key 3be133e96f8be29766eb9e9f2be3f621ee49de3ebd27556ff502b2084326bd242181298eba068bbf51f9744a0dbd6090864f4d1e71cda20adf616f288203da21 --client_id 94f6236714edea74f580a98fbd015886dac2afbfdafc857703afb91f3234d6ac --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key 994c58b36ef2b12fe2ae94e041507690d84ee16ab991f21448f510501c84ed10b883afd15944c163dc607ab7b29ad14529355d679f45266fee8a1c94b7cc75a0 --client_id 46d1d0369f26d273859dd03ba3d460cf43d6b980cd9951994004d51bf0e92b5a --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
 
-    - name: "Wait for 0Chain network deployment to complete"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        timeout 300 ./stake_validators.sh
-        if [[ $? -ne 0 ]]
-        then
-          cat build.log
-          cd ..
-          echo '#!/bin/bash
-          RED="\033[0;31m"
-          NC="\033[0m"
-          echo
-          echo -e "${RED}======================================================${NC}"
-          echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
-          echo -e "${RED}======================================================${NC}"
-          echo
-          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_validators.sh $1;
-          ' > ./retry.sh;
-          chmod 777 ./retry.sh;
-          timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
-        else
-          echo "Blobbers staked succefully on try $((ITER+1))."
-          echo
-          echo "==========================================================="
-          echo "  0CHAIN DEPLOYMENT COMPLETED SUCCESSFULLY"
-          echo "==========================================================="
-        fi
-
     - name: "Setup Zs3Server: Create allocation"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
