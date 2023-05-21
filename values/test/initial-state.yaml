@@ -89,6 +89,15 @@ data:
     #faucetSCAddress
     - id: 6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3
       tokens: 20000000000000000
+     #authorizer01yaroslav
+    - id: d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3
+      tokens: 20000000000000000
+    #authorizer02yaroslav
+    - id: 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7
+      tokens: 20000000000000000
+    #authorizer03yaroslav
+    - id: 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd
+      tokens: 20000000000000000
 
 kind: ConfigMap
 metadata:
