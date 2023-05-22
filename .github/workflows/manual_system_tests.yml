@@ -178,9 +178,9 @@ jobs:
 
         if [ "${{ inputs.skip_tests }}" == "true" ];
           then
-            echo SKIP_TESTS=TRUE >> $GITHUB_ENV
+            echo SKIP_TESTS=true >> $GITHUB_ENV
           else
-            echo SKIP_TESTS=FALSE >> $GITHUB_ENV
+            echo SKIP_TESTS=false >> $GITHUB_ENV
         fi
         
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
@@ -262,7 +262,7 @@ jobs:
         chmod 777 ./get_tag.sh;
 
     - name: "Check docker images have been published"
-      if: ${{ env.SKIP_TESTS != 'TRUE' }}
+      if: ${{ env.SKIP_TESTS != 'true' }}
       run: |
         ./get_tag.sh 0chain ${{ inputs.miner_branch }} miner
         ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
@@ -294,7 +294,7 @@ jobs:
         zs3server_branch: ${{ inputs.zs3server_branch }}
 
     - name: "Deploy 0Chain"
-      if: ${{ env.SKIP_TESTS != 'TRUE' }}
+      if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/deploy-0chain@master
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
@@ -319,7 +319,7 @@ jobs:
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
 
     - name: "Run System tests"
-      if: ${{ env.SKIP_TESTS != 'TRUE' }}
+      if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/run-system-tests@master
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
