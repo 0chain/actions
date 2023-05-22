@@ -70,12 +70,12 @@ on:
         description: 'miner branch which the tests will use'
         default: 'staging'
         required: false
-        type: string  
+        type: string
       sharder_branch:
         description: 'sharder branch which the tests will use'
         default: 'staging'
         required: false
-        type: string   
+        type: string
       zbox_cli_branch:
         description: '0Box CLI branch which the tests will use'
         default: 'staging'
@@ -167,203 +167,203 @@ jobs:
     runs-on: [ tests-suite ]
     steps:
 
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: "Setup Test Run"
-      run: |
-        unset SHORT_SHA
-        unset PR_ID
-        unset TAG
-        unset MERGE_SHORT_SHA
-
-        if [ "${{ inputs.skip_tests }}" == "true" ];
-          then
-            echo SKIP_TESTS=TRUE >> $GITHUB_ENV
-          else
-            echo SKIP_TESTS=FALSE >> $GITHUB_ENV
-        fi
-        
-        echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-        echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
-
-        echo "GOSDK_SHA=NONE" >> $GITHUB_ENV
-        if [ "${{ inputs.gosdk_branch }}" != "NOT OVERRIDDEN" ]; then
-           echo "GOSDK_SHA=$(curl --silent --fail -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ inputs.gosdk_branch }} | jq --raw-output .object.sha)" >> $GITHUB_ENV
-        fi
-        echo '#!/bin/bash
-
-        echo
-        echo "========================================================================"
-        echo "Finding [$3] docker image for branch [$2]..."
-        echo "========================================================================"
-
-        if [[ "$2" == "master" ]]; then
-          echo "Docker image [latest] found"
-          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=latest" >> $GITHUB_ENV
-          exit 0
-        fi
-
-        if [[ "$2" == "staging" ]]; then
-          echo "Docker image [staging] found"
-          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=staging" >> $GITHUB_ENV
-          exit 0
-        fi
-
-        exit_code=0
-        SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
-        TAG=$(echo $2 | sed '"'"'s/\//-/g'"'"')
-
-        echo "Searching for image [${TAG}-${SHORT_SHA}]..."
-        docker pull 0chaindev/$3:${TAG}-${SHORT_SHA} > /dev/null 2>&1 || exit_code=$?
-
-        if [[ $exit_code == 0 ]];then
-          echo "Docker image [${TAG}-${SHORT_SHA}] found"
-          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=${TAG}-${SHORT_SHA}" >> $GITHUB_ENV
-          exit 0
-        fi
-
-        PR_ID=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:$SHORT_SHA | jq --raw-output .items[0].number)
-        if [[ -z "$PR_ID" || "$PR_ID" == "null" ]];then
-          echo "::error title=$3 docker image not found::$3 docker image could not be found with tag [${TAG}-${SHORT_SHA}] and PR is not open. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
-          exit 1
-        fi
-
-
-        exit_code=0
-
-        echo "Searching for image [pr-$PR_ID-$SHORT_SHA]..."
-        docker pull 0chaindev/$3:pr-$PR_ID-$SHORT_SHA > /dev/null 2>&1 || exit_code=$?
-        if [[ $exit_code == 0 ]];then
-            echo "Docker image [pr-$PR_ID-$SHORT_SHA] found"
-            echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=pr-$PR_ID-$SHORT_SHA" >> $GITHUB_ENV
+      - name: "Setup Test Run"
+        run: |
+          unset SHORT_SHA
+          unset PR_ID
+          unset TAG
+          unset MERGE_SHORT_SHA
+          
+          if [ "${{ inputs.skip_tests }}" == "true" ];
+            then
+              echo SKIP_TESTS=true >> $GITHUB_ENV
+            else
+              echo SKIP_TESTS=false >> $GITHUB_ENV
+          fi
+          
+          echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
+          echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
+          
+          echo "GOSDK_SHA=NONE" >> $GITHUB_ENV
+          if [ "${{ inputs.gosdk_branch }}" != "NOT OVERRIDDEN" ]; then
+             echo "GOSDK_SHA=$(curl --silent --fail -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ inputs.gosdk_branch }} | jq --raw-output .object.sha)" >> $GITHUB_ENV
+          fi
+          echo '#!/bin/bash
+          
+          echo
+          echo "========================================================================"
+          echo "Finding [$3] docker image for branch [$2]..."
+          echo "========================================================================"
+          
+          if [[ "$2" == "master" ]]; then
+            echo "Docker image [latest] found"
+            echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=latest" >> $GITHUB_ENV
             exit 0
-        fi
-
-        exit_code=0
-        MERGE_SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/pulls/$PR_ID | jq --raw-output .merge_commit_sha | head -c 8)
-
-        if [[ -z "$MERGE_SHORT_SHA" || "$MERGE_SHORT_SHA" == "null" ]];then
-          echo "::error title=$3 docker image not found::$3 docker image could not be found with tag [pr-$PR_ID-$SHORT_SHA] and PR merge commit not found. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
-          exit 1
-        fi
-
-        echo "Searching for image [merge-$MERGE_SHORT_SHA]..."
-        docker pull 0chaindev/$3:merge-$MERGE_SHORT_SHA > /dev/null 2>&1 || exit_code=$?
-        if [[ $exit_code == 0 ]];then
-            echo "Docker image [merge-$MERGE_SHORT_SHA] found"
-            echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=merge-$MERGE_SHORT_SHA" >> $GITHUB_ENV
+          fi
+          
+          if [[ "$2" == "staging" ]]; then
+            echo "Docker image [staging] found"
+            echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=staging" >> $GITHUB_ENV
             exit 0
-        fi
+          fi
+          
+          exit_code=0
+          SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
+          TAG=$(echo $2 | sed '"'"'s/\//-/g'"'"')
+          
+          echo "Searching for image [${TAG}-${SHORT_SHA}]..."
+          docker pull 0chaindev/$3:${TAG}-${SHORT_SHA} > /dev/null 2>&1 || exit_code=$?
+          
+          if [[ $exit_code == 0 ]];then
+            echo "Docker image [${TAG}-${SHORT_SHA}] found"
+            echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=${TAG}-${SHORT_SHA}" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          PR_ID=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:$SHORT_SHA | jq --raw-output .items[0].number)
+          if [[ -z "$PR_ID" || "$PR_ID" == "null" ]];then
+            echo "::error title=$3 docker image not found::$3 docker image could not be found with tag [${TAG}-${SHORT_SHA}] and PR is not open. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
+            exit 1
+          fi
+          
+          
+          exit_code=0
+          
+          echo "Searching for image [pr-$PR_ID-$SHORT_SHA]..."
+          docker pull 0chaindev/$3:pr-$PR_ID-$SHORT_SHA > /dev/null 2>&1 || exit_code=$?
+          if [[ $exit_code == 0 ]];then
+              echo "Docker image [pr-$PR_ID-$SHORT_SHA] found"
+              echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=pr-$PR_ID-$SHORT_SHA" >> $GITHUB_ENV
+              exit 0
+          fi
+          
+          exit_code=0
+          MERGE_SHORT_SHA=$(curl --silent -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/$1/pulls/$PR_ID | jq --raw-output .merge_commit_sha | head -c 8)
+          
+          if [[ -z "$MERGE_SHORT_SHA" || "$MERGE_SHORT_SHA" == "null" ]];then
+            echo "::error title=$3 docker image not found::$3 docker image could not be found with tag [pr-$PR_ID-$SHORT_SHA] and PR merge commit not found. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
+            exit 1
+          fi
+          
+          echo "Searching for image [merge-$MERGE_SHORT_SHA]..."
+          docker pull 0chaindev/$3:merge-$MERGE_SHORT_SHA > /dev/null 2>&1 || exit_code=$?
+          if [[ $exit_code == 0 ]];then
+              echo "Docker image [merge-$MERGE_SHORT_SHA] found"
+              echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=merge-$MERGE_SHORT_SHA" >> $GITHUB_ENV
+              exit 0
+          fi
+          
+          echo "::error title=$3 docker image not found::$3 docker image could not be found with tags [${TAG}-${SHORT_SHA}], [pr-$PR_ID-$SHORT_SHA] or [merge-$MERGE_SHORT_SHA]. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
+          exit 1;
+          
+          ' > ./get_tag.sh;
+          chmod 777 ./get_tag.sh;
 
-        echo "::error title=$3 docker image not found::$3 docker image could not be found with tags [${TAG}-${SHORT_SHA}], [pr-$PR_ID-$SHORT_SHA] or [merge-$MERGE_SHORT_SHA]. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
-        exit 1;
+      - name: "Check docker images have been published"
+        if: ${{ env.SKIP_TESTS != 'true' }}
+        run: |
+          ./get_tag.sh 0chain ${{ inputs.miner_branch }} miner
+          ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
+          ./get_tag.sh blobber ${{ inputs.blobber_branch }} blobber
+          ./get_tag.sh blobber ${{ inputs.validator_branch }} validator
+          ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
+          ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
+          ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
+          # ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
-        ' > ./get_tag.sh;
-        chmod 777 ./get_tag.sh;
+      - name: "Set PR status as pending"
+        uses: 0chain/actions/notify-pull-request@master
+        if: ${{ inputs.test_file_filter == '' }}
+        continue-on-error: true
+        with:
+          state: "pending"
+          message: "manual run against [${{ inputs.system_tests_branch }}] tests"
+          system_tests_branch: ${{ inputs.system_tests_branch }}
+          zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+          zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+          zerochain_branch: ${{ inputs.miner_branch }}
+          blobber_branch: ${{ inputs.blobber_branch }}
+          gosdk_branch: ${{ inputs.gosdk_branch }}
+          zbox_branch: ${{ inputs.zbox_branch }}
+          zdns_branch: ${{ inputs.zdns_branch }}
+          authorizer_branch: ${{ inputs.authorizer_branch }}
+          skip_tests: ${{ env.SKIP_TESTS }}
+          github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+          zs3server_branch: ${{ inputs.zs3server_branch }}
 
-    - name: "Check docker images have been published"
-      if: ${{ env.SKIP_TESTS != 'TRUE' }}
-      run: |
-        ./get_tag.sh 0chain ${{ inputs.miner_branch }} miner
-        ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
-        ./get_tag.sh blobber ${{ inputs.blobber_branch }} blobber
-        ./get_tag.sh blobber ${{ inputs.validator_branch }} validator
-        ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
-        ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
-        ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
-        # ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
+      - name: "Deploy 0Chain"
+        if: ${{ env.SKIP_TESTS != 'true' }}
+        uses: 0chain/actions/deploy-0chain@master
+        with:
+          kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
+          teardown_condition: "TESTS_PASSED"
+          miner_image:  ${{ env.MINER_TAG }}
+          sharder_image: ${{ env.SHARDER_TAG }}
+          blobber_image: ${{ env.BLOBBER_TAG }}
+          validator_image: ${{ env.VALIDATOR_TAG }}
+          authorizer_image: ${{ env.AUTHORIZER_TAG }}
+          zbox_image: ${{ env.ZBOX_TAG }}
+          zdns_image: ${{ env.ZDNS_TAG }}
+          zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+          zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+          zs3_server: ${{ inputs.zs3server_branch }}
+          custom_go_sdk_version: ${{ env.GOSDK_SHA }}
+          TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+          SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
+          zs3_client: ${{ inputs.zs3server_branch }}
+          zs3_logsearchapi: ${{ inputs.zs3server_branch }}
+          zs3_minio: ${{ inputs.zs3server_branch }}
+          graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
+          graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
 
-    - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@master
-      if: ${{ inputs.test_file_filter == '' }}
-      continue-on-error: true
-      with:
-        state: "pending"
-        message: "manual run against [${{ inputs.system_tests_branch }}] tests"
-        system_tests_branch: ${{ inputs.system_tests_branch }}
-        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
-        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        zerochain_branch: ${{ inputs.miner_branch }}
-        blobber_branch: ${{ inputs.blobber_branch }}
-        gosdk_branch: ${{ inputs.gosdk_branch }}
-        zbox_branch: ${{ inputs.zbox_branch }}
-        zdns_branch: ${{ inputs.zdns_branch }}
-        authorizer_branch: ${{ inputs.authorizer_branch }}
-        skip_tests: ${{ env.SKIP_TESTS }}
-        github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        zs3server_branch: ${{ inputs.zs3server_branch }}
+      - name: "Run System tests"
+        if: ${{ env.SKIP_TESTS != 'true' }}
+        uses: 0chain/actions/run-system-tests@master
+        with:
+          system_tests_branch: ${{ inputs.system_tests_branch }}
+          network: ${{ env.NETWORK_URL }}
+          zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+          zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+          custom_go_sdk_version: ${{ env.GOSDK_SHA }}
+          svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
+          deploy_report_page: false
+          archive_results: true
+          run_flaky_tests: false
+          retry_failures: true
+          test_file_filter: ${{ inputs.test_file_filter }}
+          run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
+          run_api_system_tests: ${{ inputs.run_api_system_tests }}
+          run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
+          run_smoke_tests: ${{ inputs.run_smoke_tests }}
+          run_frontend_tests: ${{ inputs.run_frontend_tests }}
+          TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+          DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
 
-    - name: "Deploy 0Chain"
-      if: ${{ env.SKIP_TESTS != 'TRUE' }}
-      uses: 0chain/actions/deploy-0chain@master
-      with:
-        kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
-        teardown_condition: "TESTS_PASSED"
-        miner_image:  ${{ env.MINER_TAG }}
-        sharder_image: ${{ env.SHARDER_TAG }}
-        blobber_image: ${{ env.BLOBBER_TAG }}
-        validator_image: ${{ env.VALIDATOR_TAG }}
-        authorizer_image: ${{ env.AUTHORIZER_TAG }}
-        zbox_image: ${{ env.ZBOX_TAG }}
-        zdns_image: ${{ env.ZDNS_TAG }}
-        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
-        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        zs3_server: ${{ inputs.zs3server_branch }}
-        custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
-        SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
-        zs3_client: ${{ inputs.zs3server_branch }}
-        zs3_logsearchapi: ${{ inputs.zs3server_branch }}
-        zs3_minio: ${{ inputs.zs3server_branch }}
-        graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
-        graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
+      - name: "Runner tidy up"
+        if: always()
+        continue-on-error: true
+        run: rm -rf ./*
 
-    - name: "Run System tests"
-      if: ${{ env.SKIP_TESTS != 'TRUE' }}
-      uses: 0chain/actions/run-system-tests@master
-      with:
-        system_tests_branch: ${{ inputs.system_tests_branch }}
-        network: ${{ env.NETWORK_URL }}
-        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
-        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        deploy_report_page: false
-        archive_results: true
-        run_flaky_tests: false
-        retry_failures: true
-        test_file_filter: ${{ inputs.test_file_filter }}
-        run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
-        run_api_system_tests: ${{ inputs.run_api_system_tests }}
-        run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
-        run_smoke_tests: ${{ inputs.run_smoke_tests }}
-        run_frontend_tests: ${{ inputs.run_frontend_tests }}
-        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
-        DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
-        S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
-        S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
-        
-    - name: "Runner tidy up"
-      if: always()
-      continue-on-error: true
-      run: rm -rf ./*
-
-    - name: "Set PR status as ${{ job.status }}"
-      if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@master
-      continue-on-error: true
-      with:
-        state: ${{ job.status }}
-        message: "manual run against [${{ inputs.system_tests_branch }}]. Smoke tests [${{ inputs.run_smoke_tests }}]"
-        system_tests_branch: ${{ inputs.system_tests_branch }}
-        zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
-        zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        zerochain_branch: ${{ inputs.miner_branch }}
-        blobber_branch: ${{ inputs.blobber_branch }}
-        gosdk_branch: ${{ inputs.gosdk_branch }}
-        zbox_branch: ${{ inputs.zbox_branch }}
-        zdns_branch: ${{ inputs.zdns_branch }}
-        authorizer_branch: ${{ inputs.authorizer_branch }}
-        skip_tests: ${{ env.SKIP_TESTS }}
-        github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        zs3server_branch: ${{ inputs.zs3server_branch }}
+      - name: "Set PR status as ${{ job.status }}"
+        if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
+        uses: 0chain/actions/notify-pull-request@master
+        continue-on-error: true
+        with:
+          state: ${{ job.status }}
+          message: "manual run against [${{ inputs.system_tests_branch }}]. Smoke tests [${{ inputs.run_smoke_tests }}]"
+          system_tests_branch: ${{ inputs.system_tests_branch }}
+          zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
+          zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
+          zerochain_branch: ${{ inputs.miner_branch }}
+          blobber_branch: ${{ inputs.blobber_branch }}
+          gosdk_branch: ${{ inputs.gosdk_branch }}
+          zbox_branch: ${{ inputs.zbox_branch }}
+          zdns_branch: ${{ inputs.zdns_branch }}
+          authorizer_branch: ${{ inputs.authorizer_branch }}
+          skip_tests: ${{ env.SKIP_TESTS }}
+          github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
+          zs3server_branch: ${{ inputs.zs3server_branch }}
