@@ -176,6 +176,13 @@ jobs:
         unset TAG
         unset MERGE_SHORT_SHA
 
+        if [ "${{ inputs.skip_tests }}" == "true" ];
+          then
+            echo SKIP_TESTS=true >> $GITHUB_ENV
+          else
+            echo SKIP_TESTS=false >> $GITHUB_ENV
+        fi
+        
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
@@ -255,7 +262,7 @@ jobs:
         chmod 777 ./get_tag.sh;
 
     - name: "Check docker images have been published"
-      if: ${{ inputs.skip_tests == 'FALSE' }}
+      if: ${{ env.SKIP_TESTS != 'true' }}
       run: |
         ./get_tag.sh 0chain ${{ inputs.miner_branch }} miner
         ./get_tag.sh 0chain ${{ inputs.sharder_branch }} sharder
@@ -282,12 +289,12 @@ jobs:
         zbox_branch: ${{ inputs.zbox_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
-        skip_tests: ${{ inputs.skip_tests }}
+        skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
         zs3server_branch: ${{ inputs.zs3server_branch }}
 
     - name: "Deploy 0Chain"
-      if: ${{ inputs.skip_tests == 'FALSE' }}
+      if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/deploy-0chain@master
       with:
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
@@ -312,7 +319,7 @@ jobs:
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
 
     - name: "Run System tests"
-      if: ${{ inputs.skip_tests == 'FALSE' }}
+      if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/run-system-tests@master
       with:
         system_tests_branch: ${{ inputs.system_tests_branch }}
@@ -357,6 +364,6 @@ jobs:
         zbox_branch: ${{ inputs.zbox_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
-        skip_tests: ${{ inputs.skip_tests }}
+        skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
         zs3server_branch: ${{ inputs.zs3server_branch }}
