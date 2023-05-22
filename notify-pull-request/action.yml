@@ -32,24 +32,8 @@ inputs:
     description: '0box branch to notify'
     default: 'staging'
     required: true
-  zblock_branch:
-    description: '0block branch to notify'
-    default: 'staging'
-    required: true
   zdns_branch:
     description: '0dns branch to notify'
-    default: 'staging'
-    required: true
-  explorer_branch:
-    description: 'explorer branch to notify'
-    default: 'staging'
-    required: true
-  zproxy_branch:
-    description: '0proxy branch to notify'
-    default: 'staging'
-    required: true
-  zsearch_branch:
-    description: '0search branch to notify'
     default: 'staging'
     required: true
   skip_tests:
@@ -132,11 +116,7 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -178,11 +158,7 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -224,11 +200,7 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -270,11 +242,7 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -316,11 +284,7 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -362,11 +326,7 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -408,11 +368,7 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
 
@@ -454,9 +410,5 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
-          | 0block  | ${{ inputs.zblock_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
-          | explorer  | ${{ inputs.explorer_branch }}  |
-          | 0proxy  | ${{ inputs.zproxy_branch }}  |
-          | 0search  | ${{ inputs.zsearch_branch }}  |
         repo-token: ${{ inputs.github_token }}

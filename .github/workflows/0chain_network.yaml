@@ -35,13 +35,6 @@ on:
         description: '0box DOCKER IMAGE to deploy'
         default: 'staging'
 
-      explorer_image:
-        description: 'Explorer DOCKER IMAGE to deploy'
-        default: 'latest'
-      stakeimage:
-        description: 'Blobber stake DOCKER IMAGE to deploy'
-        default: staging
-
 jobs:
   deploy:
     runs-on: [self-hosted, testnet]
@@ -84,13 +77,7 @@ jobs:
 
           helm upgrade --install --wait  blobber -n ${{ github.event.inputs.network }} --set blobber.image.tag=${{ github.event.inputs.blobber_image }} --set validator.image.tag=${{ github.event.inputs.blobber_image }} --set blobber.host=${{ github.event.inputs.domain}} --set blobber.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns --set validator.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns -f values/${{ github.event.inputs.network }}/blobber-values.yaml 0chain-helm/blobber --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
 
-          helm upgrade --install --wait --timeout 120s 0block -n ${{ github.event.inputs.network }} --set zblock.host=${{ github.event.inputs.domain}} 0chain-helm/zblock --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
-
-          helm upgrade --install --wait --timeout 120s explorer -n ${{ github.event.inputs.network }} --set explorer.image.tag=${{ github.event.inputs.explorer_image }} --set explorer.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns --set explorer.host=${{ github.event.inputs.domain}} 0chain-helm/explorer --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
-
           helm upgrade --install --wait --timeout 120s 0box -n ${{ github.event.inputs.network }} --set zbox.image.tag=${{ github.event.inputs.zbox_image }} --set zbox.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns --set zbox.host=${{ github.event.inputs.domain}} 0chain-helm/zbox --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
-
-          helm upgrade --install --wait --timeout 120s 0search -n ${{ github.event.inputs.network }} --set zsearch.host=${{ github.event.inputs.domain}} 0chain-helm/zsearch --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
 
           helm upgrade --install --wait blobber-stake -n ${{ github.event.inputs.network }} --set blobberStake.blobberCount=6 --set blobberStake.host=${{ github.event.inputs.domain}} --set blobberStake.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns --set blobberStake.image.tag=${{ github.event.inputs.stakeimage }} 0chain-helm/blobberStake --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
 
@@ -106,10 +93,6 @@ jobs:
           if [ "${{ github.event.inputs.blobber_image }}" != "staging" ]; then
             helm upgrade --install  blobber -n ${{ github.event.inputs.network }} --set blobber.image.tag=${{ github.event.inputs.blobber_image }} --set validator.image.tag=${{ github.event.inputs.blobber_image }} --set blobber.host=${{ github.event.inputs.domain}} --set blobber.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns --set validator.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns -f values/${{ github.event.inputs.network }}/blobber-values.yaml 0chain-helm/blobber --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
           fi  
-
-          if [ "${{ github.event.inputs.explorer_image }}" != "staging" ]; then
-            helm upgrade --install explorer -n ${{ github.event.inputs.network }} --set explorer.image.tag=${{ github.event.inputs.explorer_image }} --set explorer.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns --set explorer.host=${{ github.event.inputs.domain}} 0chain-helm/explorer --kubeconfig "./kube/${{ github.event.inputs.network }}-config"
-          fi    
 
           if [ "${{ github.event.inputs.zbox_image }}" != "staging" ]; then
             helm upgrade --install 0box -n ${{ github.event.inputs.network }} --set zbox.image.tag=${{ github.event.inputs.zbox_image }} --set zbox.config.blockWorker=https://${{ github.event.inputs.network }}.${{ github.event.inputs.domain}}/dns --set zbox.host=${{ github.event.inputs.domain}} 0chain-helm/zbox --kubeconfig "./kube/${{ github.event.inputs.network }}-config"

@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+  b0vnode02_keys.txt: |
+    f8d1189d8ec1612a3a7b20bfa33c94199574c58f29152c42d6e12bd7a4bd1217ca2b6565f1e4ee567c60b9d887ec0223e54595be9b401c50de7369f74c86ef8d
+    04ef86b51aafc02ed7e9016996808046d778f0332020d323fc293d43b2c25914
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2022-07-07T15:16:42Z"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:b0vnode02_keys.txt: {}
+    manager: kubectl-create
+    operation: Update
+    time: "2022-07-07T15:16:42Z"
+  name: b0vnode02-keys
+  namespace: dev-x
+  resourceVersion: "79002518"
+  uid: 1b107368-54ce-4509-998f-2dcb156afe08

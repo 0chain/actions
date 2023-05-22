@@ -20,6 +20,12 @@ on:
       SVC_ACCOUNT_SECRET:
         description: 'A token used for cross-repo actions'
         required: true
+      S3_ACCESS_KEY:
+        description: 'S3 access key for migration tests'
+        required: false
+      S3_SECRET_KEY:
+        description: 's3 secret key for migration tests'
+        required: false
       DEV1KC:
         description: 'dev-1 k8s config'
         required: true
@@ -47,6 +53,12 @@ on:
       DEV9KC:
         description: 'dev-9 k8s config'
         required: true
+      GRAPHNODE_NETWORK:
+        required: true
+        description: 'graph node network name for example goerli.'
+      GRAPHNODE_ETHEREUM_NODE_URL:
+        required: true
+        description: 'Ethereum node url.'
 
     inputs:
       system_tests_branch:
@@ -94,28 +106,13 @@ on:
         default: 'staging'
         required: false
         type: string
-      zblock_branch:
-        description: '0block branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
       zdns_branch:
         description: '0dns branch to deploy'
         default: 'staging'
         required: false
         type: string
-      explorer_branch:
-        description: 'explorer branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
-      zproxy_branch:
-        description: '0proxy branch to deploy'
-        default: 'staging'
-        required: false
-        type: string
-      zsearch_branch:
-        description: '0search branch to deploy'
+      s3migration_cli_branch:
+        description: 's3-migration cli branch to deploy'
         default: 'staging'
         required: false
         type: string
@@ -133,6 +130,26 @@ on:
         required: false
         default: 'true'
         description: 'Enable or disable CLI system tests'
+        type: string
+      run_api_system_tests:
+        required: false
+        default: 'true'
+        description: 'Enable or disable API system tests'
+        type: string
+      run_tokenomics_system_tests:
+        required: false
+        default: 'false'
+        description: 'Enable or disable tokenomics system tests'
+        type: string
+      run_smoke_tests:
+        required: false
+        default: 'false'
+        description: 'Run subset of system tests (smoke tests)'
+        type: string
+      run_frontend_tests:
+        required: false
+        default: 'false'
+        description: 'Run frontend system tests (cypress tests)'
         type: string
       test_file_filter:
         description: 'Comma separated list of test files to run (eg. zwalletcli_register_wallet_test.go, zwalletcli_send_and_balance_test.go). If supplied, the PR will NOT be notified of the test result'
@@ -247,12 +264,8 @@ jobs:
         ./get_tag.sh blobber ${{ inputs.validator_branch }} validator
         ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
         ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
-        ./get_tag.sh 0block ${{ inputs.zblock_branch }} 0block
         ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
-        ./get_tag.sh block-explorer ${{ inputs.explorer_branch }} explorer
-        ./get_tag.sh 0proxy ${{ inputs.zproxy_branch }} 0proxy
-        ./get_tag.sh 0search ${{ inputs.zsearch_branch }} 0search
-        ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
+        # ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
 
     - name: "Set PR status as pending"
       uses: 0chain/actions/notify-pull-request@master
@@ -268,11 +281,7 @@ jobs:
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
-        zblock_branch: ${{ inputs.zblock_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
-        explorer_branch: ${{ inputs.explorer_branch }}
-        zproxy_branch: ${{ inputs.zproxy_branch }}
-        zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
@@ -290,11 +299,7 @@ jobs:
         validator_image: ${{ env.VALIDATOR_TAG }}
         authorizer_image: ${{ env.AUTHORIZER_TAG }}
         zbox_image: ${{ env.ZBOX_TAG }}
-        zblock_image: ${{ env.ZBLOCK_TAG }}
         zdns_image: ${{ env.ZDNS_TAG }}
-        explorer_image: ${{ env.EXPLORER_TAG }}
-        zproxy_image: ${{ env.ZPROXY_TAG }}
-        zsearch_image: ${{ env.ZSEARCH_TAG }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         zs3_server: ${{ inputs.zs3server_branch }}
@@ -304,6 +309,8 @@ jobs:
         zs3_client: ${{ inputs.zs3server_branch }}
         zs3_logsearchapi: ${{ inputs.zs3server_branch }}
         zs3_minio: ${{ inputs.zs3server_branch }}
+        graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
+        graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
 
     - name: "Run System tests"
       if: ${{ env.SKIP_TESTS != 'TRUE' }}
@@ -314,18 +321,25 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        svc_account_secret: ${{ github.token }}
+        svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
         deploy_report_page: false
         archive_results: true
         run_flaky_tests: false
         retry_failures: true
         test_file_filter: ${{ inputs.test_file_filter }}
         run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
+        run_api_system_tests: ${{ inputs.run_api_system_tests }}
+        run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
+        run_smoke_tests: ${{ inputs.run_smoke_tests }}
+        run_frontend_tests: ${{ inputs.run_frontend_tests }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+        S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         
     - name: "Runner tidy up"
       if: always()
+      continue-on-error: true
       run: rm -rf ./*
 
     - name: "Set PR status as ${{ job.status }}"
@@ -334,7 +348,7 @@ jobs:
       continue-on-error: true
       with:
         state: ${{ job.status }}
-        message: "manual run against [${{ inputs.system_tests_branch }}] tests"
+        message: "manual run against [${{ inputs.system_tests_branch }}]. Smoke tests [${{ inputs.run_smoke_tests }}]"
         system_tests_branch: ${{ inputs.system_tests_branch }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
@@ -342,11 +356,7 @@ jobs:
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
-        zblock_branch: ${{ inputs.zblock_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
-        explorer_branch: ${{ inputs.explorer_branch }}
-        zproxy_branch: ${{ inputs.zproxy_branch }}
-        zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
