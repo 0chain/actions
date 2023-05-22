@@ -176,7 +176,13 @@ jobs:
         unset TAG
         unset MERGE_SHORT_SHA
 
-        echo "SKIP_TESTS=${{ inputs.skip_tests }}" >> $GITHUB_ENV
+        if [ "${{ inputs.skip_tests }}" == "true" ];
+          then
+            echo SKIP_TESTS=true >> $GITHUB_ENV
+          else
+            echo SKIP_TESTS=false >> $GITHUB_ENV
+        fi
+        
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
