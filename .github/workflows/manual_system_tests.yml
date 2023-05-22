@@ -349,7 +349,6 @@ jobs:
         zproxy_branch: ${{ inputs.zproxy_branch }}
         zsearch_branch: ${{ inputs.zsearch_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
-#        skip_tests: ${{ env.SKIP_TESTS }}
-        skip_tests: "ABILITY TO SKIP TESTS IS DISABLED. SKIP_TESTS OPTION IGNORED."
+        skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
         zs3server_branch: ${{ inputs.zs3server_branch }}
