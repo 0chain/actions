@@ -1,2 +1,0 @@
-0chain-core-sdk [INFO]   2023/05/20 12:34:56.651368 wallet_base.go:267: ******* Wallet SDK Version:v1.8.9-57-g7fbdcff ******* (SetLogFile)
-0chain-core-sdk [INFO]   2023/05/20 12:34:57.159939 transaction_base.go:136: ******* Wallet SDK Version:v1.8.9-57-g7fbdcff ******* (InitZCNSDK)

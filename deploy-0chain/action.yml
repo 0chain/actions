@@ -506,7 +506,7 @@ runs:
           token_address: 0xC79aD1e07f790d0Cf6AA3D09FeC393A09DC53d64
           authorizers_address: 0xd5867B4a1F8e7BD91276b5C85a4EDC9D33400496
           ethereum_address: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          password: "02289b9"
+          password: "\"02289b9\""
         ' > config.yaml
         cat config.yaml
 
