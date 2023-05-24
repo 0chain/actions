@@ -279,18 +279,37 @@ runs:
         chmod 777 ./deploy.sh;
         ./deploy.sh
 
-    - name: "Setup Go"
+    - name: "Setup Go 1.20"
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.20' # The Go version to download (if necessary) and use.
+
+    - name: "Setup NodeJS 19"
+      uses: actions/setup-node@v3
+      with:
+        node-version: 19
+
+    - name: "Installing subgraph register dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
-        [ -d /usr/local/go ] &&  rm -rf /usr/local/go
-        [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
-        tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        sudo apt update -y
+        sudo apt -y install build-essential nghttp2 libnghttp2-dev libssl-dev wget mercurial bison binutils make libpq-dev
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod a+x /usr/local/bin/yq
 
-        echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
-        export PATH=$PATH:/usr/local/go/bin
-        which go
-        go env
+    - name: "Checkout dex_subgraph"
+      uses: actions/checkout@v3
+      with:
+        ref: staging
+        repository: 0chain/dex_subgraph
+        fetch-depth: 1
+        path: ./dex_subgraph
+
+    - name: "Running subgraph register"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd dex_subgraph
+        sudo make deploy network=${{ secrets.GRAPHNODE_NETWORK }} smart_contract_address=${{ secrets.GRAPHNODE_SC }} ethereum_node_url=${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.dev.zus.network/deploy/  graph_index=https://graphnode.dev.zus.network/status/graphql
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
