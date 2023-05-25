@@ -570,6 +570,9 @@ runs:
         echo "======================================================"
         echo
         
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+        fi
 
         cd tests/tokenomics_tests
         
