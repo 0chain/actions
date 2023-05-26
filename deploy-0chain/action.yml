@@ -264,7 +264,7 @@ runs:
           --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
           --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
           --set commonConf.sc.smart_contracts.storagesc.time_unit="1m" \
-          -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+          -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config --version 1.0.19 || exit 1;
 
         sleep 2s && helm repo update
         helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
