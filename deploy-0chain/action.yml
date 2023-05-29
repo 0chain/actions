@@ -301,7 +301,7 @@ runs:
     - name: "Checkout dex_subgraph"
       uses: actions/checkout@v2
       with:
-        ref: 'staging'
+        ref: 'master'
         repository: 0chain/dex_subgraph
         fetch-depth: 1
         path: ./dex_subgraph
