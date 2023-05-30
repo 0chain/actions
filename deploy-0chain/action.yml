@@ -151,7 +151,6 @@ runs:
     - name: "Installing NodeJS 19"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        sudo apt update
         curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
         sudo bash nodesource_setup.sh
         sudo apt install nodejs -y
