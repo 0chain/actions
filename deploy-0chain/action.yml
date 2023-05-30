@@ -152,11 +152,9 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         sudo apt update
-        sudo apt install appstream/xenial-backports
-        sudo appstreamcli refresh --force
         curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
         sudo bash nodesource_setup.sh
-        sudo apt install nodejs
+        sudo apt install nodejs -y
         node -v
 
     - name: "Configure helm & kubectl"
