@@ -148,12 +148,16 @@ runs:
       uses: azure/setup-kubectl@v1
       id: install
 
-    - uses: actions/setup-node@v3
-      with:
-        # Version Spec of the version to use in SemVer notation.
-        # It also emits such aliases as lts, latest, nightly and canary builds
-        # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
-        node-version: '16.0.0'
+    - name: "Installing NodeJS 19"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        sudo apt update
+        sudo apt install appstream/xenial-backports
+        sudo appstreamcli refresh --force
+        curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
+        sudo bash nodesource_setup.sh
+        sudo apt install nodejs
+        node -v
 
     - name: "Configure helm & kubectl"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -273,7 +277,7 @@ runs:
         sleep 2s && helm repo update
         helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.config.graph_node.network=${{ env.NAMESPACE }} --set zbox.config.graph_node.domain=devnet-0chain.net --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         sleep 2s && helm repo update
-         helm upgrade --install ipfs --wait -n ${{ env.NAMESPACE }} --set ipfs.hostName=${{ env.NAMESPACE }} --set ipfs.host=devnet-0chain.net --set ipfs.image.tag=latest 0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install ipfs --wait -n ${{ env.NAMESPACE }} --set ipfs.hostName=${{ env.NAMESPACE }} --set ipfs.host=devnet-0chain.net --set ipfs.image.tag=latest 0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install graph-node --wait -n ${{ env.NAMESPACE }} --set graphNode.hostName=${{ env.NAMESPACE }} --set graphNode.host=devnet-0chain.net --set graphNode.image.tag=latest --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} --set graphNode.env.private_fork=true 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config --version 1.0.10
         ' > ./deploy.sh;
@@ -284,17 +288,6 @@ runs:
       uses: actions/setup-go@v2
       with:
         go-version: '1.20' # The Go version to download (if necessary) and use.
-
-    - name: Installing NodeJS 19
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        sudo apt update
-        sudo apt install appstream/xenial-backports
-        sudo appstreamcli refresh --force
-        curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
-        sudo bash nodesource_setup.sh
-        sudo apt install nodejs
-        node -v
         
     - name: "Installing subgraph register dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
