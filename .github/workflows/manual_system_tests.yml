@@ -53,6 +53,9 @@ on:
       DEV9KC:
         description: 'dev-9 k8s config'
         required: true
+      GRAPHNODE_SC:
+        required: true
+        description: 'graph node smart contract address.'
       GRAPHNODE_NETWORK:
         required: true
         description: 'graph node network name for example goerli.'
