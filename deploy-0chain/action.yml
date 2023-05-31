@@ -70,6 +70,9 @@ inputs:
     required: true
     default: "staging"
     description: 'zs3server minio DOCKER IMAGE to deploy'
+  graphnode_sc:
+    required: true
+    description: 'graph node smart contract used to track DEX operations'
   graphnode_network:
     required: true
     description: 'graph node network name for example goerli.'
@@ -102,9 +105,10 @@ runs:
         echo "ZS3_MINIO=$(echo ${{inputs.zs3_minio}})" >> $GITHUB_ENV
         echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
         echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
+        echo "GRAPHNODE_SC=$(echo ${{ inputs.graphnode_sc }})" >> $GITHUB_ENV
         echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
         echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
-
+        
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
@@ -131,13 +135,9 @@ runs:
         echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
         echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
         echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
+        echo "Graphnode smart contract:                     [${{ env.GRAPHNODE_SC }}]"
         echo "Graphnode network:                     [${{ env.GRAPHNODE_NETWORK }}]"
         echo "Graphnode ethereum node url            [${{ env.GRAPHNODE_ETHEREUM_NODE_URL }}]"
-
-#     - name: Install deps
-#       shell: 'script --return --quiet --command "bash {0}"'
-#       run: |
-#         sudo apt-get update -y && sudo apt-get install build-essential wget unzip -y &> /dev/null
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -148,12 +148,13 @@ runs:
       uses: azure/setup-kubectl@v1
       id: install
 
-    - uses: actions/setup-node@v3
-      with:
-        # Version Spec of the version to use in SemVer notation.
-        # It also emits such aliases as lts, latest, nightly and canary builds
-        # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
-        node-version: '16.0.0'
+    - name: "Installing NodeJS 19"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
+        sudo bash nodesource_setup.sh
+        sudo apt install nodejs -y
+        node -v
 
     - name: "Configure helm & kubectl"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -275,7 +276,7 @@ runs:
         sleep 2s && helm repo update
         helm upgrade --install ipfs --wait -n ${{ env.NAMESPACE }} --set ipfs.hostName=${{ env.NAMESPACE }} --set ipfs.host=devnet-0chain.net --set ipfs.image.tag=latest 0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         helm upgrade --install graph-node --wait -n ${{ env.NAMESPACE }} --set graphNode.hostName=${{ env.NAMESPACE }} --set graphNode.host=devnet-0chain.net --set graphNode.image.tag=latest --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} --set graphNode.env.private_fork=true 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=staging --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} --set authorizer.config.config_yaml.subgraph_api_url=${{ env.SUBGRAPH_API_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
@@ -292,6 +293,28 @@ runs:
         export PATH=$PATH:/usr/local/go/bin
         which go
         go env
+        
+    - name: "Installing subgraph register dependencies"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        sudo apt-get update -y
+        sudo apt-get -y install build-essential nghttp2 libnghttp2-dev libssl-dev wget bison binutils make libpq-dev
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod a+x /usr/local/bin/yq
+
+    - name: "Checkout dex_subgraph"
+      uses: actions/checkout@v2
+      with:
+        ref: 'master'
+        repository: 0chain/dex_subgraph
+        fetch-depth: 1
+        path: ./dex_subgraph
+
+    - name: "Running subgraph register"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd dex_subgraph
+        sudo make deploy network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -512,9 +535,9 @@ runs:
 
         echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > wallet.json
 
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key 70bc09454fb72cd8f511f4911cdaf3dd79ed45eff60593e004a97501b570c624d318e7db4faa88bdfb55daec20b949fd251462a4e543bcebc859e57cdc908900 --client_id d8d8f187f309fa3c24b0c10609bd518d3d9997fa1e0c433095994fe21b924d87 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key 3be133e96f8be29766eb9e9f2be3f621ee49de3ebd27556ff502b2084326bd242181298eba068bbf51f9744a0dbd6090864f4d1e71cda20adf616f288203da21 --client_id 94f6236714edea74f580a98fbd015886dac2afbfdafc857703afb91f3234d6ac --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key 994c58b36ef2b12fe2ae94e041507690d84ee16ab991f21448f510501c84ed10b883afd15944c163dc607ab7b29ad14529355d679f45266fee8a1c94b7cc75a0 --client_id 46d1d0369f26d273859dd03ba3d460cf43d6b980cd9951994004d51bf0e92b5a --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
