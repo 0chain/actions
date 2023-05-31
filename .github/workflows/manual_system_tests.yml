@@ -315,6 +315,7 @@ jobs:
         zs3_client: ${{ inputs.zs3server_branch }}
         zs3_logsearchapi: ${{ inputs.zs3server_branch }}
         zs3_minio: ${{ inputs.zs3server_branch }}
+        graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
 
