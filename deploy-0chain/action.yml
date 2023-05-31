@@ -314,7 +314,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd dex_subgraph
-        sudo make deploy network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
+        sudo make deploy skip_sync=true network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
