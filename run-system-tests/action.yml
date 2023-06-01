@@ -223,7 +223,8 @@ runs:
         echo "======================================================"
         echo
         echo "1> importing yarn package..."
-        sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor >> /etc/apt/trusted.gpg.d/yarn.gpg
+        sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/yarn.gpg
+        sudo sed -i '/yarnpkg/d' /etc/apt/sources.list.d/yarn.list
         sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
        
         echo
