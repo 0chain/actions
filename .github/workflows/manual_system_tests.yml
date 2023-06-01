@@ -114,7 +114,7 @@ on:
         default: 'staging'
         required: false
         type: string
-      s3migration_cli_branch:
+      s3_migration_cli_branch:
         description: 's3-migration cli branch to deploy'
         default: 'staging'
         required: false
@@ -346,7 +346,7 @@ jobs:
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
         S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
         S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
-        s3_migration_cli_branch: ${{ inputs.s3migration_cli_branch }}
+        s3_migration_cli_branch: ${{ inputs.s3_migration_cli_branch }}
         
     - name: "Runner tidy up"
       if: always()
