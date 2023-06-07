@@ -696,7 +696,7 @@ runs:
       run: |
         COUNT=3
         ##############----------------- Installing zs3server helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the zs3server helm-chart deployment
+        RET=1         #You can set RET=0 to skip the zs3server helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
           helm upgrade --install --wait \
              --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
