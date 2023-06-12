@@ -336,6 +336,19 @@ runs:
            sleep 2
         done
 
+        ##############----------------- Installing pgadmin helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the pgadmin helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+           helm upgrade --install pgadmin --wait \
+             --set pgadmin.hostName=${{ env.NAMESPACE }} \
+             --set pgadmin.host=devnet-0chain.net  -n ${{ env.NAMESPACE }} \
+             0chain-helm/pgadmin --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
         ##############----------------- Installing ipfs helm-chart --------------------###################
         RET=0         #You can set RET=0 to skip the ipfs helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
