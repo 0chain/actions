@@ -223,7 +223,8 @@ runs:
         echo "======================================================"
         echo
         echo "1> importing yarn package..."
-        sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor >> /etc/apt/trusted.gpg.d/yarn.gpg
+        sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/yarn.gpg
+        sudo sed -i '/yarnpkg/d' /etc/apt/sources.list.d/yarn.list
         sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
        
         echo
@@ -308,8 +309,6 @@ runs:
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
-        sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/bridge.yaml
-        sed "s,EthereumNodeURL:.*,EthereumNodeURL: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/owner.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,s3_access_key:.*,s3_access_key: ${{ inputs.S3_ACCESS_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         sed "s,s3_secret_key:.*,s3_secret_key: ${{ inputs.S3_SECRET_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml

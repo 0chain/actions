@@ -53,6 +53,9 @@ on:
       DEV9KC:
         description: 'dev-9 k8s config'
         required: true
+      GRAPHNODE_SC:
+        required: true
+        description: 'graph node smart contract address.'
       GRAPHNODE_NETWORK:
         required: true
         description: 'graph node network name for example goerli.'
@@ -315,6 +318,7 @@ jobs:
         zs3_client: ${{ inputs.zs3server_branch }}
         zs3_logsearchapi: ${{ inputs.zs3server_branch }}
         zs3_minio: ${{ inputs.zs3server_branch }}
+        graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
 
