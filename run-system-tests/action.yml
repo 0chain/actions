@@ -378,6 +378,8 @@ runs:
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/
+        echo "API_TESTS_RAN=true" >> $GITHUB_ENV
+
         if [[ $api_system_tests_exit_code == 0 ]];
           then
             echo API_TESTS_PASSED=true >> $GITHUB_ENV
@@ -543,7 +545,7 @@ runs:
           ./${{ env.BRANCH_DIR }}/latest/tokenomics/index.html
 
     - name: "System Stability Check"
-      if: ${{ always() && env.TESTS_RAN == 'true' }}
+      if: ${{ always() && (env.TESTS_RAN == 'true' || env.API_TESTS_RAN == 'true') }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [ -n "${{ env.NAMESPACE }}" ];
