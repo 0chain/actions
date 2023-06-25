@@ -736,7 +736,7 @@ runs:
       with:
         name: logging-crashed-pods
         path: |
-          ./logs/crashed-logs
+          ./logs/crashed-logs.txt
           
         retention-days: 5
 
