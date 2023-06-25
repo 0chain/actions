@@ -272,7 +272,7 @@ runs:
              --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
              --set commonConf.sc.smart_contracts.storagesc.time_unit="1m" \
              --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
-             --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=100000000000 \
+             --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=100000 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
