@@ -674,10 +674,6 @@ runs:
         ./logging.sh blobber-validator-05 ./logs/validator-05
         ./logging.sh blobber-validator-06 ./logs/validator-06
 
-        echo
-        ./logging.sh 
-
-
     - name: "Archive Sharder Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
