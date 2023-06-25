@@ -542,36 +542,6 @@ runs:
           ./tests/tokenomics_tests/config
           ./${{ env.BRANCH_DIR }}/latest/tokenomics/index.html
 
-    - name: "System Stability Check"
-      if: ${{ always() && env.TESTS_RAN == 'true' }}
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        if [ -n "${{ env.NAMESPACE }}" ];
-          then
-            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_post_test_run.txt
-            echo "Pod status pre test run (some restarts are normal as the network stabilises):"
-            cat pod_status_pre_test_run.txt
-            echo "Pod status post test run (no further restarts should have taken place for the network to be considered stable):"
-            cat pod_status_post_test_run.txt
-
-            if [[ "$(cat pod_status_pre_test_run.txt | md5sum)" == "$(cat pod_status_post_test_run.txt | md5sum)" ]];
-              then
-                echo "0Chain did not crash during system tests"
-                echo PODS_CRASHED=false >> $GITHUB_ENV
-              else
-                echo PODS_CRASHED=true >> $GITHUB_ENV
-                echo TESTS_PASSED=false >> $GITHUB_ENV
-                echo "::error title=0Chain crashed during test run!::One or more 0Chain components (listed below) crashed during the test run, therefore the build is NOT STABLE"
-                comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt
-                echo "Printing panic or fatal logs of restarted containers"
-                comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt > diff_file.txt
-                awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config | grep 'panic\|fatal' ; done || true
-                exit 1
-            fi
-          else
-            echo "NOT preforming system stability check because network was not deployed as part of this test run"
-        fi
-
     - name: "Run Flaky CLI System Tests"
       if:  ${{ env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
@@ -673,6 +643,40 @@ runs:
         ./logging.sh blobber-validator-05 ./logs/validator-05
         ./logging.sh blobber-validator-06 ./logs/validator-06
 
+        echo
+        ./logging.sh 
+
+    - name: "System Stability Check"
+      if: ${{ always() && env.TESTS_RAN == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        if [ -n "${{ env.NAMESPACE }}" ];
+          then
+            kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_post_test_run.txt
+            echo "Pod status pre test run (some restarts are normal as the network stabilises):"
+            cat pod_status_pre_test_run.txt
+            echo "Pod status post test run (no further restarts should have taken place for the network to be considered stable):"
+            cat pod_status_post_test_run.txt
+
+            if [[ "$(cat pod_status_pre_test_run.txt | md5sum)" == "$(cat pod_status_post_test_run.txt | md5sum)" ]];
+              then
+                echo "0Chain did not crash during system tests"
+                echo PODS_CRASHED=false >> $GITHUB_ENV
+              else
+                echo PODS_CRASHED=true >> $GITHUB_ENV
+                echo TESTS_PASSED=false >> $GITHUB_ENV
+                echo "::error title=0Chain crashed during test run!::One or more 0Chain components (listed below) crashed during the test run, therefore the build is NOT STABLE"
+                comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt
+                echo "Printing panic or fatal logs of restarted containers"
+                comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt > diff_file.txt
+                awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config | grep 'panic\|fatal' ; done || true
+                awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config >> ./logs/crashed-logs' ; done || true
+                exit 1
+            fi
+          else
+            echo "NOT preforming system stability check because network was not deployed as part of this test run"
+        fi
+
     - name: "Archive Sharder Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
@@ -724,6 +728,17 @@ runs:
           ./logs/validator-04
           ./logs/validator-05
           ./logs/validator-06
+        retention-days: 5
+    
+    - name: "Archive Crash Logs"
+      continue-on-error: true
+      if: ${{ failure() && env.NAMESPACE != '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: logging-crashed-pods
+        path: |
+          ./logs/crashed-logs
+          
         retention-days: 5
 
     - name: "Deploy report pages"
