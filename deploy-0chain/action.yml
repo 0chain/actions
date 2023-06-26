@@ -243,41 +243,159 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
-        sleep 2s && helm repo update
+        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer, graphnode, ipfs. Will be giving 3 try to install the helmchart.
+        COUNT=24
+        
+        #RET is used to get the success/fail status of latest command executed
+        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
 
-        helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
-          --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
-          --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
-          --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
-          --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
-          --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
-          --set commonConf.zchainUp.server_chain.transaction.timeout=600 \
-          --set miner.hostName=${{ env.NAMESPACE }} \
-          --set miner.host=devnet-0chain.net \
-          --set miner.image.tag=${{ env.MINER_TAG }} \
-          --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
-          --set commonConf.zchainUp.server_chain.transaction.max_fee=0.01 \
-          --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
-          --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
-          --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
-          --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
-          --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
-          --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
-          --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
-          --set commonConf.sc.smart_contracts.storagesc.time_unit="1m" \
-          --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
-          -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+        ##############----------------- Installing 0chain helm-chart --------------------###################
+        while [[ $RET -ne 0 && $COUNT -gt 21 ]]; do
+           helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
+             --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
+             --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
+             --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
+             --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
+             --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
+             --set commonConf.zchainUp.server_chain.transaction.timeout=600 \
+             --set miner.hostName=${{ env.NAMESPACE }} \
+             --set miner.host=devnet-0chain.net \
+             --set miner.image.tag=${{ env.MINER_TAG }} \
+             --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
+             --set commonConf.zchainUp.server_chain.transaction.max_fee=0.01 \
+             --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
+             --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
+             --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
+             --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
+             --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
+             --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
+             --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
+             --set commonConf.sc.smart_contracts.storagesc.time_unit="1m" \
+             --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
+             -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
 
-        sleep 2s && helm repo update
-        helm upgrade --install 0dns --wait --timeout 60s --set zdns.image.tag=${{ env.ZDNS_TAG }} --set zdns.hostName=${{ env.NAMESPACE }} --set zdns.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        sleep 2s && helm repo update
-        helm upgrade --install blobber --wait --timeout 120s --set blobber.blobberCount=6 --set validator.validatorCount=6 --set blobber.config.read_price=0.01 --set blobber.config.price_in_usd="false" --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 --set blobber.hostName=${{ env.NAMESPACE }} --set blobber.host=devnet-0chain.net --set blobber.image.tag=${{ env.BLOBBER_TAG }} --set validator.image.tag=${{ env.VALIDATOR_TAG }} --set validator.hostName=${{ env.NAMESPACE }} --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }}  0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        sleep 2s && helm repo update
-        helm upgrade --install 0box --wait --set zbox.hostName=${{ env.NAMESPACE }} --set zbox.host=devnet-0chain.net --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set zbox.config.graph_node.network=${{ env.NAMESPACE }} --set zbox.config.graph_node.domain=devnet-0chain.net --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }}  0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        sleep 2s && helm repo update
-        helm upgrade --install ipfs --wait -n ${{ env.NAMESPACE }} --set ipfs.hostName=${{ env.NAMESPACE }} --set ipfs.host=devnet-0chain.net --set ipfs.image.tag=latest 0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install graph-node --wait -n ${{ env.NAMESPACE }} --set graphNode.hostName=${{ env.NAMESPACE }} --set graphNode.host=devnet-0chain.net --set graphNode.image.tag=latest --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} --set graphNode.config.private_fork=true 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-        helm upgrade --install authorizer -n ${{ env.NAMESPACE }} --set authorizer.authorizerCount=3 --set authorizer.hostName=${{ env.NAMESPACE }} --set authorizer.host=devnet-0chain.net --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        ##############----------------- Installing 0dns helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the 0dns helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 18 ]]; do
+           helm upgrade --install 0dns --wait --timeout 60s \
+             --set zdns.image.tag=${{ env.ZDNS_TAG }} \
+             --set zdns.hostName=${{ env.NAMESPACE }} \
+             --set zdns.host=devnet-0chain.net \
+             -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+        
+        ##############----------------- Installing blobber helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 15 ]]; do
+           helm upgrade --install blobber --wait --timeout 120s \
+             --set blobber.blobberCount=6 \
+             --set validator.validatorCount=6 \
+             --set blobber.config.read_price=0.01 \
+             --set blobber.config.price_in_usd="false" \
+             --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
+             --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
+             --set blobber.hostName=${{ env.NAMESPACE }} \
+             --set blobber.host=devnet-0chain.net \
+             --set blobber.image.tag=${{ env.BLOBBER_TAG }} \
+             --set validator.image.tag=${{ env.VALIDATOR_TAG }} \
+             --set validator.hostName=${{ env.NAMESPACE }} \
+             --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }} \
+             0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+        
+        ##############----------------- Installing 0box helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the 0box helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 12 ]]; do
+           helm upgrade --install 0box --wait \
+             --set zbox.hostName=${{ env.NAMESPACE }} \
+             --set zbox.host=devnet-0chain.net \
+             --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ \
+             --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set zbox.config.graph_node.network=${{ env.NAMESPACE }} \
+             --set zbox.config.graph_node.domain=devnet-0chain.net \
+             --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
+             0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing pgadmin helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the pgadmin helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 9 ]]; do
+           helm upgrade --install pgadmin --wait \
+             --set pgadmin.hostName=${{ env.NAMESPACE }} \
+             --set pgadmin.host=devnet-0chain.net  -n ${{ env.NAMESPACE }} \
+             0chain-helm/pgadmin --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing ipfs helm-chart --------------------###################
+        RET=0         #You can set RET=0 to skip the ipfs helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+           helm upgrade --install ipfs --wait \
+             --set ipfs.hostName=${{ env.NAMESPACE }} \
+             --set ipfs.host=devnet-0chain.net \
+             --set ipfs.image.tag=latest -n ${{ env.NAMESPACE }} \
+             0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing graph-node helm-chart --------------------###################
+        RET=0         #You can set RET=0 to skip the graph-node helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 3 ]]; do
+           helm upgrade --install graph-node --wait \
+             --set graphNode.hostName=${{ env.NAMESPACE }} \
+             --set graphNode.host=devnet-0chain.net \
+             --set graphNode.image.tag=latest \
+             --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} \
+             --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} \
+             --set graphNode.config.private_fork=true \
+             -n ${{ env.NAMESPACE }} 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing authorizer helm-chart --------------------###################
+        RET=0         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install authorizer \
+             --set authorizer.authorizerCount=3 \
+             --set authorizer.hostName=${{ env.NAMESPACE }} \
+             --set authorizer.host=devnet-0chain.net \
+             --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} \
+             --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} \
+             -n ${{ env.NAMESPACE }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
@@ -316,7 +434,7 @@ runs:
       run: |
         export HOME="/root"
         cd dex_subgraph
-        sudo make deploy skip_sync=true network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
+        # sudo make deploy skip_sync=true network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -537,9 +655,9 @@ runs:
 
         echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > wallet.json
 
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
-        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        # ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        # ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        # ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -589,18 +707,24 @@ runs:
     - name: "Install Zs3Server"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        helm repo remove 0chain-helm
-        helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/dev/
-        helm repo update
-        helm upgrade --install --wait \
-          --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
-          --set zs3server.host=devnet-0chain.net \
-          --set zs3server.client.image.tag=${{ env.ZS3_CLIENT }} \
-          --set zs3server.logsearchapi.image.tag=${{ env.ZS3_LOGSEARCHAPI }} \
-          --set zs3server.minio.image.tag=${{ env.ZS3_MINIO }} \
-          --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
-          --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
-          zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
+        COUNT=3
+        ##############----------------- Installing zs3server helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the zs3server helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+          helm upgrade --install --wait \
+             --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
+             --set zs3server.host=devnet-0chain.net \
+             --set zs3server.client.image.tag=${{ env.ZS3_CLIENT }} \
+             --set zs3server.logsearchapi.image.tag=${{ env.ZS3_LOGSEARCHAPI }} \
+             --set zs3server.minio.image.tag=${{ env.ZS3_MINIO }} \
+             --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
+             --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
+             zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+        done
 
     - name: "Extract Logs From Pods"
       if: ${{ failure() && env.NAMESPACE != '' }}
