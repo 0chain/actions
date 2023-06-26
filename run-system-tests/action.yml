@@ -58,6 +58,10 @@ inputs:
     required: false
     default: "true"
     description: 'Enable or disable API system tests'
+  run_frontend_tests:
+    required: false
+    default: "true"
+    description: 'Run frontend system tests (cypress tests)'
   run_tokenomics_system_tests:
     required: false
     default: "false"
@@ -66,10 +70,6 @@ inputs:
     required: false
     default: "false"
     description: 'Run subset of system tests (smoke tests)'
-  run_frontend_tests:
-    required: false
-    default: "false"
-    description: 'Run frontend system tests (cypress tests)'
   TENDERLY_FORK_ID:
     required: true
     description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
