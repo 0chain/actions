@@ -577,45 +577,6 @@ runs:
           echo "==========================================================="
         fi
 
-    - name: "Setup Zs3Server: Create allocation"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        export HOME="/root"
-        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
-        signature_scheme: bls0chain
-        min_submit: 50 # in percentage
-        min_confirmation: 50 # in percentage
-        confirmation_chain_length: 3
-        store_unlock_duration_sec: 2
-        ' > config.yaml
-        echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
-        ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5 --data 2 --parity 2 --size 10000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
-        echo "Allocation hash: $(cat allocation.txt)"
-        echo "ALLOCATION=$(cat allocation.txt)" >> $GITHUB_ENV
-
-    - name: "Install Zs3Server"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        COUNT=3
-        ##############----------------- Installing zs3server helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the zs3server helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
-          helm upgrade --install --wait \
-             --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
-             --set zs3server.host=devnet-0chain.net \
-             --set zs3server.client.image.tag=${{ env.ZS3_CLIENT }} \
-             --set zs3server.logsearchapi.image.tag=${{ env.ZS3_LOGSEARCHAPI }} \
-             --set zs3server.minio.image.tag=${{ env.ZS3_MINIO }} \
-             --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
-             --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
-             zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
-            RET=$?
-            ((COUNT--))
-            echo "Retrying helm install"
-            sleep 2
-        done
-
     - name: "Extract Logs From Pods"
       if: ${{ failure() && env.NAMESPACE != '' }}
       continue-on-error: true
