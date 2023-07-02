@@ -367,6 +367,7 @@ runs:
         RET=1         #You can set RET=0 to skip the graph-node helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 3 ]]; do
            helm upgrade --install graph-node --wait \
+             --set graphNode.nodeCount=1 \
              --set graphNode.hostName=${{ env.NAMESPACE }} \
              --set graphNode.host=devnet-0chain.net \
              --set graphNode.image.tag=latest \
