@@ -50,7 +50,7 @@ inputs:
     default: 'staging'
   custom_go_sdk_version:
     required: true
-    default: "7fac770fa41ae6b5086fc51bfdc90773f1d63dfd"
+    default: "staging"
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
   TENDERLY_FORK_ID:
     required: true
