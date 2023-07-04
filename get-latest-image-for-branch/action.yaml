@@ -140,7 +140,7 @@ runs:
       id: get-images
       if: ${{ env.SKIP_TESTS != 'true' }}
       run: |
-        if [[ -z "${{ inputs.miner_sharder_branch }}" ]];
+        if [[ -n "${{ inputs.miner_sharder_branch }}" ]];
           then
             ./get_tag.sh 0chain ${{ inputs.miner_sharder_branch }} miner
             ./get_tag.sh 0chain ${{ inputs.miner_sharder_branch }} sharder
@@ -148,7 +148,7 @@ runs:
             echo "miner_sharder_branch NOT specified, will skip deriving miner and sharder image tag"
         fi
         
-        if [[ -z "${{ inputs.blobber_validator_branch }}" ]];
+        if [[ -n "${{ inputs.blobber_validator_branch }}" ]];
           then
             ./get_tag.sh blobber ${{ inputs.blobber_validator_branch }} blobber
             ./get_tag.sh blobber ${{ inputs.blobber_validator_branch }} validator
@@ -156,21 +156,21 @@ runs:
             echo "blobber_validator_branch NOT specified, will skip deriving blobber and validator image tag"
         fi
         
-        if [[ -z "${{ inputs.authorizer_branch }}" ]];
+        if [[ -n "${{ inputs.authorizer_branch }}" ]];
           then
             ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
           else
             echo "authorizer_branch NOT specified, will skip deriving authorizer image tag"
         fi
         
-         if [[ -z "${{ inputs.zbox_branch }}" ]];
+         if [[ -n "${{ inputs.zbox_branch }}" ]];
           then
              ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
           else
             echo "zbox_branch NOT specified, will skip deriving 0box image tag"
         fi
         
-         if [[ -z "${{ inputs.zdns_branch }}" ]];
+         if [[ -n "${{ inputs.zdns_branch }}" ]];
           then
              ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
           else
