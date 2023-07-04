@@ -111,11 +111,11 @@ runs:
               echo "::error title=Image not specified!::$3 was not specified explicitly or in repo_snapshots_branch"
             else
               echo "Using $3 [$2] from repo_snapshots_branch"
-              echo "${3}=$(echo '$2')" >> $GITHUB_ENV
+              echo "$3=$2" >> $GITHUB_ENV
             fi
         else
             echo "Using $3 [$1] from explicit variable"
-            echo "${3}=$(echo '$1')" >> $GITHUB_ENV
+            echo "$3=$1" >> $GITHUB_ENV
         fi
         ' > ./check-params.sh;
         chmod 777 check-params.sh
