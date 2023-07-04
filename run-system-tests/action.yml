@@ -413,6 +413,8 @@ runs:
         echo "RUNNING SYSTEM TESTS:"
         echo "======================================================"
         echo
+        
+        export HOME="/root"
 
         GOPATH=$(echo $(go env GOPATH))
 
