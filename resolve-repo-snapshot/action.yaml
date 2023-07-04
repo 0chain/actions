@@ -49,31 +49,31 @@ runs:
       if: ${{ inputs.resolve_images == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        if [[ -z "${{ steps.get-images.outputs.miner-tag }}" ]];then
+        if [[ -n "${{ steps.get-images.outputs.miner-tag }}" ]];then
             echo "SPRINT_BRANCH_MINER_TAG=$(echo '${{ steps.get-images.outputs.miner-tag }}')" >> $GITHUB_ENV
         fi
         
-        if [[ -z "${{ steps.get-images.outputs.sharder-tag }}" ]];then
+        if [[ -n "${{ steps.get-images.outputs.sharder-tag }}" ]];then
             echo "SPRINT_BRANCH_SHARDER_TAG=$(echo '${{ steps.get-images.outputs.sharder-tag }}')" >> $GITHUB_ENV
         fi
       
         
-        if [[ -z "${{ steps.get-images.outputs.blobber-tag }}" ]];then
+        if [[ -n "${{ steps.get-images.outputs.blobber-tag }}" ]];then
             echo "SPRINT_BRANCH_BLOBBER_TAG=$(echo '${{ steps.get-images.outputs.blobber-tag }}')" >> $GITHUB_ENV
         fi
         
-        if [[ -z "${{ steps.get-images.outputs.validator-tag }}" ]];then
+        if [[ -n "${{ steps.get-images.outputs.validator-tag }}" ]];then
             echo "SPRINT_BRANCH_VALIDATOR_TAG=$(echo '${{ steps.get-images.outputs.validator-tag }}')" >> $GITHUB_ENV
         fi
         
-        if [[ -z "${{ steps.get-images.outputs.authorizer-tag }}" ]];then
+        if [[ -n "${{ steps.get-images.outputs.authorizer-tag }}" ]];then
             echo "SPRINT_BRANCH_AUTHORIZER_TAG=$(echo '${{ steps.get-images.outputs.authorizer-tag }}')" >> $GITHUB_ENV
         fi
         
-        if [[ -z "${{ steps.get-images.outputs.zbox-tag }}" ]];then
+        if [[ -n "${{ steps.get-images.outputs.zbox-tag }}" ]];then
             echo "SPRINT_BRANCH_ZBOX_TAG=$(echo '${{ steps.get-images.outputs.zbox-tag }}')" >> $GITHUB_ENV
         fi
         
-        if [[ -z "$ZDNS_TAG" ]];then
+        if [[ -n "$ZDNS_TAG" ]];then
             echo "SPRINT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
         fi
