@@ -31,18 +31,19 @@ runs:
       if: ${{ env.SKIP_TESTS != 'true' }}
       run: |
         cd ./repo-snapshots
-        while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.sprintBranch != null) | "SPRINT_BRANCH_\(.key | ascii_upcase)=\(.value.sprintBranch)"' "branches.json")
+        while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.defaultBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.defaultBranch)"' "branches.json")
+        while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.sprintBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.sprintBranch)"' "branches.json")
 
     - name: "Get docker images for sprint branches"
       id: get-images
       if: ${{ inputs.resolve_images == 'true' }}
       uses: 0chain/actions/get-latest-image-for-branch@feature/add-repo-snapshots-integration
       with:
-        miner_sharder_branch: ${{ env.SPRINT_BRANCH_0CHAIN }}
-        blobber_validator_branch: ${{ env.SPRINT_BRANCH_BLOBBER }}
-        authorizer_branch: ${{ env.SPRINT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
-        zbox_branch: ${{ env.SPRINT_BRANCH_0BOX }}
-        zdns_branch: ${{ env.SPRINT_BRANCH_0DNS }}
+        miner_sharder_branch: ${{ env.SNAPSHOT_BRANCH_0CHAIN }}
+        blobber_validator_branch: ${{ env.SNAPSHOT_BRANCH_BLOBBER }}
+        authorizer_branch: ${{ env.SNAPSHOT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
+        zbox_branch: ${{ env.SNAPSHOT_BRANCH_0BOX }}
+        zdns_branch: ${{ env.SNAPSHOT_BRANCH_0DNS }}
         svc_account_secret: ${{ inputs.svc_account_secret }}
 
     - name: "Create variables"
@@ -50,30 +51,30 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [[ -n "${{ steps.get-images.outputs.miner-tag }}" ]];then
-            echo "SPRINT_BRANCH_MINER_TAG=$(echo '${{ steps.get-images.outputs.miner-tag }}')" >> $GITHUB_ENV
+            echo "SNAPSHOT_BRANCH_MINER_TAG=$(echo '${{ steps.get-images.outputs.miner-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "${{ steps.get-images.outputs.sharder-tag }}" ]];then
-            echo "SPRINT_BRANCH_SHARDER_TAG=$(echo '${{ steps.get-images.outputs.sharder-tag }}')" >> $GITHUB_ENV
+            echo "SNAPSHOT_BRANCH_SHARDER_TAG=$(echo '${{ steps.get-images.outputs.sharder-tag }}')" >> $GITHUB_ENV
         fi
       
         
         if [[ -n "${{ steps.get-images.outputs.blobber-tag }}" ]];then
-            echo "SPRINT_BRANCH_BLOBBER_TAG=$(echo '${{ steps.get-images.outputs.blobber-tag }}')" >> $GITHUB_ENV
+            echo "SNAPSHOT_BRANCH_BLOBBER_TAG=$(echo '${{ steps.get-images.outputs.blobber-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "${{ steps.get-images.outputs.validator-tag }}" ]];then
-            echo "SPRINT_BRANCH_VALIDATOR_TAG=$(echo '${{ steps.get-images.outputs.validator-tag }}')" >> $GITHUB_ENV
+            echo "SNAPSHOT_BRANCH_VALIDATOR_TAG=$(echo '${{ steps.get-images.outputs.validator-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "${{ steps.get-images.outputs.authorizer-tag }}" ]];then
-            echo "SPRINT_BRANCH_AUTHORIZER_TAG=$(echo '${{ steps.get-images.outputs.authorizer-tag }}')" >> $GITHUB_ENV
+            echo "SNAPSHOT_BRANCH_AUTHORIZER_TAG=$(echo '${{ steps.get-images.outputs.authorizer-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "${{ steps.get-images.outputs.zbox-tag }}" ]];then
-            echo "SPRINT_BRANCH_ZBOX_TAG=$(echo '${{ steps.get-images.outputs.zbox-tag }}')" >> $GITHUB_ENV
+            echo "SNAPSHOT_BRANCH_ZBOX_TAG=$(echo '${{ steps.get-images.outputs.zbox-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "$ZDNS_TAG" ]];then
-            echo "SPRINT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
+            echo "SNAPSHOT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
         fi

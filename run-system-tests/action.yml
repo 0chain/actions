@@ -115,10 +115,10 @@ runs:
         ' > ./check-params.sh;
         chmod 777 check-params.sh
         
-        ./check-params.sh "${{inputs.zbox_cli_branch}}" "${{ env.SPRINT_BRANCH_ZBOXCLI }}" "ZBOX_BRANCH"
-        ./check-params.sh "${{inputs.zwallet_cli_branch}}" "${{ env.SPRINT_BRANCH_ZWALLETCLI }}" "ZWALLET_BRANCH"
-        ./check-params.sh "$(echo $(([ -z '${{inputs.system_tests_branch}}' ] && echo  ${GITHUB_REF#refs/*/}) || echo '${{inputs.system_tests_branch}}'))" "${{ env.SPRINT_BRANCH_SYSTEM_TESTS }}" "SYSTEM_TESTS_BRANCH"
-        ./check-params.sh  "${{inputs.s3_migration_cli_branch}}" "${{ env.SPRINT_BRANCH_S3_MIGRATION }}" "S3_MIGRATION_BRANCH"
+        ./check-params.sh "${{inputs.zbox_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}" "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}" "ZWALLET_BRANCH"
+        ./check-params.sh "$(echo $(([ -z '${{inputs.system_tests_branch}}' ] && echo  ${GITHUB_REF#refs/*/}) || echo '${{inputs.system_tests_branch}}'))" "${{ env.SNAPSHOT_BRANCH_SYSTEM_TESTS }}" "SYSTEM_TESTS_BRANCH"
+        ./check-params.sh  "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3_MIGRATION }}" "S3_MIGRATION_BRANCH"
         
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
