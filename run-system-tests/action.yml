@@ -108,7 +108,6 @@ runs:
            else
              echo "${3}=$(echo '$2')" >> $GITHUB_ENV
            fi
-        fi
         else
            echo "Using $3 tag [$1] from repo_snapshots_branch"
            echo "${3}=$(echo '$1')" >> $GITHUB_ENV
