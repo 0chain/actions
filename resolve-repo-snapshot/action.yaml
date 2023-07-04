@@ -43,6 +43,7 @@ runs:
         authorizer_branch: ${{ env.SPRINT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
         zbox_branch: ${{ env.SPRINT_BRANCH_0BOX }}
         zdns_branch: ${{ env.SPRINT_BRANCH_0DNS }}
+        svc_account_secret: ${{ inputs.svc_account_secret }}
 
     - name: "Create variables"
       if: ${{ inputs.resolve_images == 'true' }}
