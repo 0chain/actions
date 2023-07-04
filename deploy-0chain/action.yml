@@ -79,27 +79,89 @@ inputs:
   graphnode_ethereum_node_url:
     required: true
     description: 'Ethereum node url.'
+  repo_snapshots_branch:
+    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit image params above.'
+    default: ''
+    required: false
+  svc_account_secret:
+    description: 'secret used to publish test results - will use your own credentials if not supplied'
+    default: ''
+    required: false
 
 runs:
   using: "composite"
   steps:
+    - name: "Get sprint branch from repo_snapshots_branch"
+      if: ${{ inputs.repo_snapshots_branch != '' }}
+      uses: 0chain/actions/resolve-repo-snapshot@feature/add-repo-snapshots-integration
+      with:
+        repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
+        svc_account_secret: ${{ inputs.svc_account_secret }}
+        resolve_images: true
+
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-        echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
-        echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
-        echo "BLOBBER_TAG=$(echo '${{inputs.blobber_image}}')" >> $GITHUB_ENV
-        echo "VALIDATOR_TAG=$(echo '${{inputs.validator_image}}')" >> $GITHUB_ENV
-        echo "AUTHORIZER_TAG=$(echo '${{inputs.authorizer_image}}')" >> $GITHUB_ENV
-        echo "ZBOX_TAG=$(echo '${{inputs.zbox_image}}')" >> $GITHUB_ENV
-        echo "ZDNS_TAG=$(echo '${{inputs.zdns_image}}')" >> $GITHUB_ENV
+        
+        if [[ -z "$SPRINT_BRANCH_MINER_TAG" ]];then
+            echo "MINER_TAG=$(echo '${{inputs.miner_image}}')" >> $GITHUB_ENV
+        else
+            echo "MINER_TAG=$(echo '${{env.SPRINT_BRANCH_MINER_TAG}}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_SHARDER_TAG" ]];then
+            echo "SHARDER_TAG=$(echo '${{inputs.sharder_image}}')" >> $GITHUB_ENV
+        else
+            echo "SHARDER_TAG=$(echo '${{env.SPRINT_BRANCH_SHARDER_TAG}}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_BLOBBER_TAG" ]];then
+            echo "BLOBBER_TAG=$(echo '${{inputs.blobber_image}}')" >> $GITHUB_ENV
+        else
+            echo "BLOBBER_TAG=$(echo '${{env.SPRINT_BRANCH_BLOBBER_TAG}}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_VALIDATOR_TAG" ]];then
+            echo "VALIDATOR_TAG=$(echo '${{inputs.validator_image}}')" >> $GITHUB_ENV
+        else
+           echo "VALIDATOR_TAG=$(echo '${{env.SPRINT_BRANCH_VALIDATOR_TAG}}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_AUTHORIZER_TAG" ]];then
+            echo "AUTHORIZER_TAG=$(echo '${{inputs.authorizer_image}}')" >> $GITHUB_ENV
+        else
+            echo "AUTHORIZER_TAG=$(echo '${{env.SPRINT_BRANCH_AUTHORIZER_TAG}}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_ZBOX_TAG" ]];then
+            echo "ZBOX_TAG=$(echo '${{inputs.zbox_image}}')" >> $GITHUB_ENV
+        else
+            echo "ZBOX_TAG=$(echo '${{env.SPRINT_BRANCH_ZBOX_TAG}}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_ZDNS_TAG" ]];then
+            echo "ZDNS_TAG=$(echo '${{inputs.zdns_image}}')" >> $GITHUB_ENV
+        else
+            echo "ZDNS_TAG=$(echo '${{env.SPRINT_BRANCH_ZDNS_TAG}}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_ZBOXCLI" ]];then
+            echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
+        else
+            echo "ZBOX_BRANCH=$(echo $SPRINT_BRANCH_ZBOXCLI)" >> $GITHUB_ENV
+        fi
+        
+        if [[ -z "$SPRINT_BRANCH_ZWALLETCLI" ]];then
+            echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
+        else
+            echo "ZWALLET_BRANCH=$(echo $SPRINT_BRANCH_ZWALLETCLI)" >> $GITHUB_ENV
+        fi
+        
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
-        echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
-        echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
         echo "ZS3_CLIENT=$(echo ${{inputs.zs3_client}})" >> $GITHUB_ENV
         echo "ZS3_LOGSEARCHAPI=$(echo ${{inputs.zs3_logsearchapi}})" >> $GITHUB_ENV
         echo "ZS3_MINIO=$(echo ${{inputs.zs3_minio}})" >> $GITHUB_ENV
@@ -135,7 +197,7 @@ runs:
         echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
         echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
         echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
-        echo "Graphnode smart contract:                     [${{ env.GRAPHNODE_SC }}]"
+        echo "Graphnode smart contract:              [${{ env.GRAPHNODE_SC }}]"
         echo "Graphnode network:                     [${{ env.GRAPHNODE_NETWORK }}]"
         echo "Graphnode ethereum node url            [${{ env.GRAPHNODE_ETHEREUM_NODE_URL }}]"
 
