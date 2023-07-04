@@ -28,13 +28,13 @@ runs:
 
     - name: "Resolve branches"
       shell: 'script --return --quiet --command "bash {0}"'
-      id: get-images
       if: ${{ env.SKIP_TESTS != 'true' }}
       run: |
         cd ./repo-snapshots
         while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.sprintBranch != null) | "SPRINT_BRANCH_\(.key | ascii_upcase)=\(.value.sprintBranch)"' "branches.json")
 
     - name: "Get docker images for sprint branches"
+      id: get-images
       if: ${{ inputs.resolve_images == 'true' }}
       uses: 0chain/actions/get-latest-image-for-branch@feature/add-repo-snapshots-integration
       with:
