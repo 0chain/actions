@@ -104,7 +104,8 @@ runs:
         echo '#!/bin/bash
         if [[ -z "$1" ]];then
            if [[ -z "$2" ]];then
-             echo "::error title=Image not specified!::$3 was not specified explicitly or in repo_snapshots_branch"
+             echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
+             exit 1
            else
              echo "$3=$2" >> $GITHUB_ENV
            fi
