@@ -177,7 +177,7 @@ runs:
             echo "zdns_branch NOT specified, will skip deriving 0dns image tag"
         fi
 
-    - name: Fail if image cannot be retrieved 
+    - name: Fail if image cannot be retrieved
       if: ${{ env.IMAGE_RETRIEVAL_FAILURE }} == "true"
       uses: actions/github-script@v3
       with:

@@ -109,8 +109,7 @@ runs:
         if [[ -z "$1" ]];then
             if [[ -z "$2" ]];then
               echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
-              gh run cancel ${{ github.run_id }}
-              gh run watch ${{ github.run_id }}
+              echo "BRANCH_NOT_SPECIFIED_FAILURE=true" >> $GITHUB_ENV
             else
               echo "Using $3 [$2] from repo_snapshots_branch"
               echo "$3=$2" >> $GITHUB_ENV
@@ -149,7 +148,14 @@ runs:
 
         echo "HOME=/root" >> $GITHUB_ENV
         echo "CYPRESS_NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-       
+
+    - name: Fail if image cannot be retrieved
+      if: ${{ env.BRANCH_NOT_SPECIFIED_FAILURE }} == "true"
+      uses: actions/github-script@v3
+      with:
+        script: |
+          core.setFailed('Branch not specified failed!')
+
     - name: "VIEW DEPLOY CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
