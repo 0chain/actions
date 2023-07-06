@@ -3,7 +3,7 @@ description: "Resolve repo snapshot to a list of branches and tags"
 inputs:
   repo_snapshots_branch:
     description: 'repo snapshots branch which the tests will use'
-    default: 'master'
+    default: '<CURRENT BRANCH WITH FALLBACK TO CURRENT_SPRINT>'
     required: true
   svc_account_secret:
     description: 'service account secret used to clone repo snapshots'
@@ -17,10 +17,29 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Resolve branch"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        if [[ "${{ inputs.repo_snapshots_branch }}" == "<CURRENT BRANCH WITH FALLBACK TO CURRENT_SPRINT>" ]];
+         then
+           CURRENT_BRANCH=$([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF)
+           curl --location "https://api.github.com/repos/0chain/repo-snapshots/branches/$CURRENT_BRANCH" --header 'Authorization: Bearer ${{ inputs.svc_account_secret }}' --fail >> /dev/null
+           if [[ $? -ne 0 ]]
+            then
+              echo REPO_SNAPSHOTS_BRANCH=current-sprint >> $GITHUB_ENV
+            else
+              echo REPO_SNAPSHOTS_BRANCH=$CURRENT_BRANCH >> $GITHUB_ENV
+           fi
+          
+         else
+           echo REPO_SNAPSHOTS_BRANCH=current-sprint >> $GITHUB_ENV
+        fi   
+        
+
     - name: "Checkout repo-snapshots"
       uses: actions/checkout@v3
       with:
-        ref: ${{ inputs.repo_snapshots_branch }}
+        ref: ${{ env.REPO_SNAPSHOTS_BRANCH }}
         repository: 0chain/repo-snapshots
         fetch-depth: 1
         path: ./repo-snapshots
