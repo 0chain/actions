@@ -33,7 +33,7 @@ runs:
           fi
         else
           echo "repo-snapshots branch was explicitly set as ${{ inputs.repo_snapshots_branch }}"
-          echo REPO_SNAPSHOTS_BRANCH=${{ inputs.repo_snapshots_branch }} >> $GITHUB_ENV
+          echo 'REPO_SNAPSHOTS_BRANCH=${{ inputs.repo_snapshots_branch }}' >> $GITHUB_ENV
         fi   
         
 
