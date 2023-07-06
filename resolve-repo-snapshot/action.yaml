@@ -22,6 +22,7 @@ runs:
       run: |
         if [[ "${{ inputs.repo_snapshots_branch }}" == "<CURRENT BRANCH WITH FALLBACK TO CURRENT_SPRINT>" ]];
          then
+           echo "repo-snapshots branch was set to ${{ inputs.repo_snapshots_branch }}. Trying to find current branch name in repo-snapshots. Will fall back to current-sprint if unsuccessful."
            CURRENT_BRANCH=$([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF)
            curl --location "https://api.github.com/repos/0chain/repo-snapshots/branches/$CURRENT_BRANCH" --header 'Authorization: Bearer ${{ inputs.svc_account_secret }}' --fail >> /dev/null
            if [[ $? -ne 0 ]]
@@ -32,9 +33,9 @@ runs:
               echo "repo-snapshots branch [$CURRENT_BRANCH] exists. Using it for docker images and branches where no override is specified"
               echo REPO_SNAPSHOTS_BRANCH=$CURRENT_BRANCH >> $GITHUB_ENV
            fi
-          
          else
-           echo REPO_SNAPSHOTS_BRANCH=current-sprint >> $GITHUB_ENV
+           echo "repo-snapshots branch was explicitly set as ${{ inputs.repo_snapshots_branch }}"
+           echo REPO_SNAPSHOTS_BRANCH=${{ inputs.repo_snapshots_branch }} >> $GITHUB_ENV
         fi   
         
 
