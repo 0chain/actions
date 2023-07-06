@@ -178,7 +178,7 @@ runs:
         fi
 
     - name: Fail if image cannot be retrieved
-      if: ${{ env.IMAGE_RETRIEVAL_FAILURE }} == "true"
+      if: ${{ env.IMAGE_RETRIEVAL_FAILURE == 'true' }}
       uses: actions/github-script@v3
       with:
         script: |

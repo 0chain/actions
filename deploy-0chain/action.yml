@@ -150,7 +150,7 @@ runs:
         echo "CYPRESS_NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
 
     - name: Fail if image cannot be retrieved
-      if: ${{ env.BRANCH_NOT_SPECIFIED_FAILURE }} == "true"
+      if: ${{ env.IMAGE_RETRIEVAL_FAILURE == 'true' }}
       uses: actions/github-script@v3
       with:
         script: |
