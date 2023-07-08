@@ -98,7 +98,7 @@ runs:
         echo "HOME=/root" >> $GITHUB_ENV
         echo "CYPRESS_NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         
-        if [ "${{ inputs.run_smoke_tests }}" == "true" ];
+        if [ "${{ inputs.run_smoke_tests }}" != "false" ];
           then
             echo RUN_SMOKE_TESTS=true >> $GITHUB_ENV
           else
@@ -413,6 +413,8 @@ runs:
         echo "RUNNING SYSTEM TESTS:"
         echo "======================================================"
         echo
+        
+        export HOME="/root"
 
         GOPATH=$(echo $(go env GOPATH))
 
