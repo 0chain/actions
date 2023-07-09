@@ -201,7 +201,7 @@ jobs:
 
     - name: "Get docker images for feature branches"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/get-latest-image-for-branch@feature/add-repo-snapshots-integration
+      uses: 0chain/actions/get-latest-image-for-branch@master
       id: get-images
       with:
         miner_sharder_branch: ${{ inputs.miner_branch }}
