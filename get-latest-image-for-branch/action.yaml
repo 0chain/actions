@@ -96,7 +96,7 @@ runs:
           exit 0
         fi
 
-        PR_ID=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:${SHORT_SHA}+base:$2 | jq --raw-output .items[0].number)
+        PR_ID=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:${SHORT_SHA}+head:$2 | jq --raw-output .items[0].number)
         if [[ -z "$PR_ID" || "$PR_ID" == "null" ]];then
           echo "::error title=$3 docker image not found::$3 docker image could not be found with tag [${TAG}-${SHORT_SHA}] and PR is not open. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
           echo "IMAGE_RETRIEVAL_FAILURE=true" >> $GITHUB_ENV
