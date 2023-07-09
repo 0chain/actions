@@ -1,6 +1,10 @@
 name: "0Chain System Tests"
 description: "Run 0Chain System Tests"
 inputs:
+  repo_snapshots_branch:
+    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit branch params.'
+    default: ''
+    required: false
   system_tests_branch:
     required: false
     description: 'System tests branch to run'
@@ -8,17 +12,17 @@ inputs:
     required: true
     description: 'Network to run system tests against INSTEAD OF DEPLOYING A NEW NETWORK. [example: dev.0chain.net]'
   zbox_cli_branch:
-    required: true
+    required: false
     description: '0Box CLI (branch or commit SHA) which the tests will use'
-    default: 'staging'
+    default: ''
   zwallet_cli_branch:
-    required: true
+    required: false
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
-    default: 'staging'
+    default: ''
   s3_migration_cli_branch:
     required: false
     description: 'S3 Migration CLI (branch or commit SHA) which the tests will use'
-    default: 'staging'
+    default: ''
   deploy_report_page:
     required: true
     default: "true"
@@ -85,14 +89,39 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Get sprint branch from repo_snapshots_branch"
+      if: ${{ inputs.repo_snapshots_branch != '' }}
+      uses: 0chain/actions/resolve-repo-snapshot@master
+      with:
+        repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
+        svc_account_secret: ${{ inputs.svc_account_secret }}
+        resolve_images: false
+
     - name: "Config: Run tests against 0Chain network"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo "SYSTEM_TESTS_BRANCH=$(echo $(([ -z '${{inputs.system_tests_branch}}' ] && echo  ${GITHUB_REF#refs/*/}) || echo '${{inputs.system_tests_branch}}'))" >> $GITHUB_ENV
+        
+        echo '#!/bin/bash
+        if [[ -z "$1" ]];then
+           if [[ -z "$2" ]];then
+             echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
+             exit 1
+           else
+             echo "$3=$2" >> $GITHUB_ENV
+           fi
+        else
+           echo "Using $3 tag [$1] from repo_snapshots_branch"
+           echo "$3=$1" >> $GITHUB_ENV
+        fi
+        ' > ./check-params.sh;
+        chmod 777 check-params.sh
+        
+        ./check-params.sh "${{inputs.zbox_cli_branch}}"          "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}" "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}"       "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}" "ZWALLET_BRANCH"
+        ./check-params.sh "$(echo $(([ -z '${{inputs.system_tests_branch}}' ] && echo  ${GITHUB_REF#refs/*/}) || echo '${{inputs.system_tests_branch}}'))" "${{ env.SNAPSHOT_BRANCH_SYSTEM_TESTS }}" "SYSTEM_TESTS_BRANCH"
+        ./check-params.sh  "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3_MIGRATION }}" "S3_MIGRATION_BRANCH"
+        
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
-        echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
-        echo "S3_MIGRATION_BRANCH=$(echo ${{inputs.s3_migration_cli_branch}})" >> $GITHUB_ENV
-        echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
         echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
         echo "HOME=/root" >> $GITHUB_ENV
@@ -146,7 +175,7 @@ runs:
           else
             echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
-        
+
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
