@@ -78,7 +78,6 @@ runs:
             echo "SNAPSHOT_BRANCH_SHARDER_TAG=$(echo '${{ steps.get-images.outputs.sharder-tag }}')" >> $GITHUB_ENV
         fi
       
-        
         if [[ -n "${{ steps.get-images.outputs.blobber-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_BLOBBER_TAG=$(echo '${{ steps.get-images.outputs.blobber-tag }}')" >> $GITHUB_ENV
         fi
@@ -95,6 +94,6 @@ runs:
             echo "SNAPSHOT_BRANCH_ZBOX_TAG=$(echo '${{ steps.get-images.outputs.zbox-tag }}')" >> $GITHUB_ENV
         fi
         
-        if [[ -n "$ZDNS_TAG" ]];then
+        if [[ -n "${{ steps.get-images.outputs.zdns-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
         fi
