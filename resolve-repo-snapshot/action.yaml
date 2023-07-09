@@ -1,0 +1,100 @@
+name: "Resolve repo snapshot branches"
+description: "Resolve repo snapshot to a list of branches and tags"
+inputs:
+  repo_snapshots_branch:
+    description: 'repo snapshots branch which the tests will use'
+    default: '<CURRENT BRANCH WITH FALLBACK TO CURRENT_SPRINT>'
+    required: true
+  svc_account_secret:
+    description: 'service account secret used to clone repo snapshots'
+    default: ""
+    required: true
+  resolve_images:
+    description: 'resolve images for the given feature branches'
+    default: "false"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Resolve branch"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        if [[ "${{ inputs.repo_snapshots_branch }}" == "<CURRENT BRANCH WITH FALLBACK TO CURRENT_SPRINT>" ]]; then
+          echo "repo-snapshots branch was set to ${{ inputs.repo_snapshots_branch }}. Trying to find current branch name in repo-snapshots. Will fall back to current-sprint if unsuccessful."
+          CURRENT_BRANCH=$([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF)
+          curl --location "https://api.github.com/repos/0chain/repo-snapshots/branches/$CURRENT_BRANCH" --header 'Authorization: Bearer ${{ inputs.svc_account_secret }}' --fail >> /dev/null
+          if [[ $? -ne 0 ]]; then
+            echo "repo-snapshots branch [$CURRENT_BRANCH] does NOT exist. Checking out current-sprint instead"
+            echo REPO_SNAPSHOTS_BRANCH=current-sprint >> $GITHUB_ENV
+          else
+            echo "repo-snapshots branch [$CURRENT_BRANCH] exists. Using it for docker images and branches where no override is specified"
+            echo REPO_SNAPSHOTS_BRANCH=$CURRENT_BRANCH >> $GITHUB_ENV
+          fi
+        else
+          echo "repo-snapshots branch was explicitly set as ${{ inputs.repo_snapshots_branch }}"
+          echo 'REPO_SNAPSHOTS_BRANCH=${{ inputs.repo_snapshots_branch }}' >> $GITHUB_ENV
+        fi   
+        
+
+    - name: "Checkout repo-snapshots"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.REPO_SNAPSHOTS_BRANCH }}
+        repository: 0chain/repo-snapshots
+        fetch-depth: 1
+        path: ./repo-snapshots
+        token: "${{ inputs.svc_account_secret }}"
+
+    - name: "Resolve branches"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.SKIP_TESTS != 'true' }}
+      run: |
+        cd ./repo-snapshots
+        while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.defaultBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.defaultBranch)"' "branches.json")
+        while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.sprintBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.sprintBranch)"' "branches.json")
+
+    - name: "Get docker images for sprint branches"
+      id: get-images
+      if: ${{ inputs.resolve_images == 'true' }}
+      uses: 0chain/actions/get-latest-image-for-branch@feature/add-repo-snapshots-integration
+      with:
+        miner_sharder_branch: ${{ env.SNAPSHOT_BRANCH_0CHAIN }}
+        blobber_validator_branch: ${{ env.SNAPSHOT_BRANCH_BLOBBER }}
+        authorizer_branch: ${{ env.SNAPSHOT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
+        zbox_branch: ${{ env.SNAPSHOT_BRANCH_0BOX }}
+        zdns_branch: ${{ env.SNAPSHOT_BRANCH_0DNS }}
+        svc_account_secret: ${{ inputs.svc_account_secret }}
+
+    - name: "Create variables"
+      if: ${{ inputs.resolve_images == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        if [[ -n "${{ steps.get-images.outputs.miner-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_MINER_TAG=$(echo '${{ steps.get-images.outputs.miner-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.sharder-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_SHARDER_TAG=$(echo '${{ steps.get-images.outputs.sharder-tag }}')" >> $GITHUB_ENV
+        fi
+      
+        
+        if [[ -n "${{ steps.get-images.outputs.blobber-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_BLOBBER_TAG=$(echo '${{ steps.get-images.outputs.blobber-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.validator-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_VALIDATOR_TAG=$(echo '${{ steps.get-images.outputs.validator-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.authorizer-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_AUTHORIZER_TAG=$(echo '${{ steps.get-images.outputs.authorizer-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.zbox-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_ZBOX_TAG=$(echo '${{ steps.get-images.outputs.zbox-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "$ZDNS_TAG" ]];then
+            echo "SNAPSHOT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
+        fi
