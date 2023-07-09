@@ -71,32 +71,32 @@ on:
         type: string
       system_tests_branch:
         description: 'system_tests branch containing the tests you wish to run'
-        default: 'master'
+        default: ''
         required: true
         type: string
       miner_branch:
         description: 'miner branch which the tests will use'
-        default: 'staging'
+        default: ''
         required: false
         type: string  
       sharder_branch:
         description: 'sharder branch which the tests will use'
-        default: 'staging'
+        default: ''
         required: false
         type: string   
       zbox_cli_branch:
         description: '0Box CLI branch which the tests will use'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       zwallet_cli_branch:
         description: '0Wallet CLI branch which the tests will use'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       blobber_branch:
         description: 'blobber branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       validator_branch:
@@ -106,17 +106,17 @@ on:
         type: string
       authorizer_branch:
         description: 'authorizer branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       zbox_branch:
         description: '0box branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       zdns_branch:
         description: '0dns branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       s3_migration_cli_branch:
@@ -126,7 +126,7 @@ on:
         type: string
       zs3server_branch:
         description: 'ZS3server branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       gosdk_branch:
@@ -235,6 +235,7 @@ jobs:
       if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/deploy-0chain@master
       with:
+        repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
         teardown_condition: "TESTS_PASSED"
         miner_image:  ${{ steps.get-images.outputs.miner-tag }}
@@ -261,6 +262,7 @@ jobs:
       if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/run-system-tests@master
       with:
+        repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         system_tests_branch: ${{ inputs.system_tests_branch }}
         network: ${{ env.NETWORK_URL }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
