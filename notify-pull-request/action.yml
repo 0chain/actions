@@ -80,14 +80,14 @@ runs:
 
 
     - name: "Get system tests branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.SYSTEM_TEST_SHA }}
         owner: "0chain"
         repo: "system_test"
       id: system_tests
     - name: "Set zbox cli PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.system_tests.outputs.number
       with:
         pr_number: ${{ steps.system_tests.outputs.pr }}
@@ -97,7 +97,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
@@ -122,14 +122,14 @@ runs:
 
 
     - name: "Get zbox cli branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.ZBOX_CLI_SHA }}
         owner: "0chain"
         repo: "zboxcli"
       id: zbox_cli
     - name: "Set zbox cli PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.zbox_cli.outputs.number
       with:
         pr_number: ${{ steps.zbox_cli.outputs.pr }}
@@ -139,7 +139,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
@@ -164,14 +164,14 @@ runs:
 
 
     - name: "Get zwallet cli branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.ZWALLET_CLI_SHA }}
         owner: "0chain"
         repo: "zwalletcli"
       id: zwallet_cli
     - name: "Set zwallet cli PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.zwallet_cli.outputs.number
       with:
         pr_number: ${{ steps.zwallet_cli.outputs.pr }}
@@ -181,7 +181,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
@@ -206,14 +206,14 @@ runs:
 
 
     - name: "Get 0chain branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.ZEROCHAIN_SHA }}
         owner: "0chain"
         repo: "0chain"
       id: zerochain
     - name: "Set 0chain branch PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.zerochain.outputs.number
       with:
         pr_number: ${{ steps.zerochain.outputs.pr }}
@@ -223,7 +223,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
@@ -248,14 +248,14 @@ runs:
 
 
     - name: "Get blobber branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.BLOBBER_SHA }}
         owner: "0chain"
         repo: "blobber"
       id: blobber
     - name: "Set blobber PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.blobber.outputs.number
       with:
         pr_number: ${{ steps.blobber.outputs.pr }}
@@ -265,7 +265,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
@@ -290,14 +290,14 @@ runs:
 
 
     - name: "Get authorizer branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.AUTHORIZER_SHA }}
         owner: "0chain"
         repo: "token_bridge_authserver"
       id: authorizer
     - name: "Set authorizer PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.authorizer.outputs.number
       with:
         pr_number: ${{ steps.authorizer.outputs.pr }}
@@ -307,7 +307,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
@@ -332,14 +332,14 @@ runs:
 
 
     - name: "Get gosdk branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.GOSDK_SHA }}
         owner: "0chain"
         repo: "gosdk"
       id: gosdk
     - name: "Set gosdk PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.gosdk.outputs.number
       with:
         pr_number: ${{ steps.gosdk.outputs.pr }}
@@ -349,7 +349,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
@@ -374,14 +374,14 @@ runs:
 
 
     - name: "Get 0box branch PR"
-      uses: stewartie4/gh-find-current-pr@master
+      uses: stewartie4/gh-find-current-pr@update-required
       with:
         sha: ${{ env.ZBOX_SHA }}
         owner: "0chain"
         repo: "0box"
       id: zbox
     - name: "Set 0box branch PR status"
-      uses: 0chain/actions/set-pr-status@master
+      uses: 0chain/actions/set-pr-status@update-required
       if: steps.zbox.outputs.number
       with:
         pr_number: ${{ steps.zbox.outputs.pr }}
@@ -391,7 +391,7 @@ runs:
         status_name: ${{ github.workflow }}
         target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         github_token: ${{ inputs.github_token }}
-    - uses: stewartie4/add-pr-comment@master
+    - uses: stewartie4/add-pr-comment@update-required
       with:
         skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
         owner: "0chain"
