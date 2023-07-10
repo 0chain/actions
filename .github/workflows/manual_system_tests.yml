@@ -209,6 +209,7 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
+        zs3server_branch: ${{ inputs.zs3server_branch }}
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Set PR status as pending"
@@ -247,7 +248,7 @@ jobs:
         zdns_image: ${{ steps.get-images.outputs.zdns-tag }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        zs3_server: ${{ inputs.zs3server_branch }}
+        zs3_server: ${{ steps.get-images.outputs.zs3server-tag }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
