@@ -101,7 +101,7 @@ on:
         type: string
       validator_branch:
         description: 'validator branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       authorizer_branch:
