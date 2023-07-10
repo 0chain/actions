@@ -98,3 +98,7 @@ runs:
         if [[ -n "${{ steps.get-images.outputs.zdns-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
         fi
+
+        if [[ -n "${{ steps.get-images.outputs.zs3server-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_ZS3SERVER_TAG=$(echo '${{ steps.get-images.outputs.zs3erver-tag }}')" >> $GITHUB_ENV
+        fi
