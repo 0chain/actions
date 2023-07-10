@@ -64,6 +64,7 @@ runs:
         authorizer_branch: ${{ env.SNAPSHOT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
         zbox_branch: ${{ env.SNAPSHOT_BRANCH_0BOX }}
         zdns_branch: ${{ env.SNAPSHOT_BRANCH_0DNS }}
+        zs3server_branch:  ${{ env.SNAPSHOT_BRANCH_ZS3SERVER }}
         svc_account_secret: ${{ inputs.svc_account_secret }}
 
     - name: "Create variables"
@@ -96,4 +97,16 @@ runs:
         
         if [[ -n "${{ steps.get-images.outputs.zdns-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.blimp_minioserver-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_MIBIOSERVER_TAG=$(echo '${{ steps.get-images.outputs.blimp_minioserver-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.blimp_logsearchapi-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG=$(echo '${{ steps.get-images.outputs.blimp_logsearchapi-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.blimp_clientapi-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_CLIENTAPI_TAG=$(echo '${{ steps.get-images.outputs.blimp_clientapi-tag }}')" >> $GITHUB_ENV
         fi

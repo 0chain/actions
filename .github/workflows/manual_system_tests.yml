@@ -209,6 +209,7 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
+        zs3server_branch:  ${{ env.zs3server_branch }}
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Set PR status as pending"

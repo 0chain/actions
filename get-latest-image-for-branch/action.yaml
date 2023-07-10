@@ -29,6 +29,10 @@ inputs:
     description: '0dns branch to deploy'
     default: 'staging'
     required: false
+  zs3server_branch:
+    description: 'zs3server branch to deploy'
+    default: 'staging'
+    required: false
   svc_account_secret:
     description: '0dns branch to deploy'
     default: 'staging'
@@ -56,6 +60,15 @@ outputs:
   zdns-tag:
     description: "0dns docker image"
     value: ${{ steps.get-images.outputs.ZDNS_TAG }}
+  blimp_minioserver-tag:
+    description: "blimp minioserver docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-MINIOSERVER_TAG }}
+  blimp_logsearchapi-tag:
+    description: "blimp logsearchapi docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-LOGSEARCHAPI_TAG }}
+  blimp_clientapi-tag:
+    description: "blimp clientapi docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-CLIENTAPI_TAG }}
 
 
 runs:
@@ -175,6 +188,27 @@ runs:
              ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
           else
             echo "zdns_branch NOT specified, will skip deriving 0dns image tag"
+        fi
+        
+        if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-minioserver
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp minioserver image tag"
+        fi
+        
+         if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-logsearchapi
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp logsearchapi image tag"
+        fi
+        
+        if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-clientapi
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp clientapi image tag"
         fi
 
     - name: Fail if image cannot be retrieved
