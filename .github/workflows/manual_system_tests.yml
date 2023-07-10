@@ -257,6 +257,7 @@ jobs:
         graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
+        svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Run System tests"
       if: ${{ env.SKIP_TESTS != 'true' }}
