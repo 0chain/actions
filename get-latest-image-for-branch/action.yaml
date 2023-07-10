@@ -188,7 +188,7 @@ runs:
           then
              ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
           else
-            echo "zs3server_branch NOT specified, will skip deriving 0dns image tag"
+            echo "zs3server_branch NOT specified, will skip deriving zs3server image tag"
         fi
 
     - name: Fail if image cannot be retrieved
