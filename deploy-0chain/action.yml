@@ -163,7 +163,6 @@ runs:
         echo "=================================================="
         echo "DEPLOYING 0CHAIN WITH THE FOLLOWING CONFIGURATION:"
         echo "=================================================="
-        echo
         echo "0Chain network URL:                    [${{ env.NETWORK_URL }}]"
         echo "repo-snapshots branch:                 [${{ env.REPO_SNAPSHOTS_BRANCH }}]"
         echo "Miner docker image:                    [${{ env.MINER_TAG }}]"
