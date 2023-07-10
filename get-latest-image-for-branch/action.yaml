@@ -29,6 +29,10 @@ inputs:
     description: '0dns branch to deploy'
     default: 'staging'
     required: false
+  zs3server_branch:
+    description: '0dns branch to deploy'
+    default: 'staging'
+    required: false
   svc_account_secret:
     description: '0dns branch to deploy'
     default: 'staging'
@@ -56,6 +60,9 @@ outputs:
   zdns-tag:
     description: "0dns docker image"
     value: ${{ steps.get-images.outputs.ZDNS_TAG }}
+  zs3server-tag:
+    description: "zs3server docker image"
+    value: ${{ steps.get-images.outputs.ZS3SERVER_TAG }}
 
 
 runs:
@@ -175,6 +182,13 @@ runs:
              ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
           else
             echo "zdns_branch NOT specified, will skip deriving 0dns image tag"
+        fi
+        
+        if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zdns_branch }} zs3server
+          else
+            echo "zs3server_branch NOT specified, will skip deriving 0dns image tag"
         fi
 
     - name: Fail if image cannot be retrieved
