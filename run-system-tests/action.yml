@@ -185,6 +185,7 @@ runs:
         echo "======================================================"
         echo
         echo "System tests branch:      [${{ env.SYSTEM_TESTS_BRANCH }}]"
+        echo "repo-snapshots branch:    [${{ env.REPO_SNAPSHOTS_BRANCH }}]"
         echo "0Chain network URL:       [${{ env.NETWORK_URL }}]"
         echo "0box network URL:         [0box.${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:          [${{ env.ZBOX_BRANCH }}]"
