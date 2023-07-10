@@ -186,7 +186,7 @@ runs:
         
         if [[ -n "${{ inputs.zs3server_branch }}" ]];
           then
-             ./get_tag.sh zs3server ${{ inputs.zdns_branch }} zs3server
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
           else
             echo "zs3server_branch NOT specified, will skip deriving 0dns image tag"
         fi
