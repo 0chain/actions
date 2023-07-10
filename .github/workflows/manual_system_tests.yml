@@ -72,7 +72,7 @@ on:
       system_tests_branch:
         description: 'system_tests branch containing the tests you wish to run'
         default: ''
-        required: true
+        required: false
         type: string
       miner_branch:
         description: 'miner branch which the tests will use'
@@ -230,7 +230,6 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        zs3server_branch: ${{ inputs.zs3server_branch }}
 
     - name: "Deploy 0Chain"
       if: ${{ env.SKIP_TESTS != 'true' }}
@@ -257,6 +256,7 @@ jobs:
         graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
+        svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Run System tests"
       if: ${{ env.SKIP_TESTS != 'true' }}
@@ -308,4 +308,3 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        zs3server_branch: ${{ inputs.zs3server_branch }}
