@@ -248,13 +248,12 @@ jobs:
         zdns_image: ${{ steps.get-images.outputs.zdns-tag }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        zs3_server: ${{ steps.get-images.outputs.zs3server-tag }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
-        zs3_client: ${{ inputs.zs3server_branch }}
-        zs3_logsearchapi: ${{ inputs.zs3server_branch }}
-        zs3_minio: ${{ inputs.zs3server_branch }}
+        zs3_client: ${{ steps.get-images.outputs.zs3server-tag }}
+        zs3_logsearchapi: ${{ steps.get-images.outputs.zs3server-tag }}
+        zs3_minio: ${{ steps.get-images.outputs.zs3server-tag }}
         graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
