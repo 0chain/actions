@@ -213,7 +213,7 @@ jobs:
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@update-required
+      uses: 0chain/actions/notify-pull-request@master
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -260,7 +260,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/run-system-tests@update-required
+      uses: 0chain/actions/run-system-tests@master
       with:
         repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         system_tests_branch: ${{ inputs.system_tests_branch }}
@@ -292,7 +292,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@update-required
+      uses: 0chain/actions/notify-pull-request@master
       continue-on-error: true
       with:
         state: ${{ job.status }}
