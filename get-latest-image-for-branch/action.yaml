@@ -30,7 +30,7 @@ inputs:
     default: 'staging'
     required: false
   zs3server_branch:
-    description: '0dns branch to deploy'
+    description: 'zs3server branch to deploy'
     default: 'staging'
     required: false
   svc_account_secret:
@@ -60,9 +60,15 @@ outputs:
   zdns-tag:
     description: "0dns docker image"
     value: ${{ steps.get-images.outputs.ZDNS_TAG }}
-  zs3server-tag:
-    description: "zs3server docker image"
-    value: ${{ steps.get-images.outputs.ZS3SERVER_TAG }}
+  blimp_minioserver-tag:
+    description: "blimp minioserver docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-MINIOSERVER_TAG }}
+  blimp_logsearchapi-tag:
+    description: "blimp logsearchapi docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-LOGSEARCHAPI_TAG }}
+  blimp_clientapi-tag:
+    description: "blimp clientapi docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-CLIENTAPI_TAG }}
 
 
 runs:
@@ -186,9 +192,23 @@ runs:
         
         if [[ -n "${{ inputs.zs3server_branch }}" ]];
           then
-             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} zs3server
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-minioserver
           else
-            echo "zs3server_branch NOT specified, will skip deriving zs3server image tag"
+            echo "zs3server_branch NOT specified, will skip deriving blimp minioserver image tag"
+        fi
+        
+         if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-logsearchapi
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp logsearchapi image tag"
+        fi
+        
+        if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-clientapi
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp clientapi image tag"
         fi
 
     - name: Fail if image cannot be retrieved

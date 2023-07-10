@@ -183,7 +183,6 @@ runs:
         echo "======================================================"
         echo "RUNNING SYSTEM TESTS WITH THE FOLLOWING CONFIGURATION:"
         echo "======================================================"
-        echo
         echo "System tests branch:      [${{ env.SYSTEM_TESTS_BRANCH }}]"
         echo "repo-snapshots branch:    [${{ env.REPO_SNAPSHOTS_BRANCH }}]"
         echo "0Chain network URL:       [${{ env.NETWORK_URL }}]"
