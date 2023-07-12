@@ -121,22 +121,22 @@ runs:
         ' > ./check-params.sh;
         chmod 777 check-params.sh
         
-        ./check-params.sh "${{inputs.miner_image}}"         "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"       "MINER_TAG"
-        ./check-params.sh "${{inputs.sharder_image}}"       "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"     "SHARDER_TAG"
-        ./check-params.sh "${{inputs.blobber_image}}"       "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"     "BLOBBER_TAG"
-        ./check-params.sh  "${{inputs.validator_image}}"    "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"   "VALIDATOR_TAG"
-        ./check-params.sh  "${{inputs.authorizer_image}}"   "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"  "AUTHORIZER_TAG"
-        ./check-params.sh  "${{inputs.zbox_image}}"         "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"        "ZBOX_TAG"
-        ./check-params.sh  "${{inputs.zdns_image}}"         "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"        "ZDNS_TAG"
-        ./check-params.sh  "${{inputs.zbox_cli_branch}}"    "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"         "ZBOX_BRANCH"
-        ./check-params.sh  "${{inputs.zwallet_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"      "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.miner_image}}"        "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
+        ./check-params.sh "${{inputs.sharder_image}}"      "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
+        ./check-params.sh "${{inputs.blobber_image}}"      "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
+        ./check-params.sh "${{inputs.validator_image}}"    "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
+        ./check-params.sh "${{inputs.authorizer_image}}"   "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
+        ./check-params.sh "${{inputs.zbox_image}}"         "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
+        ./check-params.sh "${{inputs.zdns_image}}"         "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
+        ./check-params.sh "${{inputs.zbox_cli_branch}}"    "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.zs3_minio}}"          "${{ env.SNAPSHOT_BRANCH_MIBIOSERVER_TAG }}"  "ZS3_MINIO"
+        ./check-params.sh "${{inputs.zs3_logsearchapi}}"   "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
+        ./check-params.sh "${{inputs.zs3_client}}"         "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
         
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
-        echo "ZS3_CLIENT=$(echo ${{inputs.zs3_client}})" >> $GITHUB_ENV
-        echo "ZS3_LOGSEARCHAPI=$(echo ${{inputs.zs3_logsearchapi}})" >> $GITHUB_ENV
-        echo "ZS3_MINIO=$(echo ${{inputs.zs3_minio}})" >> $GITHUB_ENV
         echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
         echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
         echo "GRAPHNODE_SC=$(echo ${{ inputs.graphnode_sc }})" >> $GITHUB_ENV
@@ -163,8 +163,8 @@ runs:
         echo "=================================================="
         echo "DEPLOYING 0CHAIN WITH THE FOLLOWING CONFIGURATION:"
         echo "=================================================="
-        echo
         echo "0Chain network URL:                    [${{ env.NETWORK_URL }}]"
+        echo "repo-snapshots branch:                 [${{ env.REPO_SNAPSHOTS_BRANCH }}]"
         echo "Miner docker image:                    [${{ env.MINER_TAG }}]"
         echo "Sharder docker image:                  [${{ env.SHARDER_TAG }}]"
         echo "Blobber docker image:                  [${{ env.BLOBBER_TAG }}]"
@@ -743,7 +743,7 @@ runs:
         ' > config.yaml
         echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5 --data 2 --parity 2 --size 10000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
+        ./zbox newallocation --lock 5 --data 2 --parity 2 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
         echo "Allocation hash: $(cat allocation.txt)"
         echo "ALLOCATION=$(cat allocation.txt)" >> $GITHUB_ENV
 

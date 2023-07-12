@@ -72,7 +72,7 @@ on:
       system_tests_branch:
         description: 'system_tests branch containing the tests you wish to run'
         default: ''
-        required: true
+        required: false
         type: string
       miner_branch:
         description: 'miner branch which the tests will use'
@@ -101,7 +101,7 @@ on:
         type: string
       validator_branch:
         description: 'validator branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       authorizer_branch:
@@ -121,7 +121,7 @@ on:
         type: string
       s3_migration_cli_branch:
         description: 's3-migration cli branch to deploy'
-        default: 'staging'
+        default: ''
         required: false
         type: string
       zs3server_branch:
@@ -209,6 +209,7 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
+        zs3server_branch:  ${{ inputs.zs3server_branch }}
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Set PR status as pending"
@@ -229,7 +230,6 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        zs3server_branch: ${{ inputs.zs3server_branch }}
 
     - name: "Deploy 0Chain"
       if: ${{ env.SKIP_TESTS != 'true' }}
@@ -247,16 +247,16 @@ jobs:
         zdns_image: ${{ steps.get-images.outputs.zdns-tag }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
-        zs3_server: ${{ inputs.zs3server_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
         TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
         SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
-        zs3_client: ${{ inputs.zs3server_branch }}
-        zs3_logsearchapi: ${{ inputs.zs3server_branch }}
-        zs3_minio: ${{ inputs.zs3server_branch }}
+        zs3_client: ${{ steps.get-images.outputs.blimp_clientapi-tag }}
+        zs3_logsearchapi: ${{ steps.get-images.outputs.blimp_logsearchapi-tag }}
+        zs3_minio:  ${{ steps.get-images.outputs.blimp_minioserver-tag }}
         graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
         graphnode_ethereum_node_url: ${{ secrets.GRAPHNODE_ETHEREUM_NODE_URL }}
+        svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Run System tests"
       if: ${{ env.SKIP_TESTS != 'true' }}
@@ -308,4 +308,3 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
         github_token: ${{ secrets.SVC_ACCOUNT_SECRET }}
-        zs3server_branch: ${{ inputs.zs3server_branch }}

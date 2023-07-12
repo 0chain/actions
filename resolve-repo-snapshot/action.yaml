@@ -20,6 +20,18 @@ runs:
     - name: "Resolve branch"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        echo
+        if [[ "${{ inputs.resolve_images }}" == "true" ]]; then
+          echo "======================================================="
+          echo "RESOLVE BRANCHES AND DOCKER IMAGES FROM REPO-SNAPSHOTS"
+          echo "======================================================="
+        else
+          echo "=================================================="
+          echo "RESOLVE BRANCHES FROM REPO-SNAPSHOTS"
+          echo "=================================================="
+        fi
+        echo
+        
         if [[ "${{ inputs.repo_snapshots_branch }}" == "<CURRENT BRANCH WITH FALLBACK TO CURRENT_SPRINT>" ]]; then
           echo "repo-snapshots branch was set to ${{ inputs.repo_snapshots_branch }}. Trying to find current branch name in repo-snapshots. Will fall back to current-sprint if unsuccessful."
           CURRENT_BRANCH=$([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF)
@@ -51,6 +63,8 @@ runs:
       if: ${{ env.SKIP_TESTS != 'true' }}
       run: |
         cd ./repo-snapshots
+        echo "Resolved branches.json on repo-snapshots branch [${{ env.REPO_SNAPSHOTS_BRANCH }}]:"
+        cat branches.json
         while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.defaultBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.defaultBranch)"' "branches.json")
         while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.sprintBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.sprintBranch)"' "branches.json")
 
@@ -64,6 +78,7 @@ runs:
         authorizer_branch: ${{ env.SNAPSHOT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
         zbox_branch: ${{ env.SNAPSHOT_BRANCH_0BOX }}
         zdns_branch: ${{ env.SNAPSHOT_BRANCH_0DNS }}
+        zs3server_branch:  ${{ env.SNAPSHOT_BRANCH_ZS3SERVER }}
         svc_account_secret: ${{ inputs.svc_account_secret }}
 
     - name: "Create variables"
@@ -96,4 +111,16 @@ runs:
         
         if [[ -n "${{ steps.get-images.outputs.zdns-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.blimp_minioserver-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_MIBIOSERVER_TAG=$(echo '${{ steps.get-images.outputs.blimp_minioserver-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.blimp_logsearchapi-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG=$(echo '${{ steps.get-images.outputs.blimp_logsearchapi-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.blimp_clientapi-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_CLIENTAPI_TAG=$(echo '${{ steps.get-images.outputs.blimp_clientapi-tag }}')" >> $GITHUB_ENV
         fi
