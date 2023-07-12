@@ -350,7 +350,7 @@ runs:
         done
 
         ##############----------------- Installing ipfs helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the ipfs helm-chart deployment
+        RET=0         #You can set RET=0 to skip the ipfs helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
            helm upgrade --install ipfs --wait \
              --set ipfs.hostName=${{ env.NAMESPACE }} \
@@ -364,7 +364,7 @@ runs:
         done
 
         ##############----------------- Installing graph-node helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the graph-node helm-chart deployment
+        RET=0         #You can set RET=0 to skip the graph-node helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 3 ]]; do
            helm upgrade --install graph-node --wait \
              --set graphNode.nodeCount=1 \
