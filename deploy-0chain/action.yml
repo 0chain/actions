@@ -314,6 +314,7 @@ runs:
              --set commonConf.sc.smart_contracts.storagesc.time_unit="1h" \
              --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
              --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
+             --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
              --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
