@@ -60,15 +60,15 @@ inputs:
     description: 'API URL of the subgraph, which is used by internal components'
   zs3_client:
     required: true
-    default: "staging"
+    default: ''
     description: 'zs3server client DOCKER IMAGE to deploy'
   zs3_logsearchapi:
     required: true
-    default: "staging"
+    default: ''
     description: 'zs3server logsearchapi DOCKER IMAGE to deploy'
   zs3_minio:
     required: true
-    default: "staging"
+    default: ''
     description: 'zs3server minio DOCKER IMAGE to deploy'
   graphnode_sc:
     required: true
