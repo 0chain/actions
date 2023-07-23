@@ -138,7 +138,6 @@ runs:
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
         echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
-        echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
         echo "GRAPHNODE_SC=$(echo ${{ inputs.graphnode_sc }})" >> $GITHUB_ENV
         echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
         echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
@@ -284,7 +283,7 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
-        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer, graphnode, ipfs. Will be giving 3 try to install the helmchart.
+        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer. Will be giving 3 try to install the helmchart.
         COUNT=24
         
         #RET is used to get the success/fail status of latest command executed
@@ -393,42 +392,11 @@ runs:
            sleep 2
         done
 
-        ##############----------------- Installing ipfs helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the ipfs helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
-           helm upgrade --install ipfs --wait \
-             --set ipfs.hostName=${{ env.NAMESPACE }} \
-             --set ipfs.host=devnet-0chain.net \
-             --set ipfs.image.tag=latest -n ${{ env.NAMESPACE }} \
-             0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
-
-        ##############----------------- Installing graph-node helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the graph-node helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 3 ]]; do
-           helm upgrade --install graph-node --wait \
-             --set graphNode.nodeCount=1 \
-             --set graphNode.hostName=${{ env.NAMESPACE }} \
-             --set graphNode.host=devnet-0chain.net \
-             --set graphNode.image.tag=latest \
-             --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} \
-             --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} \
-             --set graphNode.config.private_fork=true \
-             -n ${{ env.NAMESPACE }} 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
-
         ##############----------------- Installing authorizer helm-chart --------------------###################
         RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install authorizer \
+             --set authorizer.config.nativeEventFetch=true \
              --set authorizer.authorizerCount=3 \
              --set authorizer.hostName=${{ env.NAMESPACE }} \
              --set authorizer.host=devnet-0chain.net \
@@ -457,33 +425,6 @@ runs:
         export PATH=$PATH:/usr/local/go/bin
         which go
         go env
-        
-    - name: "Installing subgraph register dependencies"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        sudo apt-get update -y
-        sudo apt-get -y install build-essential nghttp2 libnghttp2-dev libssl-dev wget bison binutils make libpq-dev
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod a+x /usr/local/bin/yq
-
-    - name: "Checkout dex_subgraph"
-      uses: actions/checkout@v2
-      with:
-        ref: 'master'
-        repository: 0chain/dex_subgraph
-        fetch-depth: 1
-        path: ./dex_subgraph
-
-    # - name: "Running subgraph register"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     export HOME="/root"
-    #     cd dex_subgraph
-
-    #     pushd ./vendor/tools/get_smart_contract_creation_block
-    #     go build 
-    #     popd
-    #     sudo make deploy skip_sync=false network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
