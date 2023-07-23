@@ -635,9 +635,9 @@ runs:
         signature_scheme: bls0chain
         store_unlock_duration_sec: 2
         bridge:
-          bridge_address: 0xf260c644Acfbfd87bdC77Fe32c8d6a56C9eec879
-          token_address: 0xC79aD1e07f790d0Cf6AA3D09FeC393A09DC53d64
-          authorizers_address: 0xd5867B4a1F8e7BD91276b5C85a4EDC9D33400496
+          bridge_address: 0x7bbbEa24ac1751317D7669f05558632c4A9113D7
+          token_address: 0x2ec8F26ccC678c9faF0Df20208aEE3AF776160CD
+          authorizers_address: 0xEAe8229c0E457efBA1A1769e7F8c20110fF68E61
           ethereum_address: 0xD8c9156e782C68EE671C09b6b92de76C97948432
           password: "\"02289b9\""
         ' > config.yaml
