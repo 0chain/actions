@@ -138,6 +138,7 @@ runs:
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
         echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
+        echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
         echo "GRAPHNODE_SC=$(echo ${{ inputs.graphnode_sc }})" >> $GITHUB_ENV
         echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
         echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
