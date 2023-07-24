@@ -144,6 +144,11 @@ on:
         default: 'true'
         description: 'Enable or disable API system tests'
         type: string
+      run_s3mgrt_system_tests:
+        required: false
+        default: "true"
+        description: 'Enable or disable S3 migration CLI system tests'
+        type: string
       run_tokenomics_system_tests:
         required: false
         default: 'false'
@@ -201,7 +206,7 @@ jobs:
 
     - name: "Get docker images for feature branches"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/get-latest-image-for-branch@master
+      uses: 0chain/actions/get-latest-image-for-branch@enable-s3mgrt-only-tests
       id: get-images
       with:
         miner_sharder_branch: ${{ inputs.miner_branch }}
@@ -213,7 +218,7 @@ jobs:
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@master
+      uses: 0chain/actions/notify-pull-request@enable-s3mgrt-only-tests
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -233,7 +238,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/deploy-0chain@master
+      uses: 0chain/actions/deploy-0chain@enable-s3mgrt-only-tests
       with:
         repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
@@ -260,7 +265,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/run-system-tests@master
+      uses: 0chain/actions/run-system-tests@enable-s3mgrt-only-tests
       with:
         repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         system_tests_branch: ${{ inputs.system_tests_branch }}
@@ -276,6 +281,7 @@ jobs:
         test_file_filter: ${{ inputs.test_file_filter }}
         run_cli_system_tests: ${{ inputs.run_cli_system_tests }}
         run_api_system_tests: ${{ inputs.run_api_system_tests }}
+        run_s3mgrt_system_tests: ${{ inputs.run_s3mgrt_system_tests }}
         run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
         run_smoke_tests: ${{ inputs.run_smoke_tests }}
         run_frontend_tests: ${{ inputs.run_frontend_tests }}
@@ -292,7 +298,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@master
+      uses: 0chain/actions/notify-pull-request@enable-s3mgrt-only-tests
       continue-on-error: true
       with:
         state: ${{ job.status }}
