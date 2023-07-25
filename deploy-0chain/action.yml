@@ -918,9 +918,9 @@ runs:
         ' > ./post.sh;
         chmod 777 ./post.sh;
 
-    - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
-      continue-on-error: true
-      uses: webiny/action-post-run@2.0.1
-      with:
-        run: ./post.sh
-        working-directory: ../
+#    - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
+#      continue-on-error: true
+#      uses: webiny/action-post-run@2.0.1
+#      with:
+#        run: ./post.sh
+#        working-directory: ../
