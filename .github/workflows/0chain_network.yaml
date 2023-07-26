@@ -45,7 +45,7 @@ jobs:
         with:
           version: 'v3.2.2'
 
-      - uses: azure/setup-kubectl@v1
+      - uses: azure/setup-kubectl@v3
         id: install
 
       - name: Setup helm repo
