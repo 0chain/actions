@@ -104,11 +104,12 @@ runs:
       run: |
         branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
         branchesCount=$(echo -n $branchList | xargs | grep -o ' ' | wc -l)
+        branchesCount=$((branchesCount + 1))
         
-        if [ "$branchesCount" -gt "1" ]; then
+        if [ "$branchesCount" -gt "2" ]; then
           actionsBranch="master"
           echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
-        elif [ "$branchesCount" -gt "0" ]; then
+        elif [ "$branchesCount" -gt "1" ]; then
           for branch in $branchList
           do
             if [ "$branch" != "master" ]; then
