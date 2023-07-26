@@ -418,6 +418,7 @@ runs:
         echo "======================================================"
         echo
 
+        export HOME="/root"
         GOPATH=$(echo $(go env GOPATH))
 
         cd tests/api_tests
