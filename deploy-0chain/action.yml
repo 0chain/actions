@@ -107,7 +107,7 @@ runs:
         
         if [ "$branchesCount" -gt "1" ]; then
           actionsBranch="master"
-          echo "[$branchesCount] actions branches found in workflow file: \n[$branchList]. Using [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
         elif [ "$branchesCount" -gt "0" ]; then
           for branch in $branchList
           do
@@ -115,7 +115,7 @@ runs:
               actionsBranch=$branch
             fi
           done
-          echo "[$branchesCount] actions branches found in workflow file: \n[$branchList]. Using [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
         else
           actionsBranch=$branchList
           echo "Single actions branch [$actionsBranch] found in workflow file."
