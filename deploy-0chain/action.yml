@@ -102,10 +102,21 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo "======== BEFORE REPO SNAPSHOTS BRANCH ========"
-        echo "$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
-        echo "======== AFTER REPO SNAPSHOTS BRANCH ========"
-        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
+        branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
+        branchesCount=$(echo $branchList | grep -c '^')
+        
+        if [ "$branchesCount" -gt "2" ]; then
+          actionsBranch="master"
+          echo "More than two actions branch found in workflow file: [$branchList]. Using [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
+        elif [ "$branchesCount" -gt "1" ]; then
+          actionsBranch=$(echo $branchList | grep -v master")
+          echo "More than one actions branch found in workflow file: [$branchList]. Using [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
+        else
+          actionsBranch=$branchList
+          echo "Single actions branch [$actionsBranch] found in workflow file."
+        fi
+        
+        echo "ACTIONS_BRANCH=$actionsBranch" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         
         echo '#!/bin/bash
