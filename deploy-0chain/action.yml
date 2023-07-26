@@ -104,14 +104,18 @@ runs:
       run: |
         branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
         branchesCount=$(echo -n $branchList | xargs | grep -o ' ' | wc -l)
-        echo "count is [$branchesCount]"
         
         if [ "$branchesCount" -gt "1" ]; then
           actionsBranch="master"
-          echo "More than two actions branch found in workflow file: [$branchList]. Using [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
+          echo "[$branchesCount] actions branches found in workflow file: \n[$branchList]. Using [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
         elif [ "$branchesCount" -gt "0" ]; then
-          actionsBranch=$(echo $branchList | grep -v master)
-          echo "More than one actions branch found in workflow file: [$branchList]. Using [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
+          for branch in $branchList
+          do
+            if [ "$branch" != "master" ]; then
+              actionsBranch=$branch
+            fi
+          done
+          echo "[$branchesCount] actions branches found in workflow file: \n[$branchList]. Using [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
         else
           actionsBranch=$branchList
           echo "Single actions branch [$actionsBranch] found in workflow file."
