@@ -103,7 +103,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
-        branchesCount=$(echo $branchList | grep -c '^')
+        branchesCount=$(echo -n $branchList | grep -c '^')
         
         if [ "$branchesCount" -gt "2" ]; then
           actionsBranch="master"
