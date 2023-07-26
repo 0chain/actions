@@ -1,6 +1,10 @@
 name: "0Chain System Tests"
 description: "Run 0Chain System Tests"
 inputs:
+  repo_snapshots_branch:
+    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit branch params.'
+    default: ''
+    required: false
   system_tests_branch:
     required: false
     description: 'System tests branch to run'
@@ -8,17 +12,17 @@ inputs:
     required: true
     description: 'Network to run system tests against INSTEAD OF DEPLOYING A NEW NETWORK. [example: dev.0chain.net]'
   zbox_cli_branch:
-    required: true
+    required: false
     description: '0Box CLI (branch or commit SHA) which the tests will use'
-    default: 'staging'
+    default: ''
   zwallet_cli_branch:
-    required: true
+    required: false
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
-    default: 'staging'
+    default: ''
   s3_migration_cli_branch:
     required: false
     description: 'S3 Migration CLI (branch or commit SHA) which the tests will use'
-    default: 'staging'
+    default: ''
   deploy_report_page:
     required: true
     default: "true"
@@ -89,20 +93,46 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Get sprint branch from repo_snapshots_branch"
+      if: ${{ inputs.repo_snapshots_branch != '' }}
+      uses: 0chain/actions/resolve-repo-snapshot@master
+      with:
+        repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
+        svc_account_secret: ${{ inputs.svc_account_secret }}
+        resolve_images: false
+
     - name: "Config: Run tests against 0Chain network"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo "SYSTEM_TESTS_BRANCH=$(echo $(([ -z '${{inputs.system_tests_branch}}' ] && echo  ${GITHUB_REF#refs/*/}) || echo '${{inputs.system_tests_branch}}'))" >> $GITHUB_ENV
+        
+        echo '#!/bin/bash
+        if [[ -z "$1" ]];then
+           if [[ -z "$2" ]];then
+             echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
+             exit 1
+           else
+             echo "Using $3 [$2] from repo_snapshots_branch"
+             echo "$3=$2" >> $GITHUB_ENV
+           fi
+        else
+           echo "Using $3 tag [$1] from repo_snapshots_branch"
+           echo "$3=$1" >> $GITHUB_ENV
+        fi
+        ' > ./check-params.sh;
+        chmod 777 check-params.sh
+        
+        ./check-params.sh "${{inputs.zbox_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"      "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
+        ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
+        
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
-        echo "ZBOX_BRANCH=$(echo ${{inputs.zbox_cli_branch}})" >> $GITHUB_ENV
-        echo "S3_MIGRATION_BRANCH=$(echo ${{inputs.s3_migration_cli_branch}})" >> $GITHUB_ENV
-        echo "ZWALLET_BRANCH=$(echo ${{inputs.zwallet_cli_branch}})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
         echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
         echo "HOME=/root" >> $GITHUB_ENV
         echo "CYPRESS_NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         
-        if [ "${{ inputs.run_smoke_tests }}" == "true" ];
+        if [ "${{ inputs.run_smoke_tests }}" != "false" ];
           then
             echo RUN_SMOKE_TESTS=true >> $GITHUB_ENV
           else
@@ -111,7 +141,7 @@ runs:
         
         if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("${{ inputs.custom_go_sdk_version }}" != "" && "${{ inputs.custom_go_sdk_version }}" != "NONE") ]];
           then
-            echo RUN_FRONTEND_TESTS=true >> $GITHUB_ENV
+            echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
           else
             echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
         fi   
@@ -121,6 +151,13 @@ runs:
             echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
           else
             echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_s3mgrt_system_tests }}" == "false" ];
+          then
+            echo RUN_S3_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_S3_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
         
         if [ "${{ inputs.run_api_system_tests }}" == "false" ];
@@ -148,8 +185,8 @@ runs:
         echo "======================================================"
         echo "RUNNING SYSTEM TESTS WITH THE FOLLOWING CONFIGURATION:"
         echo "======================================================"
-        echo
         echo "System tests branch:      [${{ env.SYSTEM_TESTS_BRANCH }}]"
+        echo "repo-snapshots branch:    [${{ env.REPO_SNAPSHOTS_BRANCH }}]"
         echo "0Chain network URL:       [${{ env.NETWORK_URL }}]"
         echo "0box network URL:         [0box.${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:          [${{ env.ZBOX_BRANCH }}]"
@@ -158,7 +195,6 @@ runs:
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
         echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
-        echo "Tokenomics test filter:   [${{ inputs.tokenomics_test_filter }}]"
         echo "Running CLI tests:        [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
         echo "Running API tests:        [${{ env.RUN_API_SYSTEM_TESTS }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
@@ -295,6 +331,10 @@ runs:
         echo "======================================================"
         echo
 
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+        fi
+
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
@@ -303,11 +343,9 @@ runs:
         go install github.com/vakenbolt/go-test-report@latest
 
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/tokenomics_tests/config/zbox_config.yaml
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/tokenomics_tests/config/zbox_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,s3_access_key:.*,s3_access_key: ${{ inputs.S3_ACCESS_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
@@ -315,17 +353,20 @@ runs:
         
 
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^Kill$][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^Kill$][^0S3$][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestKill[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > KILL_TEST_RUNNER_COMMAND.sh && chmod 777 KILL_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
 
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
+        mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/s3cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/tokenomics
         mkdir -p ${BRANCH_DIR}/latest/api
         mkdir -p ${BRANCH_DIR}/latest/cli
+        mkdir -p ${BRANCH_DIR}/latest/s3cli
         mkdir -p ${BRANCH_DIR}/latest/flaky_cli
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
@@ -342,7 +383,7 @@ runs:
         echo "RUNNING API SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
+
         GOPATH=$(echo $(go env GOPATH))
 
         cd tests/api_tests
@@ -351,6 +392,8 @@ runs:
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/
+        echo "API_TESTS_RAN=true" >> $GITHUB_ENV
+
         if [[ $api_system_tests_exit_code == 0 ]];
           then
             echo API_TESTS_PASSED=true >> $GITHUB_ENV
@@ -380,10 +423,8 @@ runs:
         echo "RUNNING SYSTEM TESTS:"
         echo "======================================================"
         echo
-
-        if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
-        fi
+        
+        export HOME="/root"
 
 
         GOPATH=$(echo $(go env GOPATH))
@@ -581,7 +622,7 @@ runs:
           ./${{ env.BRANCH_DIR }}/latest/tokenomics/index.html
 
     - name: "System Stability Check"
-      if: ${{ always() && env.TESTS_RAN == 'true' }}
+      if: ${{ always() && (env.TESTS_RAN == 'true' || env.API_TESTS_RAN == 'true') }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         if [ -n "${{ env.NAMESPACE }}" ];
@@ -604,6 +645,8 @@ runs:
                 echo "Printing panic or fatal logs of restarted containers"
                 comm -1 -3 pod_status_pre_test_run.txt pod_status_post_test_run.txt > diff_file.txt
                 awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config | grep 'panic\|fatal' ; done || true
+                mkdir logs && cd logs && touch crashed-logs.txt && cd ..
+                awk '{print $1}' diff_file.txt | while read pod_name; do echo -e '\033[0;33m'$pod_name'\033[0m'; kubectl logs -n ${{ env.NAMESPACE }} po/$pod_name --previous --kubeconfig ../kube/${{ env.NAMESPACE }}-config >> ./logs/crashed-logs.txt ; done || true
                 exit 1
             fi
           else
@@ -762,6 +805,17 @@ runs:
           ./logs/validator-04
           ./logs/validator-05
           ./logs/validator-06
+        retention-days: 5
+
+    - name: "Archive Crash Logs"
+      continue-on-error: true
+      if: ${{ failure() && env.NAMESPACE != '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: logging-crashed-pods
+        path: |
+          ./logs/crashed-logs.txt
+
         retention-days: 5
 
     - name: "Deploy report pages"
