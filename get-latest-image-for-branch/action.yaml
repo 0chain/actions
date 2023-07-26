@@ -1,0 +1,219 @@
+name: "Get latest image for branch"
+description: "Get the latest published docker image for a given branch."
+inputs:
+  miner_sharder_branch:
+    description: 'miner branch which the tests will use'
+    default: ''
+    required: false
+  zbox_cli_branch:
+    description: '0Box CLI branch which the tests will use'
+    default: ''
+    required: false
+  zwallet_cli_branch:
+    description: '0Wallet CLI branch which the tests will use'
+    default: ''
+    required: false
+  blobber_validator_branch:
+    description: 'blobber branch to deploy'
+    default: ''
+    required: false
+  authorizer_branch:
+    description: 'authorizer branch to deploy'
+    default: ''
+    required: false
+  zbox_branch:
+    description: '0box branch to deploy'
+    default: ''
+    required: false
+  zdns_branch:
+    description: '0dns branch to deploy'
+    default: ''
+    required: false
+  zs3server_branch:
+    description: 'zs3server branch to deploy'
+    default: ''
+    required: false
+  svc_account_secret:
+    description: '0dns branch to deploy'
+    default: ''
+    required: false
+
+outputs:
+  miner-tag:
+    description: "miner docker image"
+    value: ${{ steps.get-images.outputs.MINER_TAG }}
+  sharder-tag:
+    description: "sharder docker image"
+    value: ${{ steps.get-images.outputs.SHARDER_TAG }}
+  blobber-tag:
+    description: "blobber docker image"
+    value: ${{ steps.get-images.outputs.BLOBBER_TAG }}
+  validator-tag:
+    description: "validator docker image"
+    value: ${{ steps.get-images.outputs.VALIDATOR_TAG }}
+  authorizer-tag:
+    description: "authorizer docker image"
+    value: ${{ steps.get-images.outputs.AUTHORIZER_TAG }}
+  zbox-tag:
+    description: "0box docker image"
+    value: ${{ steps.get-images.outputs.ZBOX_TAG }}
+  zdns-tag:
+    description: "0dns docker image"
+    value: ${{ steps.get-images.outputs.ZDNS_TAG }}
+  blimp_minioserver-tag:
+    description: "blimp minioserver docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-MINIOSERVER_TAG }}
+  blimp_logsearchapi-tag:
+    description: "blimp logsearchapi docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-LOGSEARCHAPI_TAG }}
+  blimp_clientapi-tag:
+    description: "blimp clientapi docker image"
+    value: ${{ steps.get-images.outputs.BLIMP-CLIENTAPI_TAG }}
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Inject Script"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo '#!/bin/bash
+
+        echo
+        echo "========================================================================"
+        echo "Finding [$3] docker image for branch [$2]..."
+        echo "========================================================================"
+
+        if [[ "$2" == "master" ]]; then
+          echo "Docker image [latest] found"
+          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=latest" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        if [[ "$2" == "staging" ]]; then
+          echo "Docker image [staging] found"
+          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=staging" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        exit_code=0
+        SHORT_SHA=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
+        TAG=$(echo $2 | sed '"'"'s/\//-/g'"'"')
+
+        echo "Searching for image [${TAG}-${SHORT_SHA}]..."
+        docker pull 0chaindev/$3:${TAG}-${SHORT_SHA} > /dev/null 2>&1 || exit_code=$?
+
+        if [[ $exit_code == 0 ]];then
+          echo "Docker image [${TAG}-${SHORT_SHA}] found"
+          echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=${TAG}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        PR_ID=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:${SHORT_SHA}+head:$2 | jq --raw-output .items[0].number)
+        if [[ -z "$PR_ID" || "$PR_ID" == "null" ]];then
+          echo "::error title=$3 docker image not found::$3 docker image could not be found with tag [${TAG}-${SHORT_SHA}] and PR is not open. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
+          echo "IMAGE_RETRIEVAL_FAILURE=true" >> $GITHUB_ENV
+        fi
+
+
+        exit_code=0
+
+        echo "Searching for image [pr-$PR_ID-$SHORT_SHA]..."
+        docker pull 0chaindev/$3:pr-$PR_ID-$SHORT_SHA > /dev/null 2>&1 || exit_code=$?
+        if [[ $exit_code == 0 ]];then
+            echo "Docker image [pr-$PR_ID-$SHORT_SHA] found"
+            echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=pr-$PR_ID-$SHORT_SHA" >> $GITHUB_OUTPUT
+            exit 0
+        fi
+
+        exit_code=0
+        MERGE_SHORT_SHA=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/repos/0chain/$1/pulls/$PR_ID | jq --raw-output .merge_commit_sha | head -c 8)
+
+        if [[ -z "$MERGE_SHORT_SHA" || "$MERGE_SHORT_SHA" == "null" ]];then
+          echo "::error title=$3 docker image not found::$3 docker image could not be found with tag [pr-$PR_ID-$SHORT_SHA] and PR merge commit not found. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
+          echo "IMAGE_RETRIEVAL_FAILURE=true" >> $GITHUB_ENV
+        fi
+
+        echo "Searching for image [merge-$MERGE_SHORT_SHA]..."
+        docker pull 0chaindev/$3:merge-$MERGE_SHORT_SHA > /dev/null 2>&1 || exit_code=$?
+        if [[ $exit_code == 0 ]];then
+            echo "Docker image [merge-$MERGE_SHORT_SHA] found"
+            echo "$(echo $3 | tr 0 Z | awk '"'"'{ print toupper($0) }'"'"')_TAG=merge-$MERGE_SHORT_SHA" >> $GITHUB_OUTPUT
+            exit 0
+        fi
+
+        echo "::error title=$3 docker image not found::$3 docker image could not be found with tags [${TAG}-${SHORT_SHA}], [pr-$PR_ID-$SHORT_SHA] or [merge-$MERGE_SHORT_SHA]. Please publish image manually at https://github.com/0chain/$1/actions/workflows/build-&-publish-docker-image.yml and try again"
+        echo "IMAGE_RETRIEVAL_FAILURE=true" >> $GITHUB_ENV
+
+        ' > ./get_tag.sh;
+        chmod 777 ./get_tag.sh;
+
+    - name: "Check docker images have been published"
+      shell: 'script --return --quiet --command "bash {0}"'
+      id: get-images
+      if: ${{ env.SKIP_TESTS != 'true' }}
+      run: |
+        if [[ -n "${{ inputs.miner_sharder_branch }}" ]];
+          then
+            ./get_tag.sh 0chain ${{ inputs.miner_sharder_branch }} miner
+            ./get_tag.sh 0chain ${{ inputs.miner_sharder_branch }} sharder
+          else
+            echo "miner_sharder_branch NOT specified, will skip deriving miner and sharder image tag"
+        fi
+        
+        if [[ -n "${{ inputs.blobber_validator_branch }}" ]];
+          then
+            ./get_tag.sh blobber ${{ inputs.blobber_validator_branch }} blobber
+            ./get_tag.sh blobber ${{ inputs.blobber_validator_branch }} validator
+          else
+            echo "blobber_validator_branch NOT specified, will skip deriving blobber and validator image tag"
+        fi
+        
+        if [[ -n "${{ inputs.authorizer_branch }}" ]];
+          then
+            ./get_tag.sh token_bridge_authserver ${{ inputs.authorizer_branch }} authorizer
+          else
+            echo "authorizer_branch NOT specified, will skip deriving authorizer image tag"
+        fi
+        
+         if [[ -n "${{ inputs.zbox_branch }}" ]];
+          then
+             ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
+          else
+            echo "zbox_branch NOT specified, will skip deriving 0box image tag"
+        fi
+        
+         if [[ -n "${{ inputs.zdns_branch }}" ]];
+          then
+             ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
+          else
+            echo "zdns_branch NOT specified, will skip deriving 0dns image tag"
+        fi
+        
+        if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-minioserver
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp minioserver image tag"
+        fi
+        
+         if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-logsearchapi
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp logsearchapi image tag"
+        fi
+        
+        if [[ -n "${{ inputs.zs3server_branch }}" ]];
+          then
+             ./get_tag.sh zs3server ${{ inputs.zs3server_branch }} blimp-clientapi
+          else
+            echo "zs3server_branch NOT specified, will skip deriving blimp clientapi image tag"
+        fi
+
+    - name: Fail if image cannot be retrieved
+      if: ${{ env.IMAGE_RETRIEVAL_FAILURE == 'true' }}
+      uses: actions/github-script@v3
+      with:
+        script: |
+          core.setFailed('Image retrieval failed!')

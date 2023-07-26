@@ -17,6 +17,7 @@ runs:
     - name: "Get State of {{ inputs.sha }}"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        sudo apt update && sudo apt install jq -y
         echo '#!/bin/bash
           curl --silent --fail --location --request GET "https://api.github.com/repos/${{inputs.repository}}/commits/${{inputs.sha}}/statuses" \
           --header "Accept: application/vnd.github.v3+json" \
