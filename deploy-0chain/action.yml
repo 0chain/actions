@@ -109,7 +109,7 @@ runs:
           actionsBranch="master"
           echo "More than two actions branch found in workflow file: [$branchList]. Using [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
         elif [ "$branchesCount" -gt "1" ]; then
-          actionsBranch=$(echo $branchList | grep -v master")
+          actionsBranch=$(echo $branchList | grep -v master)
           echo "More than one actions branch found in workflow file: [$branchList]. Using [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
         else
           actionsBranch=$branchList
