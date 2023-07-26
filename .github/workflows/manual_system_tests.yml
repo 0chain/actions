@@ -206,7 +206,7 @@ jobs:
 
     - name: "Get docker images for feature branches"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/get-latest-image-for-branch@enable-s3mgrt-only-tests
+      uses: 0chain/actions/get-latest-image-for-branch@master
       id: get-images
       with:
         miner_sharder_branch: ${{ inputs.miner_branch }}
@@ -218,7 +218,7 @@ jobs:
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Set PR status as pending"
-      uses: 0chain/actions/notify-pull-request@enable-s3mgrt-only-tests
+      uses: 0chain/actions/notify-pull-request@master
       if: ${{ inputs.test_file_filter == '' }}
       continue-on-error: true
       with:
@@ -238,7 +238,7 @@ jobs:
 
     - name: "Deploy 0Chain"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/deploy-0chain@enable-s3mgrt-only-tests
+      uses: 0chain/actions/deploy-0chain@master
       with:
         repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         kube_config: ${{ secrets[format('DEV{0}KC', env.RUNNER_NUMBER)] }}
@@ -265,7 +265,7 @@ jobs:
 
     - name: "Run System tests"
       if: ${{ env.SKIP_TESTS != 'true' }}
-      uses: 0chain/actions/run-system-tests@enable-s3mgrt-only-tests
+      uses: 0chain/actions/run-system-tests@master
       with:
         repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         system_tests_branch: ${{ inputs.system_tests_branch }}
@@ -298,7 +298,7 @@ jobs:
 
     - name: "Set PR status as ${{ job.status }}"
       if: ${{ (success() || failure() || cancelled()) && inputs.test_file_filter == '' }}
-      uses: 0chain/actions/notify-pull-request@enable-s3mgrt-only-tests
+      uses: 0chain/actions/notify-pull-request@master
       continue-on-error: true
       with:
         state: ${{ job.status }}
