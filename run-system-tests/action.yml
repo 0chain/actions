@@ -873,4 +873,14 @@ runs:
       if: ${{ failure() && github.ref == 'refs/heads/staging' && github.event_name != 'workflow_dispatch' && github.event.repository.name != 'system_test' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}. Please investigae! Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}\"}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        payload='{
+        "text": "'"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}.\n Please investigae!\n Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"'",
+        "attachments": [
+            {
+            "text": "SYSTEM TESTS FAILED ⚠️",
+            "color": "#ff0000"
+            }
+        ]
+        }'
+        curl -X POST -H 'Content-type: application/json' --data "${payload}" ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        # curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}. Please investigae! Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}\"}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
