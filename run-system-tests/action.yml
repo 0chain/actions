@@ -54,6 +54,10 @@ inputs:
     required: false
     default: "true"
     description: 'Enable or disable CLI system tests'
+  run_s3mgrt_system_tests:
+    required: false
+    default: "true"
+    description: 'Enable or disable S3 migration CLI system tests'
   run_api_system_tests:
     required: false
     default: "true"
@@ -147,6 +151,13 @@ runs:
             echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
           else
             echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_s3mgrt_system_tests }}" == "false" ];
+          then
+            echo RUN_S3_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_S3_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
         
         if [ "${{ inputs.run_api_system_tests }}" == "false" ];
@@ -327,6 +338,10 @@ runs:
         echo "======================================================"
         echo
 
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+        fi
+
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
@@ -345,17 +360,20 @@ runs:
         
 
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^Kill$][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^Kill$][^0S3$][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestKill[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > KILL_TEST_RUNNER_COMMAND.sh && chmod 777 KILL_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
 
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
+        mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/s3cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/tokenomics
         mkdir -p ${BRANCH_DIR}/latest/api
         mkdir -p ${BRANCH_DIR}/latest/cli
+        mkdir -p ${BRANCH_DIR}/latest/s3cli
         mkdir -p ${BRANCH_DIR}/latest/flaky_cli
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
@@ -400,10 +418,7 @@ runs:
         echo "======================================================"
         echo
 
-        if [ -n "${{ env.NAMESPACE }}" ]; then
-          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
-        fi
-        
+        export HOME="/root"
         GOPATH=$(echo $(go env GOPATH))
 
         cd tests/api_tests
@@ -433,6 +448,51 @@ runs:
         path: |
           ./tests/api_tests/config
           ./${{ env.BRANCH_DIR }}/latest/api/index.html
+
+    - name: "Run S3 CLI System Tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING S3 CLI SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+
+        export HOME="/root"
+
+        GOPATH=$(echo $(go env GOPATH))
+
+        cd tests/cli_tests
+        system_tests_exit_code=0
+        echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
+        echo
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../S3CLI_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli/index.html --title "0Chain S3 CLI System tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+
+        exit $system_tests_exit_code
+
+    - name: "Archive S3CLI Config & Console Output"
+      continue-on-error: true
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: System-Test-${{ env.TEST_TIME }}
+        path: |
+          ./tests/cli_tests/config
+          ./tests/cli_tests/cmdlog.log
+          ./${{ env.BRANCH_DIR }}/latest/s3cli/index.html
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -813,4 +873,14 @@ runs:
       if: ${{ failure() && github.ref == 'refs/heads/staging' && github.event_name != 'workflow_dispatch' && github.event.repository.name != 'system_test' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}. Please investigae! Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}\"}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        payload='{
+        "text": "'"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}.\n Please investigae!\n Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"'",
+        "attachments": [
+            {
+            "text": "SYSTEM TESTS FAILED ⚠️",
+            "color": "#ff0000"
+            }
+        ]
+        }'
+        curl -X POST -H 'Content-type: application/json' --data "${payload}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        # curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}. Please investigae! Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}\"}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
