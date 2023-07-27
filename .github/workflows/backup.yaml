@@ -39,6 +39,12 @@ jobs:
           unzip awscliv2.zip
           sudo ./aws/install
         
+      - name: Install AWS
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+        
       - name: Set AWS credentials
         if: steps.get_info.outputs.GIT_COMMIT_DATE == steps.get_info.outputs.YESTERDAY_DATE
         uses: aws-actions/configure-aws-credentials@v1
