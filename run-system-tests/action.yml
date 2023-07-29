@@ -380,6 +380,45 @@ runs:
         cd tests/cli_tests
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
+        
+        export HOME="/root"
+        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
+        signature_scheme: bls0chain
+        min_submit: 50 # in percentage
+        min_confirmation: 50 # in percentage
+        confirmation_chain_length: 3
+        store_unlock_duration_sec: 2
+        ' > config.yaml
+        echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
+        
+        ####### CREATING ALLOCATION THAT SHOULD RECEIVE CHALLENGES #######
+        ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation1.txt
+        echo "Allocation 1 hash: $(cat allocation1.txt)"
+        echo "ALLOCATION1=$(cat allocation1.txt)" >> $GITHUB_ENV
+          
+        ####### CREATING ALLOCATION WITH UPLOAD AND DELETE THAT SHOULD NOT RECEIVE CHALLENGES #######
+        ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
+        echo "Allocation 2 hash: $(cat allocation2.txt)"
+        echo "ALLOCATION2=$(cat allocation2.txt)" >> $GITHUB_ENV
+        truncate -s 1000000 upload_test_file
+        ./zbox upload --allocation "$(cat allocation2.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox delete --allocation "$(cat allocation2.txt)" --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        
+        ####### CREATING EMPTY ALLOCATION SHOULD NOT RECEIVE CHALLENGES #######
+        ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation3.txt
+        echo "Allocation 3 hash: $(cat allocation3.txt)"
+        echo "ALLOCATION3=$(cat allocation3.txt)" >> $GITHUB_ENV
+        
+        # Storing all three allocation IDs in a single file
+        cat allocation1.txt allocation2.txt allocation3.txt > challenge_allocations.txt
+        
+        # Removing redundant files
+        rm allocation1.txt allocation2.txt allocation3.txt
+
+
 
     - name: "Set up frontend tests"
       if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
