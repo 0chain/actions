@@ -414,7 +414,7 @@ runs:
         done
 
         ##############----------------- Installing authorizer helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        RET=0         #You can set RET=0 to skip the authorizer helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
            helm upgrade --install authorizer \
              --set authorizer.config.nativeEventFetch=true \
