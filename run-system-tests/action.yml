@@ -417,6 +417,47 @@ runs:
         
         # Removing redundant files
         rm allocation1.txt allocation2.txt allocation3.txt
+        
+        
+        # Get the allocation response using the zbox command and store it in a variable
+        allocation_response=$(./zbox getallocation --allocation $alloc --json)
+        
+        # Get the ls-blobbers response using the zbox command and store it in a variable
+        ls_blobbers_response=$(./zbox ls-blobbers --json)
+        
+        # Extract blobber IDs from the get-allocation response
+        blobber_ids=$(echo "$allocation_response" | jq -r '.blobbers[].id')
+        
+        # Extract blobber IDs from the ls-blobbers response
+        ls_blobber_ids=$(echo "$ls_blobbers_response" | jq -r '.[].id')
+        
+        # Logging
+        echo "Blobber IDs in the allocation response:"
+        echo "$blobber_ids"
+        echo "Blobber IDs in the ls-blobbers response:"
+        echo "$ls_blobber_ids"
+        
+        # Loop through each Blobber ID in ls-blobbers response
+        for blobber_id in $ls_blobber_ids; do
+          echo "Checking Blobber ID: $blobber_id"
+      
+          # Check if the Blobber ID exists in the allocation response
+            exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
+          echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
+          
+          # If the Blobber ID does not exist in the allocation response, select it and break the loop
+            if [ -z "$exists_in_allocation" ]; then
+            selected_blobber_id=$blobber_id
+          echo "Selected Blobber ID: $selected_blobber_id"
+            break
+            fi
+        done
+            
+        # If all Blobber IDs in ls-blobbers response are in use, select a random Blobber ID from the ls-blobbers response
+        if [ -z "$selected_blobber_id" ]; then
+            selected_blobber_id=$(echo "$ls_blobber_ids" | shuf -n 1)
+          echo "All Blobbers are in use. Randomly selected Blobber ID: $selected_blobber_id"
+        fi
 
 
 
