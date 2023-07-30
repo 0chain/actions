@@ -422,14 +422,26 @@ runs:
         # Get the allocation response using the zbox command and store it in a variable
         allocation_response=$(./zbox getallocation --allocation "$(cat allocation4.txt)" --json)
         
+        echo "Allocation response:"
+        echo "$allocation_response"
+        
         # Get the ls-blobbers response using the zbox command and store it in a variable
         ls_blobbers_response=$(./zbox ls-blobbers --json)
+        
+        echo "ls-blobbers response:"
+        echo "$ls_blobbers_response"
         
         # Extract blobber IDs from the get-allocation response
         blobber_ids=$(echo "$allocation_response" | jq -r '.blobbers[].id')
         
+        echo "Blobber IDs in the allocation response:"
+        echo "$blobber_ids"
+        
         # Extract blobber IDs from the ls-blobbers response
         ls_blobber_ids=$(echo "$ls_blobbers_response" | jq -r '.[].id')
+        
+        echo "Blobber IDs in the ls-blobbers response:"
+        echo "$ls_blobber_ids"
         
         # Logging
         echo "Blobber IDs in the allocation response:"
