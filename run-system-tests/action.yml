@@ -553,6 +553,10 @@ runs:
         
         # Removing redundant files
         rm allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt
+        
+        # List all the files in current dir 
+        echo "Files in current dir:"
+        echo "$(ls -l)"
 
 
 
