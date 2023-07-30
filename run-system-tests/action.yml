@@ -382,7 +382,8 @@ runs:
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
         
         export HOME="/root"
-        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
+        echo '
+        block_worker: https://${{ env.NETWORK_URL }}/dns
         signature_scheme: bls0chain
         min_submit: 50 # in percentage
         min_confirmation: 50 # in percentage
@@ -393,30 +394,95 @@ runs:
         
         ####### CREATING ALLOCATION THAT SHOULD RECEIVE CHALLENGES #######
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation1.txt
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation1.txt
         echo "Allocation 1 hash: $(cat allocation1.txt)"
-        echo "ALLOCATION1=$(cat allocation1.txt)" >> $GITHUB_ENV
           
         ####### CREATING ALLOCATION WITH UPLOAD AND DELETE THAT SHOULD NOT RECEIVE CHALLENGES #######
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
         echo "Allocation 2 hash: $(cat allocation2.txt)"
-        echo "ALLOCATION2=$(cat allocation2.txt)" >> $GITHUB_ENV
         truncate -s 1000000 upload_test_file
         ./zbox upload --allocation "$(cat allocation2.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox delete --allocation "$(cat allocation2.txt)" --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         
         ####### CREATING EMPTY ALLOCATION SHOULD NOT RECEIVE CHALLENGES #######
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation3.txt
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation3.txt
         echo "Allocation 3 hash: $(cat allocation3.txt)"
-        echo "ALLOCATION3=$(cat allocation3.txt)" >> $GITHUB_ENV
         
-        # Storing all three allocation IDs in a single file
-        cat allocation1.txt allocation2.txt allocation3.txt > challenge_allocations.txt
         
-        # Removing redundant files
-        rm allocation1.txt allocation2.txt allocation3.txt
+        
+        
+        
+        ######## Updating allocation with add blobber and added blobber should receive challenges #######
+        ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation4.txt
+        echo "Allocation 4 hash: $(cat allocation4.txt)"
+        alloc=$(cat allocation4.txt)
+        
+        # Get the allocation response using the zbox command and store it in a variable
+        allocation_response=$(./zbox getallocation --allocation $alloc --json)
+        
+        # Get the ls-blobbers response using the zbox command and store it in a variable
+        ls_blobbers_response=$(./zbox ls-blobbers --json)
+        
+        # Extract blobber IDs from the get-allocation response
+        blobber_ids=$(echo "$allocation_response" | jq -r '.blobbers[].id')
+        
+        # Extract blobber IDs from the ls-blobbers response
+        ls_blobber_ids=$(echo "$ls_blobbers_response" | jq -r '.[].id')
+        
+        # Logging
+        echo "Blobber IDs in the allocation response:"
+        echo "$blobber_ids"
+        echo "Blobber IDs in the ls-blobbers response:"
+        echo "$ls_blobber_ids"
+        
+        while IFS= read -r blobber_id; do
+          echo "Checking Blobber ID: $blobber_id"
+      
+          # Check if the Blobber ID exists in the allocation response
+          exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
+          echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
+          
+          # If the Blobber ID does not exist in the allocation response, select it and break the loop
+          if [ -n "$exists_in_allocation" ]; then
+            remove_blobber_id=$blobber_id
+            echo "Selected Blobber ID: $remove_blobber_id"
+            break
+          fi
+        done <<< $ls_blobber_ids
+        
+        while IFS= read -r blobber_id; do
+          echo "Checking Blobber ID: $blobber_id"
+        
+          # Check if the Blobber ID exists in the allocation response
+          exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
+          echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
+        
+          # If the Blobber ID does not exist in the allocation response, select it and break the loop
+          if [ -z "$exists_in_allocation" ]; then
+            add_blobber_id=$blobber_id
+            echo "Selected Blobber ID: $add_blobber_id"
+            break
+          fi
+        done <<< $ls_blobber_ids
+        
+        
+        ./zbox updateallocation --add_blobber "$add_blobber_id" --allocation "$(cat allocation4.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox upload --allocation "$(cat allocation4.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        
+        # Insert add blobber id in challenge_blobbers.txt
+        echo "$add_blobber_id" >> challenge_blobbers.txt
+        
+        
+        
+        
+        ######## Updating allocation with add and remove blobber and where added blobber should receive and removed blobber should not receive challenges ########
+        ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation5.txt
+        echo "Allocation 5 hash: $(cat allocation5.txt)"
+        alloc=$(cat allocation5.txt)
         
         
         # Get the allocation response using the zbox command and store it in a variable
@@ -437,27 +503,56 @@ runs:
         echo "Blobber IDs in the ls-blobbers response:"
         echo "$ls_blobber_ids"
         
-        # Loop through each Blobber ID in ls-blobbers response
-        for blobber_id in $ls_blobber_ids; do
+        while IFS= read -r blobber_id; do
           echo "Checking Blobber ID: $blobber_id"
-      
+        
           # Check if the Blobber ID exists in the allocation response
-            exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
+          exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
           echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
-          
+        
           # If the Blobber ID does not exist in the allocation response, select it and break the loop
-            if [ -z "$exists_in_allocation" ]; then
-            selected_blobber_id=$blobber_id
-          echo "Selected Blobber ID: $selected_blobber_id"
+          if [ -n "$exists_in_allocation" ]; then
+            remove_blobber_id=$blobber_id
+            echo "Selected Blobber ID: $remove_blobber_id"
             break
-            fi
-        done
-            
-        # If all Blobber IDs in ls-blobbers response are in use, select a random Blobber ID from the ls-blobbers response
-        if [ -z "$selected_blobber_id" ]; then
-            selected_blobber_id=$(echo "$ls_blobber_ids" | shuf -n 1)
-          echo "All Blobbers are in use. Randomly selected Blobber ID: $selected_blobber_id"
+          fi
+        done <<< $ls_blobber_ids
+        
+        while IFS= read -r blobber_id; do
+          echo "Checking Blobber ID: $blobber_id"
+        
+          # Check if the Blobber ID exists in the allocation response
+          exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
+          echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
+        
+          # If the Blobber ID does not exist in the allocation response, select it and break the loop
+          if [ -z "$exists_in_allocation" ]; then
+            add_blobber_id=$blobber_id
+            echo "Selected Blobber ID: $add_blobber_id"
+            break
+          fi
+        done <<< $ls_blobber_ids
+        
+        
+        if [ -z "$add_blobber_id" ]; then
+          echo "All Blobbers are in use. Randomly selected Blobber ID: $add_blobber_id"
+        else 
+          echo "Randomly selected Blobber ID: $add_blobber_id"
+        
+          ./zbox updateallocation --add_blobber "$add_blobber_id" --remove_blobber "$remove_blobber_id" --allocation "$(cat allocation5.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+          ./zbox upload --allocation "$(cat allocation5.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+          
+          # Insert add and remove blobber id in challenge_blobbers.txt
+          echo "$add_blobber_id" >> challenge_blobbers.txt
+          echo "$remove_blobber_id" >> challenge_blobbers.txt
         fi
+        
+        # Storing all three allocation IDs in a single file
+        touch challenge_allocations.txt
+        cat allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt > challenge_allocations.txt
+        
+        # Removing redundant files
+        rm allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt
 
 
 
