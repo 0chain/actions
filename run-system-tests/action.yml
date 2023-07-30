@@ -291,6 +291,9 @@ runs:
         echo "======================================================"
         echo
         
+        echo "ENV VARIABLES: "
+        echo "$GITHUB_CONTEXT"
+
         export HOME="/root"
         
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
