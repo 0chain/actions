@@ -418,10 +418,9 @@ runs:
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation4.txt
         echo "Allocation 4 hash: $(cat allocation4.txt)"
-        alloc=$(cat allocation4.txt)
         
         # Get the allocation response using the zbox command and store it in a variable
-        allocation_response=$(./zbox getallocation --allocation $alloc --json)
+        allocation_response=$(./zbox getallocation --allocation "$(cat allocation4.txt)" --json)
         
         # Get the ls-blobbers response using the zbox command and store it in a variable
         ls_blobbers_response=$(./zbox ls-blobbers --json)
@@ -482,11 +481,10 @@ runs:
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation5.txt
         echo "Allocation 5 hash: $(cat allocation5.txt)"
-        alloc=$(cat allocation5.txt)
         
         
         # Get the allocation response using the zbox command and store it in a variable
-        allocation_response=$(./zbox getallocation --allocation $alloc --json)
+        allocation_response=$(./zbox getallocation --allocation "$(cat allocation5.txt)" --json)
         
         # Get the ls-blobbers response using the zbox command and store it in a variable
         ls_blobbers_response=$(./zbox ls-blobbers --json)
