@@ -268,11 +268,11 @@ runs:
         sudo sed -i '/yarnpkg/d' /etc/apt/sources.list.d/yarn.list
         sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
        
-        echo
-        echo "2> installing youtube-dl..."
-        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
-        sudo chmod a+rx /usr/local/bin/youtube-dl
-        echo
+        # echo
+        # echo "2> installing youtube-dl..."
+        # sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
+        # sudo chmod a+rx /usr/local/bin/youtube-dl
+        # echo
         echo "3> installing ffmpeg..."
         sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
         sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
