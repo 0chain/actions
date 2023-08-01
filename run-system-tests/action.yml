@@ -421,7 +421,7 @@ runs:
         echo "Allocation 4 hash: $(cat allocation4.txt)"
         
         # Get the allocation response using the zbox command and store it in a variable
-        allocation_response=$(./zbox getallocation --allocation "$(cat allocation4.txt) --configDir . --config ./config.yaml --wallet ./zs3wallet.json" --json)
+        allocation_response=$(./zbox getallocation --allocation "$(cat allocation4.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json" --json)
         
         echo "Allocation response:"
         echo "$allocation_response"
@@ -443,27 +443,6 @@ runs:
         
         echo "Blobber IDs in the ls-blobbers response:"
         echo "$ls_blobber_ids"
-        
-        # Logging
-        echo "Blobber IDs in the allocation response:"
-        echo "$blobber_ids"
-        echo "Blobber IDs in the ls-blobbers response:"
-        echo "$ls_blobber_ids"
-        
-        while IFS= read -r blobber_id; do
-          echo "Checking Blobber ID: $blobber_id"
-      
-          # Check if the Blobber ID exists in the allocation response
-          exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
-          echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
-          
-          # If the Blobber ID does not exist in the allocation response, select it and break the loop
-          if [ -n "$exists_in_allocation" ]; then
-            remove_blobber_id=$blobber_id
-            echo "Selected Blobber ID: $remove_blobber_id"
-            break
-          fi
-        done <<< $ls_blobber_ids
         
         while IFS= read -r blobber_id; do
           echo "Checking Blobber ID: $blobber_id"
@@ -568,6 +547,12 @@ runs:
         # List all the files in current dir 
         echo "Files in current dir:"
         echo "$(ls -l)"
+        
+        # cat challenge_allocations.txt and challenge_blobbers.txt
+        echo "challenge_allocations.txt:"
+        echo "$(cat challenge_allocations.txt)"
+        echo "challenge_blobbers.txt:"
+        echo "$(cat challenge_blobbers.txt)"
 
 
 
