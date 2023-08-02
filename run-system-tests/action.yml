@@ -421,7 +421,7 @@ runs:
         echo "Allocation 4 hash: $(cat allocation4.txt)"
         
         # Get the allocation response using the zbox command and store it in a variable
-        allocation_response=$(./zbox getallocation --allocation "$(cat allocation4.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json" --json)
+        allocation_response=$(./zbox getallocation --allocation "$(cat allocation4.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --json)
         
         echo "Allocation response:"
         echo "$allocation_response"
