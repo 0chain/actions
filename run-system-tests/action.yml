@@ -537,12 +537,19 @@ runs:
           echo "$remove_blobber_id" >> challenge_blobbers.txt
         fi
         
+        ####### CANCELLED ALLOCATION SHOULD NOT GET CHALLENGES ANYMORE #######
+        ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation6.txt
+        echo "Allocation 6 hash: $(cat allocation6.txt)"
+        ./zbox upload --allocation "$(cat allocation6.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox alloc-cancel --allocation "$(cat allocation6.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        
         # Storing all three allocation IDs in a single file
         touch challenge_allocations.txt
-        cat allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt > challenge_allocations.txt
+        cat allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt allocation6.txt > challenge_allocations.txt
         
         # Removing redundant files
-        rm allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt
+        rm allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt allocation6.txt
         
         # List all the files in current dir 
         echo "Files in current dir:"
