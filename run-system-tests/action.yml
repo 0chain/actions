@@ -404,6 +404,7 @@ runs:
         ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
         echo "Allocation 2 hash: $(cat allocation2.txt)"
         ./zbox upload --allocation "$(cat allocation2.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        sleep 5
         ./zbox delete --allocation "$(cat allocation2.txt)" --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         
         ####### CREATING EMPTY ALLOCATION SHOULD NOT RECEIVE CHALLENGES #######
@@ -542,6 +543,7 @@ runs:
         ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation6.txt
         echo "Allocation 6 hash: $(cat allocation6.txt)"
         ./zbox upload --allocation "$(cat allocation6.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        sleep 5
         ./zbox alloc-cancel --allocation "$(cat allocation6.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         
         # Storing all three allocation IDs in a single file
