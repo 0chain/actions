@@ -673,7 +673,7 @@ runs:
         echo "RUNNING FLAKY SYSTEM TESTS:"
         echo "======================================================"
         echo
-
+        export HOME="/root"
         GOPATH=$(echo $(go env GOPATH))
         
         cd tests/cli_tests
