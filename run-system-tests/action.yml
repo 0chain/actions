@@ -104,7 +104,7 @@ runs:
     - name: "Config: Run tests against 0Chain network"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        
+        echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo '#!/bin/bash
         if [[ -z "$1" ]];then
            if [[ -z "$2" ]];then
@@ -355,6 +355,7 @@ runs:
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,s3_bucket_name:.*,s3_bucket_name: system-tests-s3-migration-small-${{ env.RUNNER_NUMBER }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         sed "s,s3_access_key:.*,s3_access_key: ${{ inputs.S3_ACCESS_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         sed "s,s3_secret_key:.*,s3_secret_key: ${{ inputs.S3_SECRET_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         
