@@ -102,7 +102,27 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        echo "ACTIONS_BRANCH=$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')" >> $GITHUB_ENV
+        branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
+        branchesCount=$(echo -n $branchList | xargs | grep -o ' ' | wc -l)
+        branchesCount=$((branchesCount + 1))
+        
+        if [ "$branchesCount" -gt "2" ]; then
+          actionsBranch="master"
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
+        elif [ "$branchesCount" -gt "1" ]; then
+          for branch in $branchList
+          do
+            if [ "$branch" != "master" ]; then
+              actionsBranch=$branch
+            fi
+          done
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
+        else
+          actionsBranch=$branchList
+          echo "Single actions branch [$actionsBranch] found in workflow file."
+        fi
+        
+        echo "ACTIONS_BRANCH=$actionsBranch" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         
         echo '#!/bin/bash
@@ -284,7 +304,7 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
-        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer, graphnode, ipfs. Will be giving 3 try to install the helmchart.
+        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer. Will be giving 3 try to install the helmchart.
         COUNT=24
         
         #RET is used to get the success/fail status of latest command executed
@@ -393,42 +413,11 @@ runs:
            sleep 2
         done
 
-        ##############----------------- Installing ipfs helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the ipfs helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
-           helm upgrade --install ipfs --wait \
-             --set ipfs.hostName=${{ env.NAMESPACE }} \
-             --set ipfs.host=devnet-0chain.net \
-             --set ipfs.image.tag=latest -n ${{ env.NAMESPACE }} \
-             0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
-
-        ##############----------------- Installing graph-node helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the graph-node helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 3 ]]; do
-           helm upgrade --install graph-node --wait \
-             --set graphNode.nodeCount=1 \
-             --set graphNode.hostName=${{ env.NAMESPACE }} \
-             --set graphNode.host=devnet-0chain.net \
-             --set graphNode.image.tag=latest \
-             --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} \
-             --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} \
-             --set graphNode.config.private_fork=true \
-             -n ${{ env.NAMESPACE }} 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
-
         ##############----------------- Installing authorizer helm-chart --------------------###################
         RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
            helm upgrade --install authorizer \
+             --set authorizer.config.nativeEventFetch=true \
              --set authorizer.authorizerCount=3 \
              --set authorizer.hostName=${{ env.NAMESPACE }} \
              --set authorizer.host=devnet-0chain.net \
@@ -448,42 +437,19 @@ runs:
     - name: "Setup Go"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
-        [ -d /usr/local/go ] &&  rm -rf /usr/local/go
-        [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
-        tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        if ! go env &> /dev/null; then
+            [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+            [ -d /usr/local/go ] &&  rm -rf /usr/local/go
+            [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
+            tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        else
+            echo "go already exists"
+        fi
 
         echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
         export PATH=$PATH:/usr/local/go/bin
         which go
         go env
-        
-    - name: "Installing subgraph register dependencies"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        sudo apt-get update -y
-        sudo apt-get -y install build-essential nghttp2 libnghttp2-dev libssl-dev wget bison binutils make libpq-dev
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod a+x /usr/local/bin/yq
-
-    - name: "Checkout dex_subgraph"
-      uses: actions/checkout@v2
-      with:
-        ref: 'master'
-        repository: 0chain/dex_subgraph
-        fetch-depth: 1
-        path: ./dex_subgraph
-
-    # - name: "Running subgraph register"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     export HOME="/root"
-    #     cd dex_subgraph
-
-    #     pushd ./vendor/tools/get_smart_contract_creation_block
-    #     go build 
-    #     popd
-    #     sudo make deploy skip_sync=false network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -694,9 +660,9 @@ runs:
         signature_scheme: bls0chain
         store_unlock_duration_sec: 2
         bridge:
-          bridge_address: 0xf260c644Acfbfd87bdC77Fe32c8d6a56C9eec879
-          token_address: 0xC79aD1e07f790d0Cf6AA3D09FeC393A09DC53d64
-          authorizers_address: 0xd5867B4a1F8e7BD91276b5C85a4EDC9D33400496
+          bridge_address: 0x7bbbEa24ac1751317D7669f05558632c4A9113D7
+          token_address: 0x2ec8F26ccC678c9faF0Df20208aEE3AF776160CD
+          authorizers_address: 0xEAe8229c0E457efBA1A1769e7F8c20110fF68E61
           ethereum_address: 0xD8c9156e782C68EE671C09b6b92de76C97948432
           password: "\"02289b9\""
         ' > config.yaml
@@ -707,7 +673,6 @@ runs:
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
-
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |

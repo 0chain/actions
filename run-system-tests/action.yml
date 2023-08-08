@@ -268,11 +268,11 @@ runs:
         sudo sed -i '/yarnpkg/d' /etc/apt/sources.list.d/yarn.list
         sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
        
-        echo
-        echo "2> installing youtube-dl..."
-        sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
-        sudo chmod a+rx /usr/local/bin/youtube-dl
-        echo
+        # echo
+        # echo "2> installing youtube-dl..."
+        # sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
+        # sudo chmod a+rx /usr/local/bin/youtube-dl
+        # echo
         echo "3> installing ffmpeg..."
         sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
         sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
@@ -369,11 +369,13 @@ runs:
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/s3cli
+        mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/killtestscli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/tokenomics
         mkdir -p ${BRANCH_DIR}/latest/api
         mkdir -p ${BRANCH_DIR}/latest/cli
         mkdir -p ${BRANCH_DIR}/latest/s3cli
+        mkdir -p ${BRANCH_DIR}/latest/killtestscli
         mkdir -p ${BRANCH_DIR}/latest/flaky_cli
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
@@ -437,8 +439,6 @@ runs:
             echo "::error title=API System tests faled!::API System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
-        exit $api_system_tests_exit_code
-
     - name: "Archive API Test Config & Console Output"
       continue-on-error: true
       if: ${{ always() && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
@@ -475,13 +475,11 @@ runs:
 
         if [[ $system_tests_exit_code == 0 ]];
           then
-            echo TESTS_PASSED=true >> $GITHUB_ENV
+            echo S3CLI_TESTS_PASSED=true >> $GITHUB_ENV
           else
-            echo TESTS_PASSED=false >> $GITHUB_ENV
-            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+            echo S3CLI_TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
-
-        exit $system_tests_exit_code
 
     - name: "Archive S3CLI Config & Console Output"
       continue-on-error: true
@@ -516,9 +514,10 @@ runs:
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../KILL_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
-        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli/index.html --title "0Chain System test suite: Kill tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
         if [[ $system_tests_exit_code == 0 ]];
@@ -535,6 +534,7 @@ runs:
       if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        export HOME="/root"
         if [ -n "${{ env.NAMESPACE }}" ]; then
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
@@ -597,6 +597,7 @@ runs:
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
           ./${{ env.BRANCH_DIR }}/latest/cli/index.html
+          ./${{ env.BRANCH_DIR }}/latest/killtestscli/index.html
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -607,7 +608,7 @@ runs:
         echo "RUNNING TOKENOMICS SYSTEM TESTS:"
         echo "======================================================"
         echo
-
+        export HOME="/root"
         cd tests/tokenomics_tests
         tokenomics_system_tests_exit_code=0
         GOPATH=$(echo $(go env GOPATH))
@@ -676,7 +677,7 @@ runs:
         echo "RUNNING FLAKY SYSTEM TESTS:"
         echo "======================================================"
         echo
-
+        export HOME="/root"
         GOPATH=$(echo $(go env GOPATH))
         
         cd tests/cli_tests
@@ -873,4 +874,14 @@ runs:
       if: ${{ failure() && github.ref == 'refs/heads/staging' && github.event_name != 'workflow_dispatch' && github.event.repository.name != 'system_test' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}. Please investigae! Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}\"}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        payload='{
+        "text": "'"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}.\n Please investigae!\n Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"'",
+        "attachments": [
+            {
+            "text": "SYSTEM TESTS FAILED ⚠️",
+            "color": "#ff0000"
+            }
+        ]
+        }'
+        curl -X POST -H 'Content-type: application/json' --data "${payload}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
+        # curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<!here> System tests FAILED on ${{ github.event.repository.name }} ${GITHUB_REF#refs/*/} after merge by ${{ github.actor }}. Please investigae! Test results are here: https://github.com/0chain/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}\"}" ${{ inputs.DEVOPS_CHANNEL_WEBHOOK_URL }}
