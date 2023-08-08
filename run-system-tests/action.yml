@@ -62,6 +62,10 @@ inputs:
     required: false
     default: "true"
     description: 'Enable or disable API system tests'
+  run_challenge_system_tests:
+    required: false
+    default: "false"
+    description: 'Enable or disable Challenge system tests'
   run_frontend_tests:
     required: false
     default: "true"
@@ -180,6 +184,13 @@ runs:
           else
             echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
         fi
+
+        if [[ "${{ inputs.run_challenge_system_tests }}" == "false" ]];
+          then
+            echo RUN_CHALLENGE_SYSTEM_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_CHALLENGE_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
         
         if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
           then
@@ -280,7 +291,6 @@ runs:
 
         echo "4> installing cypress dependencies..."
         apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -385,7 +395,129 @@ runs:
         cd tests/cli_tests
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
-        
+
+    - name: "Set up frontend tests"
+      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "SETTING WASM TESTS:"
+        echo "======================================================"
+        git clone -q https://github.com/0chain/gosdk.git
+        cd gosdk
+
+        if [[ -n "${{  inputs.custom_go_sdk_version }}" && "${{  inputs.custom_go_sdk_version }}" != "NONE" ]];
+        then
+          git checkout ${{  inputs.custom_go_sdk_version }}
+        fi
+
+        cd ..
+
+    - name: Run frontend Tests
+      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      uses: cypress-io/github-action@v5
+      with:
+        working-directory: ./gosdk/wasmsdk/cypress
+        record: false
+        install-command: yarn start:system-tests
+        start: yarn start
+
+    - name: "Run API System Tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING API SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+
+        export HOME="/root"
+        GOPATH=$(echo $(go env GOPATH))
+
+        cd tests/api_tests
+        api_system_tests_exit_code=0
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/
+        echo "API_TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $api_system_tests_exit_code == 0 ]];
+          then
+            echo API_TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo API_TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=API System tests faled!::API System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+
+    - name: "Archive API Test Config & Console Output"
+      continue-on-error: true
+      if: ${{ always() && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: API-System-Test-${{ env.TEST_TIME }}
+        path: |
+          ./tests/api_tests/config
+          ./${{ env.BRANCH_DIR }}/latest/api/index.html
+
+    - name: "Run S3 CLI System Tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING S3 CLI SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+
+        export HOME="/root"
+
+        GOPATH=$(echo $(go env GOPATH))
+
+        cd tests/cli_tests
+        system_tests_exit_code=0
+        echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
+        echo
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../S3CLI_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli/index.html --title "0Chain S3 CLI System tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo S3CLI_TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo S3CLI_TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+
+    - name: "Archive S3CLI Config & Console Output"
+      continue-on-error: true
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: System-Test-${{ env.TEST_TIME }}
+        path: |
+          ./tests/cli_tests/config
+          ./tests/cli_tests/cmdlog.log
+          ./${{ env.BRANCH_DIR }}/latest/s3cli/index.html
+
+    - name: "Run Challenge System Tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING CHALLENGE SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+
+        export HOME="/root"
+        GOPATH=$(echo $(go env GOPATH))
+
         export HOME="/root"
         echo '
         block_worker: https://${{ env.NETWORK_URL }}/dns
@@ -568,116 +700,33 @@ runs:
         echo "challenge_blobbers.txt:"
         echo "$(cat challenge_blobbers.txt)"
 
-
-
-    - name: "Set up frontend tests"
-      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        echo
-        echo "======================================================"
-        echo "SETTING WASM TESTS:"
-        echo "======================================================"
-        git clone -q https://github.com/0chain/gosdk.git
-        cd gosdk
-
-        if [[ -n "${{  inputs.custom_go_sdk_version }}" && "${{  inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          git checkout ${{  inputs.custom_go_sdk_version }}
-        fi
-
-        cd ..
-
-    - name: Run frontend Tests
-      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
-      uses: cypress-io/github-action@v5
-      with:
-        working-directory: ./gosdk/wasmsdk/cypress
-        record: false
-        install-command: yarn start:system-tests
-        start: yarn start
-
-    - name: "Run API System Tests"
-      shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
-      run: |
-        echo
-        echo "======================================================"
-        echo "RUNNING API SYSTEM TESTS:"
-        echo "======================================================"
-        echo
-
-        export HOME="/root"
-        GOPATH=$(echo $(go env GOPATH))
-
-        cd tests/api_tests
-        api_system_tests_exit_code=0
-        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
-        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-
-        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/
-        echo "API_TESTS_RAN=true" >> $GITHUB_ENV
-
-        if [[ $api_system_tests_exit_code == 0 ]];
-          then
-            echo API_TESTS_PASSED=true >> $GITHUB_ENV
-          else
-            echo API_TESTS_PASSED=false >> $GITHUB_ENV
-            echo "::error title=API System tests faled!::API System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
-        fi
-
-    - name: "Archive API Test Config & Console Output"
-      continue-on-error: true
-      if: ${{ always() && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: API-System-Test-${{ env.TEST_TIME }}
-        path: |
-          ./tests/api_tests/config
-          ./${{ env.BRANCH_DIR }}/latest/api/index.html
-
-    - name: "Run S3 CLI System Tests"
-      shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
-      run: |
-        echo
-        echo "======================================================"
-        echo "RUNNING S3 CLI SYSTEM TESTS:"
-        echo "======================================================"
-        echo
-
-        export HOME="/root"
-
-        GOPATH=$(echo $(go env GOPATH))
-
         cd tests/cli_tests
         system_tests_exit_code=0
-        echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
-        echo
-        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../S3CLI_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
-        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli/index.html --title "0Chain S3 CLI System tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli ../../${{ env.BRANCH_DIR }}/latest/
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../CHALLENGE_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestscli/index.html --title "0Chain System test suite: Challenge tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestscli ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
         if [[ $system_tests_exit_code == 0 ]];
           then
-            echo S3CLI_TESTS_PASSED=true >> $GITHUB_ENV
+            echo CHALLENGE_TESTS_PASSED=true >> $GITHUB_ENV
           else
-            echo S3CLI_TESTS_PASSED=false >> $GITHUB_ENV
-            echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+            echo CHALLENGE_TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=CHALLENGE System tests faled!::CHALLENGE System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
-    - name: "Archive S3CLI Config & Console Output"
+    - name: "Archive Challenge tests Config & Console Output"
       continue-on-error: true
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
       uses: actions/upload-artifact@v3
       with:
         name: System-Test-${{ env.TEST_TIME }}
         path: |
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
-          ./${{ env.BRANCH_DIR }}/latest/s3cli/index.html
+          ./${{ env.BRANCH_DIR }}/latest/challengetestscli/index.html
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -700,15 +749,10 @@ runs:
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../CHALLENGE_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
-        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestscli/index.html --title "0Chain System test suite: Challenge tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-        
-        
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../KILL_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli/index.html --title "0Chain System test suite: Kill tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
-        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestscli ../../${{ env.BRANCH_DIR }}/latest/
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
@@ -789,7 +833,6 @@ runs:
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
           ./${{ env.BRANCH_DIR }}/latest/cli/index.html
-          ./${{ env.BRANCH_DIR }}/latest/challengetestscli/index.html
           ./${{ env.BRANCH_DIR }}/latest/killtestscli/index.html
 
     - name: "Run Tokenomics System Tests"
