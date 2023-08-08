@@ -106,7 +106,7 @@ runs:
             echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
         fi
              
-        echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
+        echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
         echo RUN_TOKENOMICS_SUBSET_OF_TESTS=true >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
@@ -126,11 +126,7 @@ runs:
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
         echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
-        echo "Running CLI tests:        [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
-        echo "Running API tests:        [${{ env.RUN_API_SYSTEM_TESTS }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
-        echo "Running smoke tests:      [${{ env.RUN_SMOKE_TESTS }}]"
-        echo "Running frontend tests:   [${{ env.RUN_FRONTEND_TESTS }}]"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
