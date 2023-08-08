@@ -50,6 +50,10 @@ inputs:
     required: false
     default: ""
     description: 'Subset of system tests to run'
+  tokenomics_test_filter:
+    required: false
+    default: ""
+    description: 'Subset of tokenomics tests to run'
   run_cli_system_tests:
     required: false
     default: "true"
@@ -173,20 +177,10 @@ runs:
           else
             echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
         fi
-
-        if [[ -z "${{ inputs.test_file_filter }}" ]];
-          then
-            echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
-          else
-            echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
-        fi
-        
-        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
-          then
-            echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
-          else
-            echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
-        fi
+             
+        echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
+        echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
+        echo RUN_TOKENOMICS_SUBSET_OF_TESTS=true >> $GITHUB_ENV
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -303,7 +297,8 @@ runs:
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
-        mv zwallet ../tests/cli_tests
+        cp zwallet ../tests/cli_tests
+        cp zwallet ../tests/tokenomics_tests
         
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
@@ -314,7 +309,8 @@ runs:
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
-        mv zbox ../tests/cli_tests
+        cp zbox ../tests/cli_tests
+        cp zbox ../tests/tokenomics_tests
         
         echo "Building s3 migration CLI [${{ env.S3_MIGRATION_BRANCH }}]..."
         cd ../s3-migration
@@ -350,9 +346,11 @@ runs:
         go install github.com/vakenbolt/go-test-report@latest
 
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/tokenomics_tests/config/zbox_config.yaml
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/tokenomics_tests/config/zbox_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,s3_access_key:.*,s3_access_key: ${{ inputs.S3_ACCESS_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
@@ -412,7 +410,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -494,7 +492,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -531,7 +529,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
@@ -601,14 +599,27 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'false' && 'true' == 'false' }}
       run: |
         echo
         echo "======================================================"
         echo "RUNNING TOKENOMICS SYSTEM TESTS:"
         echo "======================================================"
         echo
-        export HOME="/root"
+
+        cd tests/tokenomics_tests
+        tokenomics_system_tests_exit_code=0
+        GOPATH=$(echo $(go env GOPATH))
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TOKENOMICS_TEST_RUNNER_COMMAND.sh || tokenomics_system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics/index.html --title "0Chain Tokenomics System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics ../../${{ env.BRANCH_DIR }}/latest/
+        if [[ $tokenomics_system_tests_exit_code == 0 ]];
+          then
+            echo TOKENOMICS_TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TOKENOMICS_TESTS_PASSED=false >>
+
         cd tests/tokenomics_tests
         tokenomics_system_tests_exit_code=0
         GOPATH=$(echo $(go env GOPATH))
@@ -622,9 +633,61 @@ runs:
           else
             echo TOKENOMICS_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi $GITHUB_ENV
+            echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
         exit $tokenomics_system_tests_exit_code
+
+    - name: "Run subset of TOKENOMICS System Tests"
+      if:  ${{ env.RUN_TOKENOMICS_SUBSET_OF_TESTS == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING TOKENOMICS SUBSET SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+        
+        if [ -n "${{ env.NAMESPACE }}" ]; then
+          kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
+        fi
+
+        cd tests/tokenomics_tests
+        
+        echo $(ls)
+        echo $(ls config)
+        cat config/zbox_config.yaml
+        cat ./zbox_config.yaml
+
+        testFunctions=$(echo ${{ inputs.tokenomics_test_filter }})
+        echo "Attempting to resolve filter to test files..."
+        echo "Filter: $testFunctions"
+
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run '$testFunctions' ./..." || TESTS_TO_RUN=$1\nCONFIG_PATH=./zbox_config.yaml go test -timeout=60m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > SUBSET_TEST_RUNNER_COMMAND.sh && chmod 777 SUBSET_TEST_RUNNER_COMMAND.sh
+        cat SUBSET_TEST_RUNNER_COMMAND.sh
+
+        echo
+        echo "======================================================"
+        echo "RUNNING [$(echo $testFunctions | awk '{ print toupper($0) }')] SYSTEM TESTS"
+        echo "======================================================"
+        echo
+
+        system_tests_exit_code=0
+        GOPATH=$(echo $(go env GOPATH))
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ./SUBSET_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics/index.html --title "Subset of 0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tokenomics ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
 
     - name: "Archive Tokenomics Test Config & Console Output"
       continue-on-error: true
