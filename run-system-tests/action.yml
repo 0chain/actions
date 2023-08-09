@@ -692,6 +692,10 @@ runs:
         echo "challenge_blobbers.txt:"
         echo "$(cat challenge_blobbers.txt)"
 
+        # Move files to tests/cli_tests
+        mv challenge_allocations.txt tests/cli_tests/
+        mv challenge_blobbers.txt tests/cli_tests/
+
         cd tests/cli_tests
         system_tests_exit_code=0
 
