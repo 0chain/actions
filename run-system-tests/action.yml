@@ -709,6 +709,8 @@ runs:
             echo "::error title=CHALLENGE System tests faled!::CHALLENGE System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
+        exit $system_tests_exit_code
+
     - name: "Archive Challenge tests Config & Console Output"
       continue-on-error: true
       if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
