@@ -116,10 +116,12 @@ runs:
              exit 1
            else
              echo "Using $3 [$2] from repo_snapshots_branch"
+             export $3=$2
              echo "$3=$2" >> $GITHUB_ENV
            fi
         else
            echo "Using $3 tag [$1] from repo_snapshots_branch"
+           export $3=$1
            echo "$3=$1" >> $GITHUB_ENV
         fi
         ' > ./check-params.sh;
@@ -129,6 +131,7 @@ runs:
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}" "GOSDK_VERSION"
         
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
@@ -143,7 +146,7 @@ runs:
             echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
         fi
         
-        if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("${{ inputs.custom_go_sdk_version }}" != "" && "${{ inputs.custom_go_sdk_version }}" != "NONE") ]];
+        if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("$GOSDK_VERSION" != "" && "$GOSDK_VERSION" != "NONE") ]];
           then
             echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
           else
@@ -214,7 +217,7 @@ runs:
         echo "0wallet CLI branch:       [${{ env.ZWALLET_BRANCH }}]"
         echo "s3 migration CLI branch:  [${{ env.S3_MIGRATION_BRANCH }}]"
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
-        echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
+        echo "Custom gosdk version:     [${{ env.GOSDK_VERSION }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
         echo "Running CLI tests:        [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
         echo "Running API tests:        [${{ env.RUN_API_SYSTEM_TESTS }}]"
@@ -281,7 +284,7 @@ runs:
 
     - name: "Upgrade GoSDK"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ inputs.custom_go_sdk_version != '' && inputs.custom_go_sdk_version == 'NONE' }}
+      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION == 'NONE' }}
       run: |
         echo
         echo "=============================================================="
@@ -291,9 +294,9 @@ runs:
         
         echo '#!/bin/bash
         cd $1
-        echo "Upgrading [$2] to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-        go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        go mod tidy || { echo "::error title=Failed to upgrade $1 gosdk::failed to upgrade $2 gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}]"
+        go get github.com/0chain/gosdk@${{ env.GOSDK_VERSION }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        go mod tidy || { echo "::error title=Failed to upgrade $1 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         cd -
         ' > ./upgrade-gosdk.sh;
         chmod 777 ./upgrade-gosdk.sh
@@ -403,9 +406,9 @@ runs:
         git clone -q https://github.com/0chain/gosdk.git
         cd gosdk
 
-        if [[ -n "${{  inputs.custom_go_sdk_version }}" && "${{  inputs.custom_go_sdk_version }}" != "NONE" ]];
+        if [[ -n "${{  env.GOSDK_VERSION }}" && "${{  env.GOSDK_VERSION }}" != "NONE" ]];
         then
-          git checkout ${{  inputs.custom_go_sdk_version }}
+          git checkout ${{  env.GOSDK_VERSION }}
         fi
 
         cd ..
