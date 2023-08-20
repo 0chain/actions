@@ -483,7 +483,7 @@ runs:
         if [[ -n "${{ env.GOSDK_VERSION }}" && "${{ env.GOSDK_VERSION }}" != "NONE" ]];
         then
           echo "Upgrading zwalletcli to GOSDK [${{ env.GOSDK_VERSION }}]"
-          go get github.com/0chain/gosdk@${{ env.GOSDK_VERSION }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+          GOPROXY=direct go get github.com/0chain/gosdk@${{ env.GOSDK_VERSION }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
@@ -493,7 +493,7 @@ runs:
         if [[ -n "${{ env.GOSDK_VERSION }}" && "${{ env.GOSDK_VERSION }}" != "NONE" ]];
         then
           echo "Upgrading zboxcli to GOSDK [${{ env.GOSDK_VERSION }}]"
-          go get github.com/0chain/gosdk@${{ env.GOSDK_VERSION }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+          GOPROXY=direct go get github.com/0chain/gosdk@${{ env.GOSDK_VERSION }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
           go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }

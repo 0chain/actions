@@ -295,7 +295,7 @@ runs:
         echo '#!/bin/bash
         cd $1
         echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}]"
-        go get github.com/0chain/gosdk@${{ env.GOSDK_VERSION }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        GOPROXY=direct go get github.com/0chain/gosdk@${{ env.GOSDK_VERSION }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
         go mod tidy || { echo "::error title=Failed to upgrade $1 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         cd -
         ' > ./upgrade-gosdk.sh;
