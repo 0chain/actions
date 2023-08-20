@@ -110,7 +110,7 @@ runs:
       run: |
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo '#!/bin/bash
-        if [[ -z "$1" ]];then
+        if [[ -z "$1" || "$1" == "NONE" ]];then
            if [[ -z "$2" ]];then
              echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
              exit 1
@@ -131,7 +131,7 @@ runs:
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
-        ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}" "GOSDK_VERSION"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
         
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
