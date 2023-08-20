@@ -253,19 +253,6 @@ runs:
         path: ./s3-migration
         token: "${{ inputs.svc_account_secret }}"
 
-    # - name: "Setup Go"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
-    #     [ -d /usr/local/go ] &&  rm -rf /usr/local/go
-    #     [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
-    #     tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
-        
-    #     echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
-    #     export PATH=$PATH:/usr/local/go/bin
-    #     which go
-    #     go env
-
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -292,6 +279,32 @@ runs:
         echo "4> installing cypress dependencies..."
         apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
+    - name: "Upgrade GoSDK"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ inputs.custom_go_sdk_version != '' && inputs.custom_go_sdk_version == 'NONE' }}
+      run: |
+        echo
+        echo "=============================================================="
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI, ZS3CLI & SYSTEM TESTS"
+        echo "=============================================================="
+        echo
+        
+        echo '#!/bin/bash
+        cd $1
+        echo "Upgrading [$2] to GOSDK [${{ inputs.custom_go_sdk_version }}]"
+        go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        go mod tidy || { echo "::error title=Failed to upgrade $1 gosdk::failed to upgrade $2 gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
+        cd -
+        ' > ./upgrade-gosdk.sh;
+        chmod 777 ./upgrade-gosdk.sh
+        
+        ./upgrade-gosdk.sh ./zwalletcli zwalletcli
+        ./upgrade-gosdk.sh ../zboxcli zboxcli
+        ./upgrade-gosdk.sh ../s3-migration zs3cli
+        ./upgrade-gosdk.sh ../tests/cli_tests "CLI System Tests"
+        ./upgrade-gosdk.sh ../tests/api_tests "API System Tests"
+        
+
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -305,35 +318,16 @@ runs:
         
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-  
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ../tests/cli_tests
         
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ../tests/cli_tests
         
         echo "Building s3 migration CLI [${{ env.S3_MIGRATION_BRANCH }}]..."
         cd ../s3-migration
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy -compat=1.17 || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make build > build.log 2>&1 || { cat build.log && echo "::error title=s3 migration CLI build failed::s3 migration CLI build failed" && exit 1; }
         mv s3mgrt ../tests/cli_tests
         
