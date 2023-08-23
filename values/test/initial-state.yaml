@@ -98,6 +98,9 @@ data:
     #authorizer03yaroslav
     - id: 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd
       tokens: 20000000000000000
+    #0box_id
+    - id: 0afc093ffb509f059c55478bc1a60351cef7b4e9c008a53a6cc8241ca8617dfe
+      tokens: 20000000000000000
 
 kind: ConfigMap
 metadata:

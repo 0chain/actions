@@ -370,7 +370,7 @@ runs:
         sed "s,s3_secret_key:.*,s3_secret_key: ${{ inputs.S3_SECRET_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         
 
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=30m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^K0P][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestProtocolChallenge[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHALLENGE_TEST_RUNNER_COMMAND.sh && chmod 777 CHALLENGE_TEST_RUNNER_COMMAND.sh
@@ -396,6 +396,7 @@ runs:
         cd tests/cli_tests
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
+        echo "TESTS_READY=true" >> $GITHUB_ENV
 
     - name: "Set up frontend tests"
       if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
@@ -426,7 +427,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ always() && env.TESTS_READY && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -452,6 +453,8 @@ runs:
             echo API_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=API System tests faled!::API System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
+        
+        exit $api_system_tests_exit_code
 
     - name: "Archive API Test Config & Console Output"
       continue-on-error: true
@@ -465,7 +468,7 @@ runs:
 
     - name: "Run S3 CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
@@ -494,6 +497,8 @@ runs:
             echo S3CLI_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
+        
+        exit $system_tests_exit_code
 
     - name: "Archive S3CLI Config & Console Output"
       continue-on-error: true
@@ -508,7 +513,7 @@ runs:
 
     - name: "Run Challenge System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
@@ -732,7 +737,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
@@ -769,7 +774,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if:  ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
@@ -839,7 +844,7 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ always() && env.TESTS_READY && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -907,7 +912,7 @@ runs:
         fi
 
     - name: "Run Flaky CLI System Tests"
-      if:  ${{ env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
+      if:  ${{ always() && env.TESTS_READY && env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
