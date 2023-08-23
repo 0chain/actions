@@ -481,16 +481,16 @@ runs:
         GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
 
         echo '#!/bin/bash
-        cd $2
-        echo "Upgrading [$3] to GOSDK [${{ env.GOSDK_VERSION }}/$1]"
+        echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}/$1]"
         go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
-        go mod tidy || { echo "::error title=Failed to upgrade $3 gosdk::failed to upgrade $3 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
-        cd -
+        go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         ' > ./upgrade-gosdk.sh;
         chmod 777 ./upgrade-gosdk.sh
 
-        ./upgrade-gosdk.sh $GOSDK_HEAD ./zwalletcli  zwalletcli
-        ./upgrade-gosdk.sh $GOSDK_HEAD ../zboxcli    zboxcli
+        cd ./zwalletcli
+        ./upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        cd ../zboxcli
+        ./upgrade-gosdk.sh $GOSDK_HEAD zboxcli
 
 
     - name: "Build CLI Binaries"
