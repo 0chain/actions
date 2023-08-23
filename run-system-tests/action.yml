@@ -302,15 +302,15 @@ runs:
         chmod 777 ./upgrade-gosdk.sh
         
         cd ./zwalletcli 
-        ./upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
         cd ../zboxcli
-        ./upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
         cd ../s3-migration 
-        ./upgrade-gosdk.sh $GOSDK_HEAD zs3cli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zs3cli
         cd ../tests/cli_tests
-        ./upgrade-gosdk.sh $GOSDK_HEAD "CLI System Tests"
+        ../../upgrade-gosdk.sh $GOSDK_HEAD "CLI System Tests"
         cd ../api_tests
-        ./upgrade-gosdk.sh $GOSDK_HEAD "API System Tests"
+        ../../upgrade-gosdk.sh $GOSDK_HEAD "API System Tests"
         
 
     - name: "Build CLI Binaries"

@@ -488,9 +488,9 @@ runs:
         chmod 777 ./upgrade-gosdk.sh
 
         cd ./zwalletcli
-        ./upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
         cd ../zboxcli
-        ./upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
 
 
     - name: "Build CLI Binaries"
