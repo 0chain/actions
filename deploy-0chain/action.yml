@@ -470,7 +470,7 @@ runs:
 
     - name: "Upgrade GoSDK"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION == 'NONE' }}
+      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
       run: |
         echo
         echo "=============================================================="
