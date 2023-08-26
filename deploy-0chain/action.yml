@@ -337,6 +337,7 @@ runs:
              --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
              --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
              --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
+             --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_duration=720 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
