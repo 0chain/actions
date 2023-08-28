@@ -303,7 +303,7 @@ runs:
         go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
         go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         ' > ./upgrade-gosdk.sh;
-        chmod 777 ./upgrade-gosdk.sh
+        chmod 555 ./upgrade-gosdk.sh
         
         cd ./zwalletcli 
         ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
@@ -315,6 +315,8 @@ runs:
         ../../upgrade-gosdk.sh $GOSDK_HEAD "CLI System Tests"
         cd ../api_tests
         ../../upgrade-gosdk.sh $GOSDK_HEAD "API System Tests"
+        
+        sudo rm -rf upgrade-gosdk.sh
         
 
     - name: "Build CLI Binaries"
