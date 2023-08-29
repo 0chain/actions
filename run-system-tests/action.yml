@@ -110,16 +110,18 @@ runs:
       run: |
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo '#!/bin/bash
-        if [[ -z "$1" ]];then
+        if [[ -z "$1" || "$1" == "NONE" ]];then
            if [[ -z "$2" ]];then
              echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
              exit 1
            else
              echo "Using $3 [$2] from repo_snapshots_branch"
+             export $3=$2
              echo "$3=$2" >> $GITHUB_ENV
            fi
         else
            echo "Using $3 tag [$1] from repo_snapshots_branch"
+           export $3=$1
            echo "$3=$1" >> $GITHUB_ENV
         fi
         ' > ./check-params.sh;
@@ -129,6 +131,7 @@ runs:
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
         
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
@@ -143,7 +146,7 @@ runs:
             echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
         fi
         
-        if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("${{ inputs.custom_go_sdk_version }}" != "" && "${{ inputs.custom_go_sdk_version }}" != "NONE") ]];
+        if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("$GOSDK_VERSION" != "" && "$GOSDK_VERSION" != "NONE") ]];
           then
             echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
           else
@@ -214,7 +217,7 @@ runs:
         echo "0wallet CLI branch:       [${{ env.ZWALLET_BRANCH }}]"
         echo "s3 migration CLI branch:  [${{ env.S3_MIGRATION_BRANCH }}]"
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
-        echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
+        echo "Custom gosdk version:     [${{ env.GOSDK_VERSION }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
         echo "Running CLI tests:        [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
         echo "Running API tests:        [${{ env.RUN_API_SYSTEM_TESTS }}]"
@@ -253,19 +256,6 @@ runs:
         path: ./s3-migration
         token: "${{ inputs.svc_account_secret }}"
 
-    # - name: "Setup Go"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
-    #     [ -d /usr/local/go ] &&  rm -rf /usr/local/go
-    #     [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
-    #     tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
-        
-    #     echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
-    #     export PATH=$PATH:/usr/local/go/bin
-    #     which go
-    #     go env
-
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -292,6 +282,43 @@ runs:
         echo "4> installing cypress dependencies..."
         apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
+    - name: "Upgrade GoSDK"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
+      run: |
+        echo
+        echo "=============================================================="
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI, ZS3CLI & SYSTEM TESTS"
+        echo "=============================================================="
+        echo
+        
+        GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
+        if [[ "$GOSDK_HEAD" == "null" ]]; then
+            echo "[${{ env.GOSDK_VERSION }}] does not seem to be a valid branch (possibly a commit hash?). Will pass directly to go to resolve"
+            GOSDK_HEAD="${{ env.GOSDK_VERSION }}"
+        fi
+        
+        echo '#!/bin/bash
+        echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
+        go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        ' > ./upgrade-gosdk.sh;
+        chmod 555 ./upgrade-gosdk.sh
+        
+        cd ./zwalletcli 
+        ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        cd ../zboxcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        cd ../s3-migration 
+        ../upgrade-gosdk.sh $GOSDK_HEAD zs3cli
+        cd ../tests/cli_tests
+        ../../upgrade-gosdk.sh $GOSDK_HEAD "CLI System Tests"
+        cd ../api_tests
+        ../../upgrade-gosdk.sh $GOSDK_HEAD "API System Tests"
+        
+        sudo rm -rf upgrade-gosdk.sh
+        
+
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -305,35 +332,16 @@ runs:
         
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-  
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ../tests/cli_tests
         
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ../tests/cli_tests
         
         echo "Building s3 migration CLI [${{ env.S3_MIGRATION_BRANCH }}]..."
         cd ../s3-migration
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy -compat=1.17 || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make build > build.log 2>&1 || { cat build.log && echo "::error title=s3 migration CLI build failed::s3 migration CLI build failed" && exit 1; }
         mv s3mgrt ../tests/cli_tests
         
@@ -371,7 +379,7 @@ runs:
         sed "s,s3_secret_key:.*,s3_secret_key: ${{ inputs.S3_SECRET_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         
 
-        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=30m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^K0P][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestProtocolChallenge[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHALLENGE_TEST_RUNNER_COMMAND.sh && chmod 777 CHALLENGE_TEST_RUNNER_COMMAND.sh
@@ -397,6 +405,7 @@ runs:
         cd tests/cli_tests
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
+        echo "TESTS_READY=true" >> $GITHUB_ENV
 
     - name: "Set up frontend tests"
       if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
@@ -409,9 +418,9 @@ runs:
         git clone -q https://github.com/0chain/gosdk.git
         cd gosdk
 
-        if [[ -n "${{  inputs.custom_go_sdk_version }}" && "${{  inputs.custom_go_sdk_version }}" != "NONE" ]];
+        if [[ -n "${{  env.GOSDK_VERSION }}" && "${{  env.GOSDK_VERSION }}" != "NONE" ]];
         then
-          git checkout ${{  inputs.custom_go_sdk_version }}
+          git checkout ${{  env.GOSDK_VERSION }}
         fi
 
         cd ..
@@ -427,7 +436,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ always() && env.TESTS_READY && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -453,6 +462,8 @@ runs:
             echo API_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=API System tests faled!::API System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
+        
+        exit $api_system_tests_exit_code
 
     - name: "Archive API Test Config & Console Output"
       continue-on-error: true
@@ -466,7 +477,7 @@ runs:
 
     - name: "Run S3 CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_S3_CLI_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
@@ -495,6 +506,8 @@ runs:
             echo S3CLI_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
+        
+        exit $system_tests_exit_code
 
     - name: "Archive S3CLI Config & Console Output"
       continue-on-error: true
@@ -509,7 +522,7 @@ runs:
 
     - name: "Run Challenge System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
@@ -733,7 +746,7 @@ runs:
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
@@ -770,7 +783,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
-      if:  ${{ env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if:  ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
@@ -840,7 +853,7 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if:  ${{ always() && env.TESTS_READY && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -908,7 +921,7 @@ runs:
         fi
 
     - name: "Run Flaky CLI System Tests"
-      if:  ${{ env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
+      if:  ${{ always() && env.TESTS_READY && env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
