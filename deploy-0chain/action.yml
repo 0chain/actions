@@ -434,12 +434,16 @@ runs:
 
         ##############----------------- Installing graphnode helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
-        RET=0         #You can set RET=0 to skip the graphnode helm-chart deployment
+        RET=1         #You can set RET=0 to skip the graphnode helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
-           helm upgrade --install pgadmin --wait \
-             --set pgadmin.hostName=${{ env.NAMESPACE }} \
-             --set pgadmin.host=devnet-0chain.net  -n ${{ env.NAMESPACE }} \
-             0chain-helm/pgadmin --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           helm upgrade --install graph-node --wait \
+             --set graphNode.hostName=${{ env.NAMESPACE }} \
+             --set graphNode.host=devnet-0chain.net \
+             --set graphNode.image.tag=latest \
+             --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} \
+             --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} \
+             --set graphNode.config.private_fork=true \
+             -n ${{ env.NAMESPACE }} 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
            echo "Retrying helm install"
