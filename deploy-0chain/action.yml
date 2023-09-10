@@ -435,6 +435,96 @@ runs:
         chmod 777 ./deploy.sh;
         ./deploy.sh
 
+        ##############----------------- Installing atlus helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+          helm upgrade --install atlus --wait --timeout 60s \
+            --set atlus.image.tag=${{ env.ATLUS_TAG }} \
+            --set atlus.hostName=${{ env.NAMESPACE }} \
+            --set atlus.host=devnet-0chain.net \
+            --set atlus.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+            -n ${{ env.NAMESPACE }} 0chain-helm/atlus --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+          RET=$?
+          ((COUNT--))
+          echo "Retrying helm install"
+          sleep 2
+        done
+
+        ##############----------------- Installing blimp helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+          helm upgrade --install blimp --wait --timeout 60s \
+            --set blimp.image.tag=${{ env.BLIMP_TAG }} \
+            --set blimp.hostName=${{ env.NAMESPACE }} \
+            --set blimp.host=devnet-0chain.net \
+            --set blimp.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+            -n ${{ env.NAMESPACE }} 0chain-helm/blimp --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+          RET=$?
+          ((COUNT--))
+          echo "Retrying helm install"
+          sleep 2
+        done
+
+        ##############----------------- Installing bolt helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+          helm upgrade --install bolt --wait --timeout 60s \
+            --set bolt.image.tag=${{ env.BOLT_TAG }} \
+            --set bolt.hostName=${{ env.NAMESPACE }} \
+            --set bolt.host=devnet-0chain.net \
+            --set bolt.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+            -n ${{ env.NAMESPACE }} 0chain-helm/bolt --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+          RET=$?
+          ((COUNT--))
+          echo "Retrying helm install"
+          sleep 2
+        done
+
+        ##############----------------- Installing chalk helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+          helm upgrade --install chalk --wait --timeout 60s \
+            --set chalk.image.tag=${{ env.CHALK_TAG }} \
+            --set chalk.hostName=${{ env.NAMESPACE }} \
+            --set chalk.host=devnet-0chain.net \
+            --set chalk.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+            -n ${{ env.NAMESPACE }} 0chain-helm/chalk --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+          RET=$?
+          ((COUNT--))
+          echo "Retrying helm install"
+          sleep 2
+        done
+
+        ##############----------------- Installing chimney helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+          helm upgrade --install chimney --wait --timeout 60s \
+            --set chimney.image.tag=${{ env.CHIMNEY_TAG }} \
+            --set chimney.hostName=${{ env.NAMESPACE }} \
+            --set chimney.host=devnet-0chain.net \
+            --set chimney.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+            -n ${{ env.NAMESPACE }} 0chain-helm/chimney --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+          RET=$?
+          ((COUNT--))
+          echo "Retrying helm install"
+          sleep 2
+        done
+
+        ##############----------------- Installing vult helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+          helm upgrade --install vult --wait --timeout 60s \
+            --set vult.image.tag=${{ env.VULT_TAG }} \
+            --set vult.hostName=${{ env.NAMESPACE }} \
+            --set vult.host=devnet-0chain.net \
+            --set vult.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+            -n ${{ env.NAMESPACE }} 0chain-helm/vult --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+          RET=$?
+          ((COUNT--))
+          echo "Retrying helm install"
+          sleep 2
+        done
+
     - name: "Setup Go"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
