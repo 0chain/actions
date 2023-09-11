@@ -7,6 +7,36 @@ inputs:
   network-url:
     description: 'network url for web-apps to point to, example: demo.zus.network'
     default: ""
+  git_user:
+    description: 'secrets.GIT_USER'
+    default: ""
+  git_pat:
+    description: 'secrets.GIT_PAT'
+    default: ""
+  dockerhub_username:
+    description: 'secrets.DOCKERHUB_USERNAME'
+    default: ""
+  dockerhub_password:
+    description: 'secrets.DOCKERHUB_PASSWORD'
+    default: ""
+  blimp_registry:
+    description: 'secrets.BLIMP_REGISTRY'
+    default: ""
+  bolt_registry:
+    description: 'secrets.BOLT_REGISTRY'
+    default: ""
+  chalk_registry:
+    description: 'secrets.CHALK_REGISTRY'
+    default: ""
+  chimney_registry:
+    description: 'secrets.CHIMNEY_REGISTRY'
+    default: ""
+  vult_registry:
+    description: 'secrets.VULT_REGISTRY'
+    default: ""
+  atlus_registry:
+    description: 'secrets.ATLUS_REGISTRU'
+    default: ""
 
 runs:
   using: "composite"
@@ -14,7 +44,7 @@ runs:
     - name: Checkout
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        git clone https://${{ secrets.GIT_USER }}:${{ secrets.GIT_PAT }}@github.com/0chain/web-apps.git
+        git clone https://${{ inputs.git_user }}:${{ inputs.git_pat }}@github.com/0chain/web-apps.git
         git fetch origin ${{inputs.web-apps-branch}}
         git checkout ${{inputs.web-apps-branch}}
 
@@ -29,8 +59,8 @@ runs:
     - name: Login To Docker Repository.
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        username: ${{ inputs.dockerhub_username }}
+        password: ${{ inputs.dockerhub_password }}
 
     - name: Setting Up Environment Variables.
       shell: 'script --return --quiet --command "bash {0}"'
@@ -212,52 +242,52 @@ runs:
         cd web-apps
         
         ############################ BLIMP #################################
-        docker build -f ./packages/blimp/docker/dockerfile . -t ${{ secrets.BLIMP_REGISTRY }}:latest
+        docker build -f ./packages/blimp/docker/dockerfile . -t ${{ inputs.blimp_registry }}:latest
         echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
 
-        docker tag ${{ secrets.BLIMP_REGISTRY }}:latest ${{ secrets.BLIMP_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ secrets.BLIMP_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.blimp_registry }}:latest ${{ inputs.blimp_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.blimp_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
 
         ############################ BOLT #################################
-        docker build -f ./packages/bolt/docker/dockerfile . -t ${{ secrets.BOLT_REGISTRY }}:latest
+        docker build -f ./packages/bolt/docker/dockerfile . -t ${{ inputs.bolt_registry }}:latest
         echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
 
-        docker tag ${{ secrets.BOLT_REGISTRY }}:latest ${{ secrets.BOLT_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ secrets.BOLT_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.bolt_registry }}:latest ${{ inputs.bolt_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.bolt_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
 
         ############################ CHALK #################################
-        docker build -f ./packages/chalk/docker/dockerfile . -t ${{ secrets.CHALK_REGISTRY }}:latest
+        docker build -f ./packages/chalk/docker/dockerfile . -t ${{ inputs.chalk_registry }}:latest
         echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
 
-        docker tag ${{ secrets.CHALK_REGISTRY }}:latest ${{ secrets.CHALK_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ secrets.CHALK_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.chalk_registry }}:latest ${{ inputs.chalk_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.chalk_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
 
         ############################ CHIMNEY #################################
-        docker build -f ./packages/chimney/docker/dockerfile . -t ${{ secrets.CHIMNEY_REGISTRY }}:latest
+        docker build -f ./packages/chimney/docker/dockerfile . -t ${{ inputs.chimney_registry }}:latest
         echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
 
-        docker tag ${{ secrets.CHIMNEY_REGISTRY }}:latest ${{ secrets.CHIMNEY_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ secrets.CHIMNEY_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.chimney_registry }}:latest ${{ inputs.chimney_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.chimney_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
 
         ############################ VULT #################################
-        docker build -f ./packages/vult/docker/dockerfile . -t ${{ secrets.VULT_REGISTRY }}:latest
+        docker build -f ./packages/vult/docker/dockerfile . -t ${{ inputs.vult_registry }}:latest
         echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
 
-        docker tag ${{ secrets.VULT_REGISTRY }}:latest ${{ secrets.VULT_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ secrets.VULT_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.vult_registry }}:latest ${{ inputs.vult_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.vult_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
 
         ############################ ATLUS #################################
-        docker build -f ./packages/explorer/docker/dockerfile . -t ${{ secrets.ATLUS_REGISTRY }}:latest
+        docker build -f ./packages/explorer/docker/dockerfile . -t ${{ inputs.atlus_registry }}:latest
         echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
 
-        docker tag ${{ secrets.ATLUS_REGISTRY }}:latest ${{ secrets.ATLUS_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ secrets.ATLUS_REGISTRY }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.atlus_registry }}:latest ${{ inputs.atlus_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.atlus_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
 
     - name: Clean Up The Workspace.
       shell: 'script --return --quiet --command "bash {0}"'
