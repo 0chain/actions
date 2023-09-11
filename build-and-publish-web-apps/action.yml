@@ -42,11 +42,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        git clone https://${{ inputs.git_user }}:${{ inputs.git_pat }}@github.com/0chain/web-apps.git
-        git fetch origin ${{inputs.web-apps-branch}}
-        git checkout ${{inputs.web-apps-branch}}
+      uses: actions/checkout@v2
 
     - name: Set Docker Image Tags.
       shell: 'script --return --quiet --command "bash {0}"'
