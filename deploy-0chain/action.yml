@@ -210,13 +210,13 @@ runs:
       uses: azure/setup-kubectl@v1
       id: install
 
-    - name: "Installing NodeJS 19"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
-        sudo bash nodesource_setup.sh
-        sudo apt install nodejs -y
-        node -v
+    # - name: "Installing NodeJS 19"
+    #   shell: 'script --return --quiet --command "bash {0}"'
+    #   run: |
+    #     curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
+    #     sudo bash nodesource_setup.sh
+    #     sudo apt install nodejs -y
+    #     node -v
 
     - name: "Configure helm & kubectl"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -402,7 +402,7 @@ runs:
         done
 
         ##############----------------- Installing pgadmin helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the pgadmin helm-chart deployment
+        RET=0         #You can set RET=0 to skip the pgadmin helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 9 ]]; do
            helm upgrade --install pgadmin --wait \
              --set pgadmin.hostName=${{ env.NAMESPACE }} \
