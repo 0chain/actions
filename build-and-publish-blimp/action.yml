@@ -7,6 +7,9 @@ inputs:
   network-url:
     description: 'network url for web-apps to point to, example: demo.zus.network'
     default: ""
+  number:
+    description: 'runner number'
+    default: ""
   git_user:
     description: 'secrets.GIT_USER'
     default: ""
@@ -80,12 +83,9 @@ runs:
       run: |
         cd web-apps
         docker build -f ./packages/blimp/docker/dockerfile . -t ${{ inputs.blimp_registry }}:latest
-        echo "COMMIT_TAG=$TAG-$SHORT_SHA" >> $GITHUB_OUTPUT
-        echo "PREFIX=$(echo ${{inputs.network-url}} | cut -c1-5)"
-        echo $PREFIX-$TAG-$SHORT_SHA
 
-        docker tag ${{ inputs.blimp_registry }}:latest ${{ inputs.blimp_registry }}:$PREFIX-$TAG-$SHORT_SHA
-        docker push ${{ inputs.blimp_registry }}:$PREFIX-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.blimp_registry }}:latest ${{ inputs.blimp_registry }}:dev-${{inputs.number}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.blimp_registry }}:dev-${{inputs.number}}-$TAG-$SHORT_SHA
 
     - name: Clean Up The Workspace.
       shell: 'script --return --quiet --command "bash {0}"'

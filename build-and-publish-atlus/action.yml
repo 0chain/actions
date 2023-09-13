@@ -7,6 +7,9 @@ inputs:
   network-url:
     description: 'network url for web-apps to point to, example: demo.zus.network'
     default: ""
+  number:
+    description: 'runner number'
+    default: ""
   git_user:
     description: 'secrets.GIT_USER'
     default: ""
@@ -81,12 +84,9 @@ runs:
       run: |
         cd web-apps
         docker build -f ./packages/explorer/docker/dockerfile . -t ${{ inputs.atlus_registry }}:latest
-        echo "NETWORK=${{ inputs.network-url }}" >> $GITHUB_ENV
-        echo "PREFIX=${{ env.NETWORK::5 }}"
-        echo $PREFIX-$TAG-$SHORT_SHA
 
-        docker tag ${{ inputs.atlus_registry }}:latest ${{ inputs.atlus_registry }}:$PREFIX-$TAG-$SHORT_SHA
-        docker push ${{ inputs.atlus_registry }}:$PREFIX-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.atlus_registry }}:latest ${{ inputs.atlus_registry }}:dev-${{inputs.number}}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.atlus_registry }}:dev-${{inputs.number}}-$TAG-$SHORT_SHA
 
     - name: Clean Up The Workspace.
       shell: 'script --return --quiet --command "bash {0}"'
