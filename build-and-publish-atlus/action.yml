@@ -81,8 +81,8 @@ runs:
       run: |
         cd web-apps
         docker build -f ./packages/explorer/docker/dockerfile . -t ${{ inputs.atlus_registry }}:latest
-        echo "COMMIT_TAG=$TAG-$SHORT_SHA" >> $GITHUB_OUTPUT
-        echo "PREFIX=$(echo ${{inputs.network-url}} | cut -c1-5)"
+        echo "NETWORK=${{ inputs.network-url }}" >> $GITHUB_ENV
+        echo "PREFIX=${{ env.NETWORK::5 }}"
         echo $PREFIX-$TAG-$SHORT_SHA
 
         docker tag ${{ inputs.atlus_registry }}:latest ${{ inputs.atlus_registry }}:$PREFIX-$TAG-$SHORT_SHA
