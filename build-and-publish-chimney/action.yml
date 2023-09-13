@@ -81,10 +81,10 @@ runs:
         cd web-apps
         docker build -f ./packages/chimney/docker/dockerfile . -t ${{ inputs.chimney_registry }}:latest
         echo $TAG-$SHORT_SHA
-        echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+        echo "COMMIT_TAG=$TAG-$SHORT_SHA" >> $GITHUB_OUTPUT
 
-        docker tag ${{ inputs.chimney_registry }}:latest ${{ inputs.chimney_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ inputs.chimney_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.chimney_registry }}:latest ${{ inputs.chimney_registry }}:$TAG-$SHORT_SHA
+        docker push ${{ inputs.chimney_registry }}:$TAG-$SHORT_SHA
 
     - name: Clean Up The Workspace.
       shell: 'script --return --quiet --command "bash {0}"'

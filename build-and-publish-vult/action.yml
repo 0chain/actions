@@ -81,10 +81,10 @@ runs:
         cd web-apps
         docker build -f ./packages/vult/docker/dockerfile . -t ${{ inputs.vult_registry }}:latest
         echo $TAG-$SHORT_SHA
-        echo "COMMIT_TAG=${{inputs.network-url}}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+        echo "COMMIT_TAG=$TAG-$SHORT_SHA" >> $GITHUB_OUTPUT
 
-        docker tag ${{ inputs.vult_registry }}:latest ${{ inputs.vult_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
-        docker push ${{ inputs.vult_registry }}:${{inputs.network-url}}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.vult_registry }}:latest ${{ inputs.vult_registry }}:$TAG-$SHORT_SHA
+        docker push ${{ inputs.vult_registry }}:$TAG-$SHORT_SHA
 
     - name: Clean Up The Workspace.
       shell: 'script --return --quiet --command "bash {0}"'
