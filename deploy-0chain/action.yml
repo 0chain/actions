@@ -440,7 +440,7 @@ runs:
         chmod 777 ./deploy.sh;
         ./deploy.sh
 
-        if [[ -z "${{ inputs.web-apps-image-tag }}" ]]; then
+        if [[ -n "${{ inputs.web-apps-image-tag }}" ]]; then
           ##############----------------- Installing atlus helm-chart --------------------###################
           COUNT=3       #COUNT will be giving 3 try to install the helmchart.
           RET=1         #You can set RET=0 to skip the atlus helm-chart deployment
