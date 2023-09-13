@@ -80,11 +80,12 @@ runs:
       run: |
         cd web-apps
         docker build -f ./packages/chalk/docker/dockerfile . -t ${{ inputs.chalk_registry }}:latest
-        echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=$TAG-$SHORT_SHA" >> $GITHUB_OUTPUT
+        echo "PREFIX=$(echo ${{inputs.network-url}} | cut -c1-5)"
+        echo $PREFIX-$TAG-$SHORT_SHA
 
-        docker tag ${{ inputs.chalk_registry }}:latest ${{ inputs.chalk_registry }}:$TAG-$SHORT_SHA
-        docker push ${{ inputs.chalk_registry }}:$TAG-$SHORT_SHA
+        docker tag ${{ inputs.chalk_registry }}:latest ${{ inputs.chalk_registry }}:$PREFIX-$TAG-$SHORT_SHA
+        docker push ${{ inputs.chalk_registry }}:$PREFIX-$TAG-$SHORT_SHA
 
     - name: Clean Up The Workspace.
       shell: 'script --return --quiet --command "bash {0}"'
