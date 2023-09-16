@@ -12,12 +12,14 @@ runs:
       uses: actions/checkout@v2
 
     - name: Point to dev-* webapp
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd web-apps
         sed -i "s/http:\/\/localhost:3030/https:\/\/${{ inputs.vult-url }}/g" "packages/test/explorer.cypress.config.js"
         cat packages/test/explorer.cypress.config.js
 
     - name: Install node.
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
         sudo bash /tmp/nodesource_setup.sh
@@ -25,6 +27,7 @@ runs:
         node -v
 
     - name: Install yarn
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/yarn.gpg
         echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
@@ -33,10 +36,12 @@ runs:
         yarn --version
 
     - name: Install yarn
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
 
     - name: Cypress build
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd web-apps
         yarn install --frozen-lockfile --force
@@ -44,6 +49,7 @@ runs:
         yarn install --frozen-lockfile --force
 
     - name: Cypress run
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd web-apps
         yarn workspace test cypress:explorer:run
