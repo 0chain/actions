@@ -23,7 +23,7 @@ inputs:
     description: 'secrets.DOCKERHUB_PASSWORD'
     default: ""
   atlus_registry:
-    description: 'secrets.ATLUS_REGISTRU'
+    description: 'secrets.ATLUS_REGISTRY'
     default: ""
 
 runs:

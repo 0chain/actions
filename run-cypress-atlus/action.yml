@@ -1,0 +1,68 @@
+name: Run cypress tests for atlus against network
+description: Points cypress to a network and runs tests
+inputs:
+  atlus-url:
+    description: 'atlus url for cypress to point to, example: atlus.dev-1.devnet-0chain.net'
+    default: ""
+  number:
+    description: 'runner number'
+    default: ""
+  git_user:
+    description: 'secrets.GIT_USER'
+    default: ""
+  git_pat:
+    description: 'secrets.GIT_PAT'
+    default: ""
+  dockerhub_username:
+    description: 'secrets.DOCKERHUB_USERNAME'
+    default: ""
+  dockerhub_password:
+    description: 'secrets.DOCKERHUB_PASSWORD'
+    default: ""
+  atlus_registry:
+    description: 'secrets.ATLUS_REGISTRY'
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Point to dev-* webapp
+      run: |
+        cd web-apps
+        sed -i "s/http:\/\/localhost:3030/https:\/\/${{ inputs.atlus-url }}/g" "packages/test/explorer.cypress.config.js"
+        cat packages/test/explorer.cypress.config.js
+
+    - name: Install node.
+      run: |
+        curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
+        sudo bash /tmp/nodesource_setup.sh
+        sudo apt install nodejs
+        node -v
+
+    - name: Install yarn
+      run: |
+        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/yarn.gpg
+        echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+        sudo apt update
+        sudo apt install yarn -y
+        yarn --version
+
+    - name: Install yarn
+      run: |
+        sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
+
+    - name: Cypress build
+      run: |
+        cd web-apps
+        yarn install --frozen-lockfile --force
+        cd packages/test/
+        yarn install --frozen-lockfile --force
+
+    - name: Cypress run
+      run: |
+        cd web-apps
+        yarn workspace test cypress:explorer:run
+
