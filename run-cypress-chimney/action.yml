@@ -4,24 +4,6 @@ inputs:
   chimney-url:
     description: 'chimney url for cypress to point to, example: chimney.dev-1.devnet-0chain.net'
     default: ""
-  number:
-    description: 'runner number'
-    default: ""
-  git_user:
-    description: 'secrets.GIT_USER'
-    default: ""
-  git_pat:
-    description: 'secrets.GIT_PAT'
-    default: ""
-  dockerhub_username:
-    description: 'secrets.DOCKERHUB_USERNAME'
-    default: ""
-  dockerhub_password:
-    description: 'secrets.DOCKERHUB_PASSWORD'
-    default: ""
-  chimney_registry:
-    description: 'secrets.CHIMNEY_REGISTRY'
-    default: ""
 
 runs:
   using: "composite"

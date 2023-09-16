@@ -4,24 +4,6 @@ inputs:
   chalk-url:
     description: 'chalk url for cypress to point to, example: chalk.dev-1.devnet-0chain.net'
     default: ""
-  number:
-    description: 'runner number'
-    default: ""
-  git_user:
-    description: 'secrets.GIT_USER'
-    default: ""
-  git_pat:
-    description: 'secrets.GIT_PAT'
-    default: ""
-  dockerhub_username:
-    description: 'secrets.DOCKERHUB_USERNAME'
-    default: ""
-  dockerhub_password:
-    description: 'secrets.DOCKERHUB_PASSWORD'
-    default: ""
-  chalk_registry:
-    description: 'secrets.CHALK_REGISTRY'
-    default: ""
 
 runs:
   using: "composite"
