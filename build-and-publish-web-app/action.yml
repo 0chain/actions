@@ -80,6 +80,11 @@ runs:
         echo "ETH_NODE_URL=https://polygon-mumbai.g.alchemy.com/v2/gvf-rFZM8ogOw3yuw5Zjbb3qIoGg5tfs" >> .env
         echo "REVERSE_BRIDGE=0xf260c644Acfbfd87bdC77Fe32c8d6a56C9eec879" >> .env
         echo "OWLRACLE_API_KEY=4b2ed749706f461197767b85e8cd32a2" >> .env
+        echo "NFT_FACTORY_ADDRESS=0x64F52bdE740ECD35772e9F62A9138F50E99931AF" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0x1E96e5d1ce1B46CDB22DCA959bbDD4d5Fb09bBF7" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xc3C00154f1C403a00d453260A291BAC607810E8d" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
 
     - name: Build & Push Docker Image.
       shell: 'script --return --quiet --command "bash {0}"'
