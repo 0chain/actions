@@ -17,7 +17,7 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd web-apps
-        sed -i "s/http:\/\/localhost:3030/https:\/\/${{ inputs.app-url }}/g" "packages/test/${{ inputs.web-app-name }}.cypress.config.js"
+        sed "s,baseUrl:.*,baseUrl: 'https:\/\/${{ inputs.app-url }}'," -i packages/test/${{ inputs.web-app-name }}.cypress.config.js
         cat packages/test/${{ inputs.web-app-name }}.cypress.config.js
 
     - name: Install node.
