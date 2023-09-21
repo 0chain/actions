@@ -87,6 +87,10 @@ inputs:
     description: 'secret used to publish test results - will use your own credentials if not supplied'
     default: ''
     required: false
+  web-apps-image-tag:
+    description: 'Image tag for web-apps (should be common to all web-apps)'
+    default: ''
+    required: false
 
 runs:
   using: "composite"
@@ -305,14 +309,10 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
-        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer. Will be giving 3 try to install the helmchart.
-        COUNT=24
-        
-        #RET is used to get the success/fail status of latest command executed
-        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
-
         ##############----------------- Installing 0chain helm-chart --------------------###################
-        while [[ $RET -ne 0 && $COUNT -gt 21 ]]; do
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
              --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
@@ -346,8 +346,9 @@ runs:
         done
 
         ##############----------------- Installing 0dns helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0dns helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 18 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0dns --wait --timeout 60s \
              --set zdns.image.tag=${{ env.ZDNS_TAG }} \
              --set zdns.hostName=${{ env.NAMESPACE }} \
@@ -360,8 +361,9 @@ runs:
         done
         
         ##############----------------- Installing blobber helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 15 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install blobber --wait --timeout 120s \
              --set blobber.blobberCount=6 \
              --set validator.validatorCount=6 \
@@ -385,8 +387,9 @@ runs:
         done
         
         ##############----------------- Installing 0box helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the 0box helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 12 ]]; do
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0Box helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0box --wait \
              --set zbox.hostName=${{ env.NAMESPACE }} \
              --set zbox.host=devnet-0chain.net \
@@ -403,8 +406,9 @@ runs:
         done
 
         ##############----------------- Installing pgadmin helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the pgadmin helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 9 ]]; do
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the pgadmin helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install pgadmin --wait \
              --set pgadmin.hostName=${{ env.NAMESPACE }} \
              --set pgadmin.host=devnet-0chain.net  -n ${{ env.NAMESPACE }} \
@@ -416,8 +420,9 @@ runs:
         done
 
         ##############----------------- Installing authorizer helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install authorizer \
              --set authorizer.config.nativeEventFetch=true \
              --set authorizer.authorizerCount=3 \
@@ -435,6 +440,104 @@ runs:
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
+
+        if [[ -n "${{ inputs.web-apps-image-tag }}" ]]; then
+          ##############----------------- Installing atlus helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the atlus helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install atlus --wait --timeout 60s \
+              --set atlus.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set atlus.hostName=${{ env.NAMESPACE }} \
+              --set atlus.host=devnet-0chain.net \
+              --set atlus.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/atlus --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing blimp helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the blimp helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install blimp --wait --timeout 60s \
+              --set blimp.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set blimp.hostName=${{ env.NAMESPACE }} \
+              --set blimp.host=devnet-0chain.net \
+              --set blimp.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/blimp --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing bolt helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the bolt helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install bolt --wait --timeout 60s \
+              --set bolt.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set bolt.hostName=${{ env.NAMESPACE }} \
+              --set bolt.host=devnet-0chain.net \
+              --set bolt.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/bolt --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing chalk helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the chalk helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install chalk --wait --timeout 60s \
+              --set chalk.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set chalk.hostName=${{ env.NAMESPACE }} \
+              --set chalk.host=devnet-0chain.net \
+              --set chalk.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/chalk --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing chimney helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the chimney helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install chimney --wait --timeout 60s \
+              --set chimney.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set chimney.hostName=${{ env.NAMESPACE }} \
+              --set chimney.host=devnet-0chain.net \
+              --set chimney.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/chimney --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing vult helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the vult helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install vult --wait --timeout 60s \
+              --set vult.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set vult.hostName=${{ env.NAMESPACE }} \
+              --set vult.host=devnet-0chain.net \
+              --set vult.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/vult --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+        fi
 
     - name: "Setup Go"
       shell: 'script --return --quiet --command "bash {0}"'
