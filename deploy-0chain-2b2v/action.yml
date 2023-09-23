@@ -90,11 +90,31 @@ runs:
     - name: "Setup Config"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
+        branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
+        branchesCount=$(echo -n $branchList | xargs | grep -o ' ' | wc -l)
+        branchesCount=$((branchesCount + 1))
+        
+        if [ "$branchesCount" -gt "2" ]; then
+          actionsBranch="master"
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
+        elif [ "$branchesCount" -gt "1" ]; then
+          for branch in $branchList
+          do
+            if [ "$branch" != "master" ]; then
+              actionsBranch=$branch
+            fi
+          done
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
+        else
+          actionsBranch=$branchList
+          echo "Single actions branch [$actionsBranch] found in workflow file."
+        fi
+        
         echo "ACTIONS_BRANCH=feature/tokenomics_suite" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         
         echo '#!/bin/bash
-        if [[ -z "$1" ]];then
+        if [[ -z "$1" || "$1" == "NONE" ]];then
             if [[ -z "$2" ]];then
               echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
               echo "BRANCH_NOT_SPECIFIED_FAILURE=true" >> $GITHUB_ENV
@@ -109,18 +129,19 @@ runs:
         ' > ./check-params.sh;
         chmod 777 check-params.sh
         
-        ./check-params.sh "${{inputs.miner_image}}"        "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
-        ./check-params.sh "${{inputs.sharder_image}}"      "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
-        ./check-params.sh "${{inputs.blobber_image}}"      "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
-        ./check-params.sh "${{inputs.validator_image}}"    "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
-        ./check-params.sh "${{inputs.authorizer_image}}"   "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
-        ./check-params.sh "${{inputs.zbox_image}}"         "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
-        ./check-params.sh "${{inputs.zdns_image}}"         "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
-        ./check-params.sh "${{inputs.zbox_cli_branch}}"    "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
-        ./check-params.sh "${{inputs.zwallet_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
-        ./check-params.sh "${{inputs.zs3_minio}}"          "${{ env.SNAPSHOT_BRANCH_MIBIOSERVER_TAG }}"  "ZS3_MINIO"
-        ./check-params.sh "${{inputs.zs3_logsearchapi}}"   "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
-        ./check-params.sh "${{inputs.zs3_client}}"         "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
+        ./check-params.sh "${{inputs.miner_image}}"            "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
+        ./check-params.sh "${{inputs.sharder_image}}"          "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
+        ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
+        ./check-params.sh "${{inputs.validator_image}}"        "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
+        ./check-params.sh "${{inputs.authorizer_image}}"       "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
+        ./check-params.sh "${{inputs.zbox_image}}"             "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
+        ./check-params.sh "${{inputs.zdns_image}}"             "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
+        ./check-params.sh "${{inputs.zbox_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}"     "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.zs3_minio}}"              "${{ env.SNAPSHOT_BRANCH_MIBIOSERVER_TAG }}"  "ZS3_MINIO"
+        ./check-params.sh "${{inputs.zs3_logsearchapi}}"       "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
+        ./check-params.sh "${{inputs.zs3_client}}"             "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"  "${{ env.SNAPSHOT_BRANCH_GOSDK }}"            "GOSDK_VERSION"
         
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
@@ -177,13 +198,13 @@ runs:
       uses: azure/setup-kubectl@v1
       id: install
 
-    - name: "Installing NodeJS 19"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
-        sudo bash nodesource_setup.sh
-        sudo apt install nodejs -y
-        node -v
+    # - name: "Installing NodeJS 19"
+    #   shell: 'script --return --quiet --command "bash {0}"'
+    #   run: |
+    #     curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
+    #     sudo bash nodesource_setup.sh
+    #     sudo apt install nodejs -y
+    #     node -v
 
     - name: "Configure helm & kubectl"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -272,14 +293,10 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
-        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer, graphnode, ipfs. Will be giving 3 try to install the helmchart.
-        COUNT=24
-        
-        #RET is used to get the success/fail status of latest command executed
-        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
-
         ##############----------------- Installing 0chain helm-chart --------------------###################
-        while [[ $RET -ne 0 && $COUNT -gt 21 ]]; do
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
              --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
@@ -304,6 +321,7 @@ runs:
              --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
              --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
              --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
+             --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
@@ -312,8 +330,9 @@ runs:
         done
 
         ##############----------------- Installing 0dns helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0dns helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 18 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0dns --wait --timeout 60s \
              --set zdns.image.tag=${{ env.ZDNS_TAG }} \
              --set zdns.hostName=${{ env.NAMESPACE }} \
@@ -326,8 +345,9 @@ runs:
         done
         
         ##############----------------- Installing blobber helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 15 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install blobber --wait --timeout 120s \
              --set blobber.blobberCount=2 \
              --set validator.validatorCount=2 \
@@ -351,8 +371,9 @@ runs:
         done
         
         ##############----------------- Installing 0box helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the 0box helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 12 ]]; do
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0Box helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0box --wait \
              --set zbox.hostName=${{ env.NAMESPACE }} \
              --set zbox.host=devnet-0chain.net \
@@ -369,8 +390,9 @@ runs:
         done
 
         ##############----------------- Installing pgadmin helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the pgadmin helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 9 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install pgadmin --wait \
              --set pgadmin.hostName=${{ env.NAMESPACE }} \
              --set pgadmin.host=devnet-0chain.net  -n ${{ env.NAMESPACE }} \
@@ -381,42 +403,12 @@ runs:
            sleep 2
         done
 
-        ##############----------------- Installing ipfs helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the ipfs helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
-           helm upgrade --install ipfs --wait \
-             --set ipfs.hostName=${{ env.NAMESPACE }} \
-             --set ipfs.host=devnet-0chain.net \
-             --set ipfs.image.tag=latest -n ${{ env.NAMESPACE }} \
-             0chain-helm/ipfs --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
-
-        ##############----------------- Installing graph-node helm-chart --------------------###################
-        RET=0         #You can set RET=0 to skip the graph-node helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 3 ]]; do
-           helm upgrade --install graph-node --wait \
-             --set graphNode.nodeCount=1 \
-             --set graphNode.hostName=${{ env.NAMESPACE }} \
-             --set graphNode.host=devnet-0chain.net \
-             --set graphNode.image.tag=latest \
-             --set graphNode.config.ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} \
-             --set graphNode.config.network=${{ env.GRAPHNODE_NETWORK }} \
-             --set graphNode.config.private_fork=true \
-             -n ${{ env.NAMESPACE }} 0chain-helm/graphNode --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
-
         ##############----------------- Installing authorizer helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install authorizer \
+             --set authorizer.config.nativeEventFetch=true \
              --set authorizer.authorizerCount=3 \
              --set authorizer.hostName=${{ env.NAMESPACE }} \
              --set authorizer.host=devnet-0chain.net \
@@ -436,42 +428,19 @@ runs:
     - name: "Setup Go"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
-        [ -d /usr/local/go ] &&  rm -rf /usr/local/go
-        [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
-        tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        if ! go env &> /dev/null; then
+            [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+            [ -d /usr/local/go ] &&  rm -rf /usr/local/go
+            [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
+            tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+        else
+            echo "go already exists"
+        fi
 
         echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
         export PATH=$PATH:/usr/local/go/bin
         which go
         go env
-
-    - name: "Installing subgraph register dependencies"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        sudo apt-get update -y
-        sudo apt-get -y install build-essential nghttp2 libnghttp2-dev libssl-dev wget bison binutils make libpq-dev
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod a+x /usr/local/bin/yq
-
-    - name: "Checkout dex_subgraph"
-      uses: actions/checkout@v2
-      with:
-        ref: 'master'
-        repository: 0chain/dex_subgraph
-        fetch-depth: 1
-        path: ./dex_subgraph
-
-    # - name: "Running subgraph register"
-    #   shell: 'script --return --quiet --command "bash {0}"'
-    #   run: |
-    #     export HOME="/root"
-    #     cd dex_subgraph
-
-    #     pushd ./vendor/tools/get_smart_contract_creation_block
-    #     go build
-    #     popd
-    #     sudo make deploy skip_sync=false network=${{ env.GRAPHNODE_NETWORK }} smart_contract_address=${{ env.GRAPHNODE_SC }} ethereum_node_url=${{ env.GRAPHNODE_ETHEREUM_NODE_URL }} graph_deploy=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/deploy/ graph_index=https://graphnode.${{ env.NAMESPACE }}.devnet-0chain.net/status/graphql graph_ipfs=https://ipfs.${{ env.NAMESPACE }}.devnet-0chain.net
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -489,6 +458,37 @@ runs:
         fetch-depth: 1
         path: ./zboxcli
 
+    - name: "Upgrade GoSDK"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
+      run: |
+        echo
+        echo "=============================================================="
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI"
+        echo "=============================================================="
+        echo
+
+        GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
+        if [[ "$GOSDK_HEAD" == "null" ]]; then
+            echo "[${{ env.GOSDK_VERSION }}] does not seem to be a valid branch (possibly a commit hash?). Will pass directly to go to resolve"
+            GOSDK_HEAD="${{ env.GOSDK_VERSION }}"
+        fi
+
+        echo '#!/bin/bash
+        echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
+        go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        ' > ./upgrade-gosdk.sh;
+        chmod 555 ./upgrade-gosdk.sh
+
+        cd ./zwalletcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        cd ../zboxcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        
+        sudo rm -rf upgrade-gosdk.sh
+
+
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -499,24 +499,11 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-
-
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
+        
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ..
         echo "CLI build SUCCESS!"
