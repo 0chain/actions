@@ -63,8 +63,7 @@ runs:
       if: ${{ env.SKIP_TESTS != 'true' }}
       run: |
         cd ./repo-snapshots
-        echo "Resolved branches.json on repo-snapshots branch [${{ env.REPO_SNAPSHOTS_BRANCH }}]:"
-        cat branches.json
+        echo "Resolved branches.json on repo-snapshots branch [${{ env.REPO_SNAPSHOTS_BRANCH }}]"
         while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.defaultBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.defaultBranch)"' "branches.json")
         while IFS= read -r output; do     echo "$output" >> $GITHUB_ENV; done < <(jq -r 'to_entries[] | select(.value.sprintBranch != null) | "SNAPSHOT_BRANCH_\(.key | ascii_upcase)=\(.value.sprintBranch)"' "branches.json")
 

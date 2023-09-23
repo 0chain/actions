@@ -68,18 +68,20 @@ runs:
     - name: "Config: Run tests against 0Chain network"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        
+        echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo '#!/bin/bash
-        if [[ -z "$1" ]];then
+        if [[ -z "$1" || "$1" == "NONE" ]];then
            if [[ -z "$2" ]];then
              echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
              exit 1
            else
              echo "Using $3 [$2] from repo_snapshots_branch"
+             export $3=$2
              echo "$3=$2" >> $GITHUB_ENV
            fi
         else
            echo "Using $3 tag [$1] from repo_snapshots_branch"
+           export $3=$1
            echo "$3=$1" >> $GITHUB_ENV
         fi
         ' > ./check-params.sh;
@@ -89,6 +91,7 @@ runs:
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
         
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
@@ -124,7 +127,7 @@ runs:
         echo "0wallet CLI branch:       [${{ env.ZWALLET_BRANCH }}]"
         echo "s3 migration CLI branch:  [${{ env.S3_MIGRATION_BRANCH }}]"
         echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
-        echo "Custom gosdk version:     [${{ inputs.custom_go_sdk_version }}]"
+        echo "Custom gosdk version:     [${{ env.GOSDK_VERSION }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
 
@@ -159,19 +162,6 @@ runs:
         path: ./s3-migration
         token: "${{ inputs.svc_account_secret }}"
 
-    - name: "Setup Go"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
-        [ -d /usr/local/go ] &&  rm -rf /usr/local/go
-        [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
-        tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
-        
-        echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
-        export PATH=$PATH:/usr/local/go/bin
-        which go
-        go env
-
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -190,14 +180,51 @@ runs:
         # sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         # sudo chmod a+rx /usr/local/bin/youtube-dl
         # echo
-        echo "3> installing ffmpeg..."
-        sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
-        sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
-        echo "Test dependencies install SUCCESS!"
+        
+        # echo "3> installing ffmpeg..."
+        # sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
+        # sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
+        # echo "Test dependencies install SUCCESS!"
 
-        echo "4> installing cypress dependencies..."
-        apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+        # echo "4> installing cypress dependencies..."
+        # apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
+    - name: "Upgrade GoSDK"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
+      run: |
+        echo
+        echo "=============================================================="
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI, ZS3CLI & SYSTEM TESTS"
+        echo "=============================================================="
+        echo
+        
+        GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
+        if [[ "$GOSDK_HEAD" == "null" ]]; then
+            echo "[${{ env.GOSDK_VERSION }}] does not seem to be a valid branch (possibly a commit hash?). Will pass directly to go to resolve"
+            GOSDK_HEAD="${{ env.GOSDK_VERSION }}"
+        fi
+        
+        echo '#!/bin/bash
+        echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
+        go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        ' > ./upgrade-gosdk.sh;
+        chmod 555 ./upgrade-gosdk.sh
+        
+        cd ./zwalletcli 
+        ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        cd ../zboxcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        cd ../s3-migration 
+        ../upgrade-gosdk.sh $GOSDK_HEAD zs3cli
+        cd ../tests/cli_tests
+        ../../upgrade-gosdk.sh $GOSDK_HEAD "CLI System Tests"
+        cd ../api_tests
+        ../../upgrade-gosdk.sh $GOSDK_HEAD "API System Tests"
+        
+        sudo rm -rf upgrade-gosdk.sh
+        
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -212,24 +239,11 @@ runs:
         
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-  
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         cp zwallet ../tests/tokenomics_tests
         
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         cp zbox ../tests/tokenomics_tests
         
@@ -278,9 +292,9 @@ runs:
         git clone -q https://github.com/0chain/gosdk.git
         cd gosdk
 
-        if [[ -n "${{  inputs.custom_go_sdk_version }}" && "${{  inputs.custom_go_sdk_version }}" != "NONE" ]];
+        if [[ -n "${{  env.GOSDK_VERSION }}" && "${{  env.GOSDK_VERSION }}" != "NONE" ]];
         then
-          git checkout ${{  inputs.custom_go_sdk_version }}
+          git checkout ${{  env.GOSDK_VERSION }}
         fi
 
         cd ..

@@ -87,6 +87,10 @@ inputs:
     description: 'secret used to publish test results - will use your own credentials if not supplied'
     default: ''
     required: false
+  web-apps-image-tag:
+    description: 'Image tag for web-apps (should be common to all web-apps)'
+    default: ''
+    required: false
 
 runs:
   using: "composite"
@@ -126,7 +130,7 @@ runs:
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         
         echo '#!/bin/bash
-        if [[ -z "$1" ]];then
+        if [[ -z "$1" || "$1" == "NONE" ]];then
             if [[ -z "$2" ]];then
               echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
               echo "BRANCH_NOT_SPECIFIED_FAILURE=true" >> $GITHUB_ENV
@@ -141,18 +145,19 @@ runs:
         ' > ./check-params.sh;
         chmod 777 check-params.sh
         
-        ./check-params.sh "${{inputs.miner_image}}"        "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
-        ./check-params.sh "${{inputs.sharder_image}}"      "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
-        ./check-params.sh "${{inputs.blobber_image}}"      "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
-        ./check-params.sh "${{inputs.validator_image}}"    "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
-        ./check-params.sh "${{inputs.authorizer_image}}"   "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
-        ./check-params.sh "${{inputs.zbox_image}}"         "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
-        ./check-params.sh "${{inputs.zdns_image}}"         "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
-        ./check-params.sh "${{inputs.zbox_cli_branch}}"    "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
-        ./check-params.sh "${{inputs.zwallet_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
-        ./check-params.sh "${{inputs.zs3_minio}}"          "${{ env.SNAPSHOT_BRANCH_MIBIOSERVER_TAG }}"  "ZS3_MINIO"
-        ./check-params.sh "${{inputs.zs3_logsearchapi}}"   "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
-        ./check-params.sh "${{inputs.zs3_client}}"         "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
+        ./check-params.sh "${{inputs.miner_image}}"            "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
+        ./check-params.sh "${{inputs.sharder_image}}"          "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
+        ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
+        ./check-params.sh "${{inputs.validator_image}}"        "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
+        ./check-params.sh "${{inputs.authorizer_image}}"       "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
+        ./check-params.sh "${{inputs.zbox_image}}"             "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
+        ./check-params.sh "${{inputs.zdns_image}}"             "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
+        ./check-params.sh "${{inputs.zbox_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}"     "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.zs3_minio}}"              "${{ env.SNAPSHOT_BRANCH_MIBIOSERVER_TAG }}"  "ZS3_MINIO"
+        ./check-params.sh "${{inputs.zs3_logsearchapi}}"       "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
+        ./check-params.sh "${{inputs.zs3_client}}"             "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"  "${{ env.SNAPSHOT_BRANCH_GOSDK }}"            "GOSDK_VERSION"
         
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
@@ -209,13 +214,13 @@ runs:
       uses: azure/setup-kubectl@v1
       id: install
 
-    - name: "Installing NodeJS 19"
-      shell: 'script --return --quiet --command "bash {0}"'
-      run: |
-        curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
-        sudo bash nodesource_setup.sh
-        sudo apt install nodejs -y
-        node -v
+    # - name: "Installing NodeJS 19"
+    #   shell: 'script --return --quiet --command "bash {0}"'
+    #   run: |
+    #     curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
+    #     sudo bash nodesource_setup.sh
+    #     sudo apt install nodejs -y
+    #     node -v
 
     - name: "Configure helm & kubectl"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -304,14 +309,10 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
-        #COUNT is the total count set for installing all 7 helmcharts i.e. 0chain, 0dns, blobber, 0box, authorizer. Will be giving 3 try to install the helmchart.
-        COUNT=24
-        
-        #RET is used to get the success/fail status of latest command executed
-        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
-
         ##############----------------- Installing 0chain helm-chart --------------------###################
-        while [[ $RET -ne 0 && $COUNT -gt 21 ]]; do
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
              --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
@@ -336,6 +337,7 @@ runs:
              --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
              --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
              --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
+             --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
@@ -344,8 +346,9 @@ runs:
         done
 
         ##############----------------- Installing 0dns helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0dns helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 18 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0dns --wait --timeout 60s \
              --set zdns.image.tag=${{ env.ZDNS_TAG }} \
              --set zdns.hostName=${{ env.NAMESPACE }} \
@@ -358,8 +361,9 @@ runs:
         done
         
         ##############----------------- Installing blobber helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 15 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install blobber --wait --timeout 120s \
              --set blobber.blobberCount=6 \
              --set validator.validatorCount=6 \
@@ -383,8 +387,9 @@ runs:
         done
         
         ##############----------------- Installing 0box helm-chart --------------------###################
-        RET=1         #You can set RET=0 to skip the 0box helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 12 ]]; do
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0Box helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install 0box --wait \
              --set zbox.hostName=${{ env.NAMESPACE }} \
              --set zbox.host=devnet-0chain.net \
@@ -401,8 +406,9 @@ runs:
         done
 
         ##############----------------- Installing pgadmin helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the pgadmin helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 9 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install pgadmin --wait \
              --set pgadmin.hostName=${{ env.NAMESPACE }} \
              --set pgadmin.host=devnet-0chain.net  -n ${{ env.NAMESPACE }} \
@@ -414,8 +420,9 @@ runs:
         done
 
         ##############----------------- Installing authorizer helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 6 ]]; do
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install authorizer \
              --set authorizer.config.nativeEventFetch=true \
              --set authorizer.authorizerCount=3 \
@@ -433,6 +440,104 @@ runs:
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
+
+        if [[ -n "${{ inputs.web-apps-image-tag }}" ]]; then
+          ##############----------------- Installing atlus helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the atlus helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install atlus --wait --timeout 60s \
+              --set atlus.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set atlus.hostName=${{ env.NAMESPACE }} \
+              --set atlus.host=devnet-0chain.net \
+              --set atlus.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/atlus --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing blimp helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the blimp helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install blimp --wait --timeout 60s \
+              --set blimp.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set blimp.hostName=${{ env.NAMESPACE }} \
+              --set blimp.host=devnet-0chain.net \
+              --set blimp.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/blimp --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing bolt helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the bolt helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install bolt --wait --timeout 60s \
+              --set bolt.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set bolt.hostName=${{ env.NAMESPACE }} \
+              --set bolt.host=devnet-0chain.net \
+              --set bolt.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/bolt --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing chalk helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the chalk helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install chalk --wait --timeout 60s \
+              --set chalk.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set chalk.hostName=${{ env.NAMESPACE }} \
+              --set chalk.host=devnet-0chain.net \
+              --set chalk.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/chalk --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing chimney helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the chimney helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install chimney --wait --timeout 60s \
+              --set chimney.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set chimney.hostName=${{ env.NAMESPACE }} \
+              --set chimney.host=devnet-0chain.net \
+              --set chimney.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/chimney --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing vult helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the vult helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install vult --wait --timeout 60s \
+              --set vult.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set vult.hostName=${{ env.NAMESPACE }} \
+              --set vult.host=devnet-0chain.net \
+              --set vult.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/vult --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+        fi
 
     - name: "Setup Go"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -467,6 +572,37 @@ runs:
         fetch-depth: 1
         path: ./zboxcli
 
+    - name: "Upgrade GoSDK"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
+      run: |
+        echo
+        echo "=============================================================="
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI"
+        echo "=============================================================="
+        echo
+
+        GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
+        if [[ "$GOSDK_HEAD" == "null" ]]; then
+            echo "[${{ env.GOSDK_VERSION }}] does not seem to be a valid branch (possibly a commit hash?). Will pass directly to go to resolve"
+            GOSDK_HEAD="${{ env.GOSDK_VERSION }}"
+        fi
+
+        echo '#!/bin/bash
+        echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
+        go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        ' > ./upgrade-gosdk.sh;
+        chmod 555 ./upgrade-gosdk.sh
+
+        cd ./zwalletcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        cd ../zboxcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        
+        sudo rm -rf upgrade-gosdk.sh
+
+
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -477,24 +613,11 @@ runs:
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-
-
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zwalletcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zwallet CLI::failed to upgrade zwallet CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
+        
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
-        if [[ -n "${{ inputs.custom_go_sdk_version }}" && "${{ inputs.custom_go_sdk_version }}" != "NONE" ]];
-        then
-          echo "Upgrading zboxcli to GOSDK [${{ inputs.custom_go_sdk_version }}]"
-          go get github.com/0chain/gosdk@${{ inputs.custom_go_sdk_version }} || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-          go mod tidy || { echo "::error title=Failed to upgrade gosdk on zbox CLI::failed to upgrade zbox CLI gosdk to [${{ inputs.custom_go_sdk_version }}]" && exit 1; }
-        fi
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ..
         echo "CLI build SUCCESS!"
@@ -715,6 +838,7 @@ runs:
         echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 5 --data 2 --parity 2 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
+        ./zbox rp-lock --tokens 3 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         echo "Allocation hash: $(cat allocation.txt)"
         echo "ALLOCATION=$(cat allocation.txt)" >> $GITHUB_ENV
 
