@@ -541,7 +541,7 @@ commonConf:
         large_message: 3000 # milliseconds
       large_message_th_size: 5120 # anything greater than this size in bytes
       user_handlers:
-        rate_limit: 100000000 # 100 per second
+        rate_limit: 1500000000 # 100 per second
       n2n_handlers:
         rate_limit: 10000000000 # 10000 per second
 
