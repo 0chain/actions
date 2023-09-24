@@ -56,3 +56,11 @@ runs:
         cd web-apps
         yarn workspace test cypress:${{ inputs.web-app-name }}:run
 
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: ${{ inputs.web-app-name }}-cypress-artifacts
+        path: |
+          /runner/_work/web-apps/web-apps/packages/test/cypress/screenshots
+          /runner/_work/web-apps/web-apps/packages/test/cypress/videos
+        retention-days: 3
