@@ -322,7 +322,7 @@ runs:
              --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
              --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
              --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
-             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=100 \
+             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=10 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
