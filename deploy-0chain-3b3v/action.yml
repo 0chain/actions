@@ -110,7 +110,7 @@ runs:
           echo "Single actions branch [$actionsBranch] found in workflow file."
         fi
         
-        echo "ACTIONS_BRANCH=current-sprint" >> $GITHUB_ENV
+        echo "ACTIONS_BRANCH=$actionsBranch" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
         
         echo '#!/bin/bash
