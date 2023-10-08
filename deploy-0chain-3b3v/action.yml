@@ -327,7 +327,8 @@ runs:
              --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
              --set commonConf.zchainUp.network.user_handlers.rate_limit=1500 \
              --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=10 \
-             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=1 \
+             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=0 \
+             --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=0 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
@@ -362,6 +363,7 @@ runs:
              --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
+             --set blobber.config.update_allocations_interval=10s \
              --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
              --set blobber.hostName=${{ env.NAMESPACE }} \
              --set blobber.host=devnet-0chain.net \
