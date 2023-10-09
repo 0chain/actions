@@ -324,6 +324,7 @@ runs:
              --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
              --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=10 \
              --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=10 \
+             --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=10 \
              --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=10 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
