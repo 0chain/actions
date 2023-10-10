@@ -343,6 +343,9 @@ runs:
              --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
              --set commonConf.zchainUp.network.user_handlers.rate_limit=1500 \
              --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=1 \
+             --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=10 \
+             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=10 \
+             --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=10 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
