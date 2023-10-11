@@ -395,6 +395,7 @@ runs:
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=30m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^K0P][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestProtocolChallengeTimings[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=30m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHALLENGE_API_TEST_RUNNER_COMMAND.sh && chmod 777 CHALLENGE_API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestProtocolChallenge[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHALLENGE_TEST_RUNNER_COMMAND.sh && chmod 777 CHALLENGE_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestKill[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > KILL_TEST_RUNNER_COMMAND.sh && chmod 777 KILL_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
@@ -405,6 +406,7 @@ runs:
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/s3cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/challengetestscli
+        mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/challengetestsapi
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/killtestscli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/tokenomics
@@ -412,6 +414,7 @@ runs:
         mkdir -p ${BRANCH_DIR}/latest/cli
         mkdir -p ${BRANCH_DIR}/latest/s3cli
         mkdir -p ${BRANCH_DIR}/latest/challengetestscli
+        mkdir -p ${BRANCH_DIR}/latest/challengetestsapi
         mkdir -p ${BRANCH_DIR}/latest/killtestscli
         mkdir -p ${BRANCH_DIR}/latest/flaky_cli
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
@@ -735,9 +738,18 @@ runs:
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestscli/index.html --title "0Chain System test suite: Challenge tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestscli ../../${{ env.BRANCH_DIR }}/latest/
+
+        cd ../api_tests
+        challenge_api_tests_exit_code=0
+
+        echo "Challenge API Tests started..."
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../CHALLENGE_API_TEST_RUNNER_COMMAND.sh || challenge_api_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestsapi/index.html --title "0Chain System test suite: Challenge API tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestsapi ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
-        if [[ $system_tests_exit_code == 0 ]];
+        if [[ $system_tests_exit_code == 0 && challenge_api_tests_exit_code == 0 ]];
           then
             echo CHALLENGE_TESTS_PASSED=true >> $GITHUB_ENV
           else
@@ -757,6 +769,7 @@ runs:
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
           ./${{ env.BRANCH_DIR }}/latest/challengetestscli/index.html
+          ./${{ env.BRANCH_DIR }}/latest/challengetestsapi/index.html
 
     - name: "Run CLI System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
