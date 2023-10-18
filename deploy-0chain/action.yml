@@ -338,7 +338,7 @@ runs:
              --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
              --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
              --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
-             --set commonConf.sc.smart_contracts.storagesc.max_blobber_select_for_challenge=6 \
+             --set commonConf.sc.smart_contracts.storagesc.max_blobber_select_for_challenge=2 \
              --set commonConf.sc.smart_contracts.storagesc.max_delegates=30 \
              --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
              --set commonConf.zchainUp.network.user_handlers.rate_limit=1500 \
