@@ -564,15 +564,15 @@ runs:
         cp tests/cli_tests/zbox .
 
         ####### CREATING ALLOCATION THAT SHOULD RECEIVE CHALLENGES #######
-        truncate -s 1048576 upload_test_file
+        truncate -s 1000000 upload_test_file
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 10485760 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation1.txt
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation1.txt
         echo "Allocation 1 hash: $(cat allocation1.txt)"
         ./zbox upload --allocation "$(cat allocation1.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         
         ####### CREATING ALLOCATION WITH UPLOAD AND DELETE THAT SHOULD NOT RECEIVE CHALLENGES #######
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 10485760 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
         echo "Allocation 2 hash: $(cat allocation2.txt)"
         ./zbox upload --allocation "$(cat allocation2.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         sleep 5
@@ -580,12 +580,12 @@ runs:
         
         ####### CREATING EMPTY ALLOCATION SHOULD NOT RECEIVE CHALLENGES #######
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 10485760 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation3.txt
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation3.txt
         echo "Allocation 3 hash: $(cat allocation3.txt)"
         
         ######## Updating allocation with add blobber and added blobber should receive challenges #######
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 10485760 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation4.txt
+        ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation4.txt
         echo "Allocation 4 hash: $(cat allocation4.txt)"
         
         # Get the allocation response using the zbox command and store it in a variable
@@ -635,7 +635,7 @@ runs:
         
         ######## Updating allocation with add and remove blobber and where added blobber should receive and removed blobber should not receive challenges ########
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 10485760 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation5.txt
+        ./zbox newallocation --lock 5000 --data 2 --parity 2 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation5.txt
         echo "Allocation 5 hash: $(cat allocation5.txt)"
         
         # Get the allocation response using the zbox command and store it in a variable
@@ -701,7 +701,7 @@ runs:
         
         ####### CANCELLED ALLOCATION SHOULD NOT GET CHALLENGES ANYMORE #######
         ./zwallet faucet --methodName "pour" --tokens 9000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 10485760 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation6.txt
+        ./zbox newallocation --lock 5000 --data 3 --parity 3 --size 1000000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation6.txt
         echo "Allocation 6 hash: $(cat allocation6.txt)"
         ./zbox upload --allocation "$(cat allocation6.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         sleep 5
