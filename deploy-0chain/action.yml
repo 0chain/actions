@@ -405,6 +405,7 @@ runs:
              --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set zbox.config.graph_node.network=${{ env.NAMESPACE }} \
              --set zbox.config.graph_node.domain=devnet-0chain.net \
+             --set zbox.config.graph.snapshot_interval=1000 \
              --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
              0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
