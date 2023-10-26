@@ -390,14 +390,14 @@ runs:
         sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/config.yaml
         sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/config.yaml
         sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/config.yaml
-        sed "s,password:.*,password: "\12345678\""," -i ./tests/cli_tests/config/config.yaml
+        sed "s,password:.*,password:\"12345678\"," -i ./tests/cli_tests/config/config.yaml
 
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,password:.*,password: "\12345678\""," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,password:.*,password:\"12345678\"," -i ./tests/cli_tests/config/zbox_config.yaml
 
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
