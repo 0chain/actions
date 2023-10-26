@@ -943,7 +943,7 @@ runs:
         cd tests/api_tests
         chimney_blobber_tests_exit_code=0
         GOPATH=$(echo $(go env GOPATH))
-        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../CHIMNEY_BLOBBER_TEST_RUNNER_COMMAND.sh || chimney_blobber_tests_exit_code=$?
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname  --raw-command -- ../../CHIMNEY_BLOBBER_TEST_RUNNER_COMMAND.sh || chimney_blobber_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/chimney_blobber_index.html --title "0Chain Chimney Blobber System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api ../../${{ env.BRANCH_DIR }}/latest/
