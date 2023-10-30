@@ -383,6 +383,7 @@ runs:
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/config.yaml
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,chimney_test_network:.*,chimney_test_network: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
 
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/cli_tests/config/config.yaml
