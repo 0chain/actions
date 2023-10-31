@@ -362,10 +362,10 @@ runs:
              --set blobber.config.read_price=0.01 \
              --set blobber.config.price_in_usd="false" \
              --set blobber.config.max_dirs_files=2 \
-             --set blobber.config.rate_limiters.block_limit_daily=100 \
-             --set blobber.config.rate_limiters.block_limit_request=32 \
-             --set blobber.config.rate_limiters.block_limit_monthly=100 \
-             --set blobber.config.rate_limiters.upload_limit_monthly=100 \
+             --set blobber.config.rate_limiters.block_limit_daily=2 \
+             --set blobber.config.rate_limiters.block_limit_request=2 \
+             --set blobber.config.rate_limiters.block_limit_monthly=2 \
+             --set blobber.config.rate_limiters.upload_limit_monthly=2 \
              --set blobber.config.rate_limiters.commit_limit_monthly=2 \
              --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
