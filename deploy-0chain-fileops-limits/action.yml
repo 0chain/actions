@@ -325,9 +325,10 @@ runs:
              --set commonConf.sc.smart_contracts.storagesc.max_blobber_select_for_challenge=1 \
              --set commonConf.sc.smart_contracts.storagesc.max_delegates=30 \
              --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
-             --set commnConf.zchainUp.network.user_handlers.rate_limit=1500 \
-             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=0 \
+             --set commonConf.zchainUp.network.user_handlers.rate_limit=1500 \
+             --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=10 \
              --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=0 \
+             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=0 \
              --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=0 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
@@ -356,13 +357,13 @@ runs:
         RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install blobber --wait --timeout 120s \
-             --set blobber.blobberCount=6 \
-             --set validator.validatorCount=6 \
+             --set blobber.blobberCount=2 \
+             --set validator.validatorCount=2 \
              --set blobber.config.read_price=0.01 \
              --set blobber.config.price_in_usd="false" \
              --set blobber.config.max_dirs_files=2 \
              --set blobber.config.rate_limiters.block_limit_daily=100 \
-             --set blobber.config.rate_limiters.block_limit_request=2 \
+             --set blobber.config.rate_limiters.block_limit_request=32 \
              --set blobber.config.rate_limiters.block_limit_monthly=100 \
              --set blobber.config.rate_limiters.upload_limit_monthly=100 \
              --set blobber.config.rate_limiters.commit_limit_monthly=2 \
