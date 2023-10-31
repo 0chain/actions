@@ -361,7 +361,7 @@ runs:
              --set validator.validatorCount=2 \
              --set blobber.config.read_price=0.01 \
              --set blobber.config.price_in_usd="false" \
-             --set blobber.config.max_dirs_files=2 \
+             --set blobber.config.max_dirs_files=4 \
              --set blobber.config.rate_limiters.block_limit_daily=2 \
              --set blobber.config.rate_limiters.block_limit_request=2 \
              --set blobber.config.rate_limiters.block_limit_monthly=2 \
