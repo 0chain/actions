@@ -486,6 +486,7 @@ runs:
         echo "======================================================"
         echo
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
+        export HOME="/root"
         cd zwalletcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
