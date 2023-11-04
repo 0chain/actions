@@ -475,6 +475,7 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
+        export HOME="/root"
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
