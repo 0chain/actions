@@ -109,7 +109,7 @@ runs:
         branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
         branchesCount=$(echo -n $branchList | xargs | grep -o ' ' | wc -l)
         branchesCount=$((branchesCount + 1))
-        
+
         if [ "$branchesCount" -gt "2" ]; then
           actionsBranch="master"
           echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
@@ -125,10 +125,10 @@ runs:
           actionsBranch=$branchList
           echo "Single actions branch [$actionsBranch] found in workflow file."
         fi
-        
+
         echo "ACTIONS_BRANCH=$actionsBranch" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-        
+
         echo '#!/bin/bash
         if [[ -z "$1" || "$1" == "NONE" ]];then
             if [[ -z "$2" ]];then
@@ -144,7 +144,7 @@ runs:
         fi
         ' > ./check-params.sh;
         chmod 777 check-params.sh
-        
+
         ./check-params.sh "${{inputs.miner_image}}"            "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
         ./check-params.sh "${{inputs.sharder_image}}"          "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
         ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
@@ -158,7 +158,7 @@ runs:
         ./check-params.sh "${{inputs.zs3_logsearchapi}}"       "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
         ./check-params.sh "${{inputs.zs3_client}}"             "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
         ./check-params.sh "${{inputs.custom_go_sdk_version}}"  "${{ env.SNAPSHOT_BRANCH_GOSDK }}"            "GOSDK_VERSION"
-        
+
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
@@ -167,7 +167,7 @@ runs:
         echo "GRAPHNODE_SC=$(echo ${{ inputs.graphnode_sc }})" >> $GITHUB_ENV
         echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
         echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
-        
+
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
@@ -265,7 +265,7 @@ runs:
       run: |
         cd ..
         echo "ACTIONS branch: ${{ env.ACTIONS_BRANCH }}"
-        
+
         echo '#!/bin/bash
         sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap $1
@@ -367,7 +367,7 @@ runs:
            echo "Retrying helm install"
            sleep 2
         done
-        
+
         ##############----------------- Installing blobber helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
@@ -393,7 +393,7 @@ runs:
            echo "Retrying helm install"
            sleep 2
         done
-        
+
         ##############----------------- Installing 0box helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0Box helm-chart deployment
@@ -602,6 +602,7 @@ runs:
 
         echo '#!/bin/bash
         echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
+        go clean -modcache -cache
         go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
         go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         ' > ./upgrade-gosdk.sh;
@@ -611,7 +612,7 @@ runs:
         ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
         cd ../zboxcli
         ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
-        
+
         sudo rm -rf upgrade-gosdk.sh
 
 
@@ -627,7 +628,7 @@ runs:
         cd zwalletcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
-        
+
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
