@@ -258,7 +258,7 @@ runs:
     - name: Checkout webapps repo
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        git clone -b ${{inputs.webapps_branch}} https://${{ inputs.GIT_USER }}:${{ inputs.GIT_PAT }}@github.com/0chain/web-apps.git
+        git clone -b ${{ inputs.webapps_branch }} https://${{ inputs.GIT_USER }}:${{ inputs.GIT_PAT }}@github.com/0chain/web-apps.git
 
     - name: Set Docker Image Tags.
       shell: 'script --return --quiet --command "bash {0}"'
@@ -386,7 +386,7 @@ runs:
         echo "WEBHOOK_API_TOKEN=${{ inputs.WEBHOOK_API_TOKEN }}" >> .env
         echo "TRANSLATION_API_KEY=${{ inputs.TRANSLATION_API_KEY }}" >> .env
         echo "ZENDESK_KEY=${{ inputs.ZENDESK_KEY }}" >> .env
-        echo "DOMAIN=${{inputs.network_url}}" >> .env
+        echo "DOMAIN=${{ inputs.network_url }}" >> .env
         echo "ZBOX_APP=${{ inputs.ZBOX_APP }}" >> .env
         echo "JWT_ENABLED=${{ inputs.JWT_ENABLED }}" >> .env
         echo "BE_URL=${{ inputs.BE_URL }}" >> .env
