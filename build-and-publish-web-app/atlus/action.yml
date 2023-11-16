@@ -1,0 +1,246 @@
+name: Build and publish docker image for webapp
+description: Builds and published docker images for for webapp
+inputs:
+  web-app-name:
+    description: 'name of the web-app to build and publish'
+    default: ""
+  web-apps-branch:
+    description: 'web-apps branch to publish'
+    default: master
+  network-url:
+    description: 'network url for web-apps to point to, example: demo.zus.network'
+    default: ""
+  number:
+    description: 'runner number'
+    default: ""
+  git_user:
+    description: 'secrets.GIT_USER'
+    default: ""
+  git_pat:
+    description: 'secrets.GIT_PAT'
+    default: ""
+  dockerhub_username:
+    description: 'secrets.DOCKERHUB_USERNAME'
+    default: ""
+  dockerhub_password:
+    description: 'secrets.DOCKERHUB_PASSWORD'
+    default: ""
+  web_app_registry:
+    description: 'docker registry for web-app to be published to'
+    default: ""
+  gosdk_branch:
+    description: 'GOSDK branch to build wasm'
+    default: ""
+outputs:
+  atlus-build-tag:
+    description: "build-tag"
+    value: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout gosdk Repo to build wasm"
+      run: |
+        git clone https://github.com/0chain/gosdk.git
+        cd gosdk
+        git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | while read remote; do git branch --track "${remote#origin/}" "$remote"; done || true
+        BRANCH="${{ inputs.gosdk_branch }}"
+        if [[ $BRANCH -eq "" ]]; then
+          echo "Checking for latest sprint branch"
+          git branch --sort=-committerdate | grep "sprint-*" | head -1
+          BRANCH=$(git branch --sort=-committerdate | grep "sprint-*" | head -1)
+          echo ::set-output name=BRANCH::${BRANCH}
+        fi
+        echo "Branch name is ${BRANCH}"
+        git checkout ${BRANCH}
+        cd ..
+
+    - name: "build wasm-sdk"
+      run: |
+        cd gosdk
+        rm -rf .git
+        docker run --rm -v $PWD:/gosdk -w /gosdk golang:1.20 make wasm-build
+
+    - name: Checkout webapps repo
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        git clone -b ${{inputs.web-apps-branch}} https://${{ inputs.GIT_USER }}:${{ inputs.GIT_PAT }}@github.com/0chain/web-apps.git
+
+    - name: Set Docker Image Tags.
+      shell: 'script --return --quiet --command "bash {0}"'
+      id: get_info
+      run: |
+        cd web-apps
+        echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+        echo "TAG=${{inputs.web-apps-branch}}" >> $GITHUB_ENV
+        echo $TAG
+
+    - name: Login To Docker Repository.
+      uses: docker/login-action@v2
+      with:
+        username: ${{ inputs.dockerhub_username }}
+        password: ${{ inputs.dockerhub_password }}
+
+    - name: Setting Up Environment Variables.
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd web-apps
+        touch .env
+        echo "FBASE_API_KEY=${{ inputs.FBASE_API_KEY }}" > .env
+        echo "FBASE_AUTH_DOMAIN=${{ inputs.FBASE_AUTH_DOMAIN }}" >> .env
+        echo "FBASE_DB_URL=${{ inputs.FBASE_DB_URL }}" >> .env
+        echo "FBASE_PROJECT_ID=${{ inputs.FBASE_PROJECT_ID }}" >> .env
+        echo "FBASE_STORAGE_BUCKET=${{ inputs.FBASE_STORAGE_BUCKET }}" >> .env
+        echo "FBASE_MESSAGING_SENDER_ID=${{ inputs.FBASE_MESSAGING_SENDER_ID }}" >> .env
+        echo "FBASE_APP_ID=${{ inputs.FBASE_APP_ID }}" >> .env
+        echo "WEBHOOK_API_TOKEN=${{ inputs.WEBHOOK_API_TOKEN }}" >> .env
+        echo "TRANSLATION_API_KEY=${{ inputs.TRANSLATION_API_KEY }}" >> .env
+        echo "ZENDESK_KEY=${{ inputs.ZENDESK_KEY }}" >> .env
+        echo "DOMAIN=${{inputs.network-url}}" >> .env
+        echo "ZBOX_APP=${{ inputs.ZBOX_APP }}" >> .env
+        echo "JWT_ENABLED=${{ inputs.JWT_ENABLED }}" >> .env
+        echo "BE_URL=${{ inputs.BE_URL }}" >> .env
+        echo "NEXT_PUBLIC_MONDAY_FORM=${{ inputs.NEXT_PUBLIC_MONDAY_FORM }}" >> .env
+        echo "DEFAULT_THEME=${{ inputs.DEFAULT_THEME }}" >> .env
+        echo "ATLUS_URL=${{ inputs.ATLUS_URL }}" >> .env
+        echo "NODE_ENV=${{ inputs.NODE_ENV }}" >> .env
+        echo "APP_ENV=${{ inputs.APP_ENV }}" >> .env
+        echo "ETH_CHAIN_ID=${{ inputs.ETH_CHAIN_ID }}" >> .env
+        echo "DEX_CHAIN_ID=${{ inputs.DEX_CHAIN_ID }}" >> .env
+        echo "ZCN_TOKEN=${{ inputs.ZCN_TOKEN }}" >> .env
+        echo "MOCK_ZCN_TOKEN=${{ inputs.MOCK_ZCN_TOKEN }}" >> .env
+        echo "ETH_TOKEN=${{ inputs.ETH_TOKEN }}" >> .env
+        echo "BANCOR_NETWORK=${{ inputs.BANCOR_NETWORK }}" >> .env
+        echo "BRIDGE=${{ inputs.BRIDGE }}" >> .env
+        echo "AUTHORIZER_ADDRESS=${{ inputs.AUTHORIZER_ADDRESS }}" >> .env
+        echo "ETH_NODE_URL=${{ inputs.ETH_NODE_URL }}" >> .env
+        echo "NFT_NODE_URL=${{ inputs.NFT_NODE_URL }}" >> .env
+        echo "REVERSE_BRIDGE=${{ inputs.REVERSE_BRIDGE }}" >> .env
+        echo "BANCOR_TOKEN_ADDRESS=${{ inputs.REVERSE_BRIDGE }}" >> .env
+        echo "USDC_TOKEN_ADDRESS=${{ inputs.USDC_TOKEN_ADDRESS }}" >> .env
+        echo "EURC_TOKEN_ADDRESS=${{ inputs.EURC_TOKEN_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_ADDRESS=${{ inputs.NFT_FACTORY_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS }}" >> .env
+        echo "MUMBAI_TESTNET_NETWORK_ID=${{ inputs.MUMBAI_TESTNET_NETWORK_ID }}" >> .env
+        echo "POLYGON_MAINNET_NETWORK_ID=${{ inputs.POLYGON_MAINNET_NETWORK_ID }}" >> .env
+        echo "ETHEREUM_NETWORK_ID=${{ inputs.ETHEREUM_NETWORK_ID }}" >> .env
+        echo "MUMBAI_TESTNET_CHAIN_ID=${{ inputs.MUMBAI_TESTNET_CHAIN_ID }}" >> .env
+        echo "POLYGON_MAINNET_CHAIN_ID=${{ inputs.POLYGON_MAINNET_CHAIN_ID }}" >> .env
+        echo "ETHEREUM_CHAIN_ID=${{ inputs.ETHEREUM_CHAIN_ID }}" >> .env
+        echo "BLOCK_EXPLORER_URL=${{ inputs.BLOCK_EXPLORER_URL }}" >> .env
+
+        cd packages/${{ inputs.web-app-name }}
+        touch .env
+        echo "FBASE_API_KEY=${{ inputs.FBASE_API_KEY }}" > .env
+        echo "FBASE_AUTH_DOMAIN=${{ inputs.FBASE_AUTH_DOMAIN }}" >> .env
+        echo "FBASE_DB_URL=${{ inputs.FBASE_DB_URL }}" >> .env
+        echo "FBASE_PROJECT_ID=${{ inputs.FBASE_PROJECT_ID }}" >> .env
+        echo "FBASE_STORAGE_BUCKET=${{ inputs.FBASE_STORAGE_BUCKET }}" >> .env
+        echo "FBASE_MESSAGING_SENDER_ID=${{ inputs.FBASE_MESSAGING_SENDER_ID }}" >> .env
+        echo "FBASE_APP_ID=${{ inputs.FBASE_APP_ID }}" >> .env
+        echo "WEBHOOK_API_TOKEN=${{ inputs.WEBHOOK_API_TOKEN }}" >> .env
+        echo "TRANSLATION_API_KEY=${{ inputs.TRANSLATION_API_KEY }}" >> .env
+        echo "ZENDESK_KEY=${{ inputs.ZENDESK_KEY }}" >> .env
+        echo "DOMAIN=${{inputs.network-url}}" >> .env
+        echo "ZBOX_APP=${{ inputs.ZBOX_APP }}" >> .env
+        echo "JWT_ENABLED=${{ inputs.JWT_ENABLED }}" >> .env
+        echo "BE_URL=${{ inputs.BE_URL }}" >> .env
+        echo "NEXT_PUBLIC_MONDAY_FORM=${{ inputs.NEXT_PUBLIC_MONDAY_FORM }}" >> .env
+        echo "DEFAULT_THEME=${{ inputs.DEFAULT_THEME }}" >> .env
+        echo "ATLUS_URL=${{ inputs.ATLUS_URL }}" >> .env
+        echo "NODE_ENV=${{ inputs.NODE_ENV }}" >> .env
+        echo "APP_ENV=${{ inputs.APP_ENV }}" >> .env
+        echo "ETH_CHAIN_ID=${{ inputs.ETH_CHAIN_ID }}" >> .env
+        echo "DEX_CHAIN_ID=${{ inputs.DEX_CHAIN_ID }}" >> .env
+        echo "ZCN_TOKEN=${{ inputs.ZCN_TOKEN }}" >> .env
+        echo "MOCK_ZCN_TOKEN=${{ inputs.MOCK_ZCN_TOKEN }}" >> .env
+        echo "ETH_TOKEN=${{ inputs.ETH_TOKEN }}" >> .env
+        echo "BANCOR_NETWORK=${{ inputs.BANCOR_NETWORK }}" >> .env
+        echo "BRIDGE=${{ inputs.BRIDGE }}" >> .env
+        echo "AUTHORIZER_ADDRESS=${{ inputs.AUTHORIZER_ADDRESS }}" >> .env
+        echo "ETH_NODE_URL=${{ inputs.ETH_NODE_URL }}" >> .env
+        echo "NFT_NODE_URL=${{ inputs.NFT_NODE_URL }}" >> .env
+        echo "REVERSE_BRIDGE=${{ inputs.REVERSE_BRIDGE }}" >> .env
+        echo "BANCOR_TOKEN_ADDRESS=${{ inputs.REVERSE_BRIDGE }}" >> .env
+        echo "USDC_TOKEN_ADDRESS=${{ inputs.USDC_TOKEN_ADDRESS }}" >> .env
+        echo "EURC_TOKEN_ADDRESS=${{ inputs.EURC_TOKEN_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_ADDRESS=${{ inputs.NFT_FACTORY_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS }}" >> .env
+        echo "MUMBAI_TESTNET_NETWORK_ID=${{ inputs.MUMBAI_TESTNET_NETWORK_ID }}" >> .env
+        echo "POLYGON_MAINNET_NETWORK_ID=${{ inputs.POLYGON_MAINNET_NETWORK_ID }}" >> .env
+        echo "ETHEREUM_NETWORK_ID=${{ inputs.ETHEREUM_NETWORK_ID }}" >> .env
+        echo "MUMBAI_TESTNET_CHAIN_ID=${{ inputs.MUMBAI_TESTNET_CHAIN_ID }}" >> .env
+        echo "POLYGON_MAINNET_CHAIN_ID=${{ inputs.POLYGON_MAINNET_CHAIN_ID }}" >> .env
+        echo "ETHEREUM_CHAIN_ID=${{ inputs.ETHEREUM_CHAIN_ID }}" >> .env
+        echo "BLOCK_EXPLORER_URL=${{ inputs.BLOCK_EXPLORER_URL }}" >> .env
+
+        cd ../../packages/shared
+        touch .env
+        echo "FBASE_API_KEY=${{ inputs.FBASE_API_KEY }}" > .env
+        echo "FBASE_AUTH_DOMAIN=${{ inputs.FBASE_AUTH_DOMAIN }}" >> .env
+        echo "FBASE_DB_URL=${{ inputs.FBASE_DB_URL }}" >> .env
+        echo "FBASE_PROJECT_ID=${{ inputs.FBASE_PROJECT_ID }}" >> .env
+        echo "FBASE_STORAGE_BUCKET=${{ inputs.FBASE_STORAGE_BUCKET }}" >> .env
+        echo "FBASE_MESSAGING_SENDER_ID=${{ inputs.FBASE_MESSAGING_SENDER_ID }}" >> .env
+        echo "FBASE_APP_ID=${{ inputs.FBASE_APP_ID }}" >> .env
+        echo "WEBHOOK_API_TOKEN=${{ inputs.WEBHOOK_API_TOKEN }}" >> .env
+        echo "TRANSLATION_API_KEY=${{ inputs.TRANSLATION_API_KEY }}" >> .env
+        echo "ZENDESK_KEY=${{ inputs.ZENDESK_KEY }}" >> .env
+        echo "DOMAIN=${{inputs.network-url}}" >> .env
+        echo "ZBOX_APP=${{ inputs.ZBOX_APP }}" >> .env
+        echo "JWT_ENABLED=${{ inputs.JWT_ENABLED }}" >> .env
+        echo "BE_URL=${{ inputs.BE_URL }}" >> .env
+        echo "NEXT_PUBLIC_MONDAY_FORM=${{ inputs.NEXT_PUBLIC_MONDAY_FORM }}" >> .env
+        echo "DEFAULT_THEME=${{ inputs.DEFAULT_THEME }}" >> .env
+        echo "ATLUS_URL=${{ inputs.ATLUS_URL }}" >> .env
+        echo "NODE_ENV=${{ inputs.NODE_ENV }}" >> .env
+        echo "APP_ENV=${{ inputs.APP_ENV }}" >> .env
+        echo "ETH_CHAIN_ID=${{ inputs.ETH_CHAIN_ID }}" >> .env
+        echo "DEX_CHAIN_ID=${{ inputs.DEX_CHAIN_ID }}" >> .env
+        echo "ZCN_TOKEN=${{ inputs.ZCN_TOKEN }}" >> .env
+        echo "MOCK_ZCN_TOKEN=${{ inputs.MOCK_ZCN_TOKEN }}" >> .env
+        echo "ETH_TOKEN=${{ inputs.ETH_TOKEN }}" >> .env
+        echo "BANCOR_NETWORK=${{ inputs.BANCOR_NETWORK }}" >> .env
+        echo "BRIDGE=${{ inputs.BRIDGE }}" >> .env
+        echo "AUTHORIZER_ADDRESS=${{ inputs.AUTHORIZER_ADDRESS }}" >> .env
+        echo "ETH_NODE_URL=${{ inputs.ETH_NODE_URL }}" >> .env
+        echo "NFT_NODE_URL=${{ inputs.NFT_NODE_URL }}" >> .env
+        echo "REVERSE_BRIDGE=${{ inputs.REVERSE_BRIDGE }}" >> .env
+        echo "BANCOR_TOKEN_ADDRESS=${{ inputs.REVERSE_BRIDGE }}" >> .env
+        echo "USDC_TOKEN_ADDRESS=${{ inputs.USDC_TOKEN_ADDRESS }}" >> .env
+        echo "EURC_TOKEN_ADDRESS=${{ inputs.EURC_TOKEN_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_ADDRESS=${{ inputs.NFT_FACTORY_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS }}" >> .env
+        echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=${{ inputs.NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS }}" >> .env
+        echo "MUMBAI_TESTNET_NETWORK_ID=${{ inputs.MUMBAI_TESTNET_NETWORK_ID }}" >> .env
+        echo "POLYGON_MAINNET_NETWORK_ID=${{ inputs.POLYGON_MAINNET_NETWORK_ID }}" >> .env
+        echo "ETHEREUM_NETWORK_ID=${{ inputs.ETHEREUM_NETWORK_ID }}" >> .env
+        echo "MUMBAI_TESTNET_CHAIN_ID=${{ inputs.MUMBAI_TESTNET_CHAIN_ID }}" >> .env
+        echo "POLYGON_MAINNET_CHAIN_ID=${{ inputs.POLYGON_MAINNET_CHAIN_ID }}" >> .env
+        echo "ETHEREUM_CHAIN_ID=${{ inputs.ETHEREUM_CHAIN_ID }}" >> .env
+        echo "BLOCK_EXPLORER_URL=${{ inputs.BLOCK_EXPLORER_URL }}" >> .env
+
+    - name: Copy the wasm binary
+      run: |
+        cp gosdk/zcn.wasm web-apps/packages/${{ inputs.web-app-name }}/public/zcn.wasm
+        cp gosdk/zcn.wasm web-apps/packages/shared/public/zcn.wasm
+
+    - name: Build & Push Docker Image.
+      shell: 'script --return --quiet --command "bash {0}"'
+      id: docker_build
+      run: |
+        cd web-apps
+        docker build -f ./packages/${{ inputs.web-app-name }}/docker/dockerfile . -t ${{ inputs.web_app_registry }}:latest
+        echo $TAG-$SHORT_SHA
+        echo "COMMIT_TAG=dev-${{inputs.number}}-${{ inputs.web-app-name }}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+
+        docker tag ${{ inputs.web_app_registry }}:latest ${{ inputs.web_app_registry }}:dev-${{inputs.number}}-${{ inputs.web-app-name }}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.web_app_registry }}:dev-${{inputs.number}}-${{ inputs.web-app-name }}-$TAG-$SHORT_SHA
