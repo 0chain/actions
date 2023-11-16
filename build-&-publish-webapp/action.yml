@@ -231,6 +231,7 @@ runs:
   using: "composite"
   steps:
     - name: "Checkout gosdk Repo to build wasm"
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         git clone https://github.com/0chain/gosdk.git
         cd gosdk
@@ -247,6 +248,7 @@ runs:
         cd ..
 
     - name: "build wasm-sdk"
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd gosdk
         rm -rf .git
@@ -420,6 +422,7 @@ runs:
         echo "BLOCK_EXPLORER_URL=${{ inputs.BLOCK_EXPLORER_URL }}" >> .env
 
     - name: Copy the wasm binary
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cp gosdk/zcn.wasm web-apps/packages/${{ inputs.webapp_name }}/public/zcn.wasm
         cp gosdk/zcn.wasm web-apps/packages/shared/public/zcn.wasm
