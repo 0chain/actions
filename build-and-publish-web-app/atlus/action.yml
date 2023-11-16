@@ -1,36 +1,227 @@
 name: Build and publish docker image for webapp
 description: Builds and published docker images for for webapp
 inputs:
-  web-app-name:
+  webapp_name:
     description: 'name of the web-app to build and publish'
     default: ""
-  web-apps-branch:
+    required: true
+  webapps_branch:
     description: 'web-apps branch to publish'
-    default: master
-  network-url:
+    default: ""
+    required: true
+  network_url:
     description: 'network url for web-apps to point to, example: demo.zus.network'
     default: ""
-  number:
+    required: true
+  runner_number:
     description: 'runner number'
     default: ""
+    required: false
   git_user:
     description: 'secrets.GIT_USER'
     default: ""
+    required: true
   git_pat:
     description: 'secrets.GIT_PAT'
     default: ""
+    required: true
   dockerhub_username:
     description: 'secrets.DOCKERHUB_USERNAME'
     default: ""
+    required: true
   dockerhub_password:
     description: 'secrets.DOCKERHUB_PASSWORD'
     default: ""
-  web_app_registry:
+    required: true
+  webapp_registry:
     description: 'docker registry for web-app to be published to'
     default: ""
+    required: true
   gosdk_branch:
     description: 'GOSDK branch to build wasm'
     default: ""
+    required: false
+  FBASE_API_KEY:
+    description: 'FBASE_API_KEY'
+    default: ""
+    required: true
+  FBASE_AUTH_DOMAIN:
+    description: 'FBASE_AUTH_DOMAIN'
+    default: ""
+    required: true
+  FBASE_DB_URL:
+    description: 'FBASE_DB_URL'
+    default: ""
+    required: true
+  FBASE_PROJECT_ID:
+    description: 'FBASE_PROJECT_ID'
+    default: ""
+    required: true
+  FBASE_STORAGE_BUCKET:
+    description: 'FBASE_STORAGE_BUCKET'
+    default: ""
+    required: true
+  FBASE_MESSAGING_SENDER_ID:
+    description: 'FBASE_MESSAGING_SENDER_ID'
+    default: ""
+    required: true
+  FBASE_APP_ID:
+    description: 'FBASE_APP_ID'
+    default: ""
+    required: true
+  WEBHOOK_API_TOKEN:
+    description: 'WEBHOOK_API_TOKEN'
+    default: ""
+    required: true
+  TRANSLATION_API_KEY:
+    description: 'TRANSLATION_API_KEY'
+    default: ""
+    required: true
+  ZENDESK_KEY:
+    description: 'ZENDESK_KEY'
+    default: ""
+    required: true
+  DOMAIN:
+    description: 'DOMAIN'
+    default: ""
+    required: true
+  ZBOX_APP:
+    description: 'ZBOX_APP'
+    default: ""
+    required: true
+  JWT_ENABLED:
+    description: 'JWT_ENABLED'
+    default: ""
+    required: true
+  BE_URL:
+    description: 'BE_URL'
+    default: ""
+    required: true
+  NEXT_PUBLIC_MONDAY_FORM:
+    description: 'NEXT_PUBLIC_MONDAY_FORM'
+    default: ""
+    required: true
+  DEFAULT_THEME:
+    description: 'DEFAULT_THEME'
+    default: ""
+    required: true
+  ATLUS_URL:
+    description: 'ATLUS_URL'
+    default: ""
+    required: true
+  NODE_ENV:
+    description: 'NODE_ENV'
+    default: ""
+    required: true
+  APP_ENV:
+    description: 'APP_ENV'
+    default: ""
+    required: true
+  ETH_CHAIN_ID:
+    description: 'ETH_CHAIN_ID'
+    default: ""
+    required: true
+  DEX_CHAIN_ID:
+    description: 'DEX_CHAIN_ID'
+    default: ""
+    required: true
+  ZCN_TOKEN:
+    description: 'ZCN_TOKEN'
+    default: ""
+    required: true
+  MOCK_ZCN_TOKEN:
+    description: 'MOCK_ZCN_TOKEN'
+    default: ""
+    required: true
+  ETH_TOKEN:
+    description: 'ETH_TOKEN'
+    default: ""
+    required: true
+  BANCOR_NETWORK:
+    description: 'BANCOR_NETWORK'
+    default: ""
+    required: true
+  BRIDGE:
+    description: 'BRIDGE'
+    default: ""
+    required: true
+  AUTHORIZER_ADDRESS:
+    description: 'AUTHORIZER_ADDRESS'
+    default: ""
+    required: true
+  ETH_NODE_URL:
+    description: 'ETH_NODE_URL'
+    default: ""
+    required: true
+  NFT_NODE_URL:
+    description: 'NFT_NODE_URL'
+    default: ""
+    required: true
+  REVERSE_BRIDGE:
+    description: 'REVERSE_BRIDGE'
+    default: ""
+    required: true
+  BANCOR_TOKEN_ADDRESS:
+    description: 'BANCOR_TOKEN_ADDRESS'
+    default: ""
+    required: true
+  USDC_TOKEN_ADDRESS:
+    description: 'USDC_TOKEN_ADDRESS'
+    default: ""
+    required: true
+  EURC_TOKEN_ADDRESS:
+    description: 'EURC_TOKEN_ADDRESS'
+    default: ""
+    required: true
+  NFT_FACTORY_ADDRESS:
+    description: 'NFT_FACTORY_ADDRESS'
+    default: ""
+    required: true
+  NFT_FACTORY_MODULE_ERC_721_ADDRESS:
+    description: 'NFT_FACTORY_MODULE_ERC_721_ADDRESS'
+    default: ""
+    required: true
+  NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS:
+    description: 'NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS'
+    default: ""
+    required: true
+  NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS:
+    description: 'NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS'
+    default: ""
+    required: true
+  NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS:
+    description: 'NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS'
+    default: ""
+    required: true
+  MUMBAI_TESTNET_NETWORK_ID:
+    description: 'MUMBAI_TESTNET_NETWORK_ID'
+    default: ""
+    required: true
+  POLYGON_MAINNET_NETWORK_ID:
+    description: 'POLYGON_MAINNET_NETWORK_ID'
+    default: ""
+    required: true
+  ETHEREUM_NETWORK_ID:
+    description: 'ETHEREUM_NETWORK_ID'
+    default: ""
+    required: true
+  MUMBAI_TESTNET_CHAIN_ID:
+    description: 'MUMBAI_TESTNET_CHAIN_ID'
+    default: ""
+    required: true
+  POLYGON_MAINNET_CHAIN_ID:
+    description: 'POLYGON_MAINNET_CHAIN_ID'
+    default: ""
+    required: true
+  ETHEREUM_CHAIN_ID:
+    description: 'ETHEREUM_CHAIN_ID'
+    default: ""
+    required: true
+  BLOCK_EXPLORER_URL:
+    description: 'BLOCK_EXPLORER_URL'
+    default: ""
+    required: true
+
 outputs:
   atlus-build-tag:
     description: "build-tag"
@@ -64,7 +255,7 @@ runs:
     - name: Checkout webapps repo
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        git clone -b ${{inputs.web-apps-branch}} https://${{ inputs.GIT_USER }}:${{ inputs.GIT_PAT }}@github.com/0chain/web-apps.git
+        git clone -b ${{inputs.webapps_branch}} https://${{ inputs.GIT_USER }}:${{ inputs.GIT_PAT }}@github.com/0chain/web-apps.git
 
     - name: Set Docker Image Tags.
       shell: 'script --return --quiet --command "bash {0}"'
@@ -72,7 +263,7 @@ runs:
       run: |
         cd web-apps
         echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
-        echo "TAG=${{inputs.web-apps-branch}}" >> $GITHUB_ENV
+        echo "TAG=${{inputs.webapps_branch}}" >> $GITHUB_ENV
         echo $TAG
 
     - name: Login To Docker Repository.
@@ -96,7 +287,7 @@ runs:
         echo "WEBHOOK_API_TOKEN=${{ inputs.WEBHOOK_API_TOKEN }}" >> .env
         echo "TRANSLATION_API_KEY=${{ inputs.TRANSLATION_API_KEY }}" >> .env
         echo "ZENDESK_KEY=${{ inputs.ZENDESK_KEY }}" >> .env
-        echo "DOMAIN=${{inputs.network-url}}" >> .env
+        echo "DOMAIN=${{inputs.network_url}}" >> .env
         echo "ZBOX_APP=${{ inputs.ZBOX_APP }}" >> .env
         echo "JWT_ENABLED=${{ inputs.JWT_ENABLED }}" >> .env
         echo "BE_URL=${{ inputs.BE_URL }}" >> .env
@@ -132,7 +323,7 @@ runs:
         echo "ETHEREUM_CHAIN_ID=${{ inputs.ETHEREUM_CHAIN_ID }}" >> .env
         echo "BLOCK_EXPLORER_URL=${{ inputs.BLOCK_EXPLORER_URL }}" >> .env
 
-        cd packages/${{ inputs.web-app-name }}
+        cd packages/${{ inputs.webapp_name }}
         touch .env
         echo "FBASE_API_KEY=${{ inputs.FBASE_API_KEY }}" > .env
         echo "FBASE_AUTH_DOMAIN=${{ inputs.FBASE_AUTH_DOMAIN }}" >> .env
@@ -144,7 +335,7 @@ runs:
         echo "WEBHOOK_API_TOKEN=${{ inputs.WEBHOOK_API_TOKEN }}" >> .env
         echo "TRANSLATION_API_KEY=${{ inputs.TRANSLATION_API_KEY }}" >> .env
         echo "ZENDESK_KEY=${{ inputs.ZENDESK_KEY }}" >> .env
-        echo "DOMAIN=${{inputs.network-url}}" >> .env
+        echo "DOMAIN=${{inputs.network_url}}" >> .env
         echo "ZBOX_APP=${{ inputs.ZBOX_APP }}" >> .env
         echo "JWT_ENABLED=${{ inputs.JWT_ENABLED }}" >> .env
         echo "BE_URL=${{ inputs.BE_URL }}" >> .env
@@ -192,7 +383,7 @@ runs:
         echo "WEBHOOK_API_TOKEN=${{ inputs.WEBHOOK_API_TOKEN }}" >> .env
         echo "TRANSLATION_API_KEY=${{ inputs.TRANSLATION_API_KEY }}" >> .env
         echo "ZENDESK_KEY=${{ inputs.ZENDESK_KEY }}" >> .env
-        echo "DOMAIN=${{inputs.network-url}}" >> .env
+        echo "DOMAIN=${{inputs.network_url}}" >> .env
         echo "ZBOX_APP=${{ inputs.ZBOX_APP }}" >> .env
         echo "JWT_ENABLED=${{ inputs.JWT_ENABLED }}" >> .env
         echo "BE_URL=${{ inputs.BE_URL }}" >> .env
@@ -230,7 +421,7 @@ runs:
 
     - name: Copy the wasm binary
       run: |
-        cp gosdk/zcn.wasm web-apps/packages/${{ inputs.web-app-name }}/public/zcn.wasm
+        cp gosdk/zcn.wasm web-apps/packages/${{ inputs.webapp_name }}/public/zcn.wasm
         cp gosdk/zcn.wasm web-apps/packages/shared/public/zcn.wasm
 
     - name: Build & Push Docker Image.
@@ -238,9 +429,9 @@ runs:
       id: docker_build
       run: |
         cd web-apps
-        docker build -f ./packages/${{ inputs.web-app-name }}/docker/dockerfile . -t ${{ inputs.web_app_registry }}:latest
+        docker build -f ./packages/${{ inputs.webapp_name }}/docker/dockerfile . -t ${{ inputs.webapp_registry }}:latest
         echo $TAG-$SHORT_SHA
-        echo "COMMIT_TAG=dev-${{inputs.number}}-${{ inputs.web-app-name }}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+        echo "COMMIT_TAG=dev-${{inputs.runner_number}}-${{ inputs.webapp_name }}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
 
-        docker tag ${{ inputs.web_app_registry }}:latest ${{ inputs.web_app_registry }}:dev-${{inputs.number}}-${{ inputs.web-app-name }}-$TAG-$SHORT_SHA
-        docker push ${{ inputs.web_app_registry }}:dev-${{inputs.number}}-${{ inputs.web-app-name }}-$TAG-$SHORT_SHA
+        docker tag ${{ inputs.webapp_registry }}:latest ${{ inputs.webapp_registry }}:dev-${{inputs.runner_number}}-${{ inputs.webapp_name }}-$TAG-$SHORT_SHA
+        docker push ${{ inputs.webapp_registry }}:dev-${{inputs.runner_number}}-${{ inputs.webapp_name }}-$TAG-$SHORT_SHA
