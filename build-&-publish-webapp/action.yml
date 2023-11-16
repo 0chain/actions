@@ -252,8 +252,8 @@ runs:
       run: |
         cd gosdk
         rm -rf .git
-        docker pull golang:1.20 2>&1
-        docker run --rm -v $PWD:/gosdk -w /gosdk golang:1.20 make wasm-build 2>&1
+        docker pull golang:1.20 >/dev/null
+        docker run --rm -v $PWD:/gosdk -w /gosdk golang:1.20 make wasm-build >/dev/null
 
     - name: Checkout webapps repo
       shell: 'script --return --quiet --command "bash {0}"'
@@ -434,7 +434,7 @@ runs:
       run: |
         cd web-apps
         cat .env
-        docker pull node:18 2>&1
+        docker pull node:18 >/dev/null
         docker build -f ./packages/${{ inputs.webapp_name }}/docker/dockerfile . -t ${{ inputs.webapp_registry }}:latest
         echo $TAG-$SHORT_SHA
         echo "COMMIT_TAG=dev-${{inputs.runner_number}}-${{ inputs.webapp_name }}-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
