@@ -749,7 +749,7 @@ runs:
         readarray -t blobber_ids < build.log
         for id in "${blobber_ids[@]}"
         do
-            retry ./zbox sp-lock --blobber_id $id --tokens 10 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+            retry ./zbox sp-lock --blobber_id $id --tokens 3 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
         done
 
         # Validator staking
