@@ -11,8 +11,8 @@ on:
       SUBGRAPH_API_URL:
         description: 'API URL of the subgraph, which is used by internal components'
         required: true
-      TENDERLY_FORK_ID:
-        description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
+      TENDERLY_SECRET:
+        description: 'Tenderly secret is used to use Tenderly fork simulations for bridge tests'
         required: true
       DEVOPS_CHANNEL_WEBHOOK_URL:
         description: 'URL to notify slack if tests fail on staging'
@@ -204,6 +204,20 @@ jobs:
            echo "GOSDK_SHA=$(curl --silent --fail -u ${{ secrets.SVC_ACCOUNT_SECRET }}:x-oauth-basic https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ inputs.gosdk_branch }} | jq --raw-output .object.sha)" >> $GITHUB_ENV
         fi
 
+    - name: 'Setup jq'
+      uses: dcarbone/install-jq-action@v2
+      with:
+        version: '${{ inputs.version }}'
+        force: '${{ inputs.force }}'
+        
+    - name: "Create Tenderly fork"
+      run: |
+        export TENDERLY_FORK_ID=$(curl -X POST \
+            -H "x-access-key: ${{ secrets.TENDERLY_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{"alias":"", "description":"", "network_id":"1"}' \
+            https://api.tenderly.co/api/v1/account/zus_network/project/project/fork | jq '.simulation_fork.id')
+
     - name: "Get docker images for feature branches"
       if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/get-latest-image-for-branch@master
@@ -253,7 +267,7 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        TENDERLY_FORK_ID: ${{ env.TENDERLY_FORK_ID }}
         SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
         zs3_client: ${{ steps.get-images.outputs.blimp_clientapi-tag }}
         zs3_logsearchapi: ${{ steps.get-images.outputs.blimp_logsearchapi-tag }}
@@ -285,7 +299,7 @@ jobs:
         run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
         run_smoke_tests: ${{ inputs.run_smoke_tests }}
         run_frontend_tests: ${{ inputs.run_frontend_tests }}
-        TENDERLY_FORK_ID: ${{ secrets.TENDERLY_FORK_ID }}
+        TENDERLY_FORK_ID: ${{ env.TENDERLY_FORK_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
         S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
         S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
