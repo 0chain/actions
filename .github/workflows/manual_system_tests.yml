@@ -212,11 +212,11 @@ jobs:
         
     - name: "Create Tenderly fork"
       run: |
-        export TENDERLY_FORK_ID=$(curl -X POST \
+        echo $(curl -X POST \
             -H "x-access-key: ${{ secrets.TENDERLY_SECRET }}" \
             -H "Content-Type: application/json" \
             -d '{"alias":"", "description":"", "network_id":"1"}' \
-            https://api.tenderly.co/api/v1/account/zus_network/project/project/fork | jq '.simulation_fork.id')
+            https://api.tenderly.co/api/v1/account/zus_network/project/project/fork | jq '.simulation_fork.id') >> $GITHUB_ENV
 
     - name: "Get docker images for feature branches"
       if: ${{ env.SKIP_TESTS != 'true' }}
