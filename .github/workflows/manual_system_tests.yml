@@ -205,7 +205,7 @@ jobs:
         fi
 
     - name: 'Setup jq'
-      uses: dcarbone/install-jq-action@v2
+      uses: dcarbone/install-jq-action@v2.1.0
       with:
         version: '1.7'
         force: 'false'
@@ -304,6 +304,14 @@ jobs:
         S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
         S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         s3_migration_cli_branch: ${{ inputs.s3_migration_cli_branch }}
+
+    - name: "Remove Tenderly fork"
+      if: always()
+      run: |
+        curl -X DELETE \
+          -H "x-access-key: ${{ secrets.TENDERLY_SECRET }}" \
+          -H "Content-Type: application/json" \
+          https://api.tenderly.co/api/v1/account/zus_network/project/project/fork/${{ env.TENDERLY_FORK_ID }}
         
     - name: "Runner tidy up"
       if: always()
