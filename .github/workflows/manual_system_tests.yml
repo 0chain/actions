@@ -207,8 +207,8 @@ jobs:
     - name: 'Setup jq'
       uses: dcarbone/install-jq-action@v2
       with:
-        version: '${{ inputs.version }}'
-        force: '${{ inputs.force }}'
+        version: '1.7'
+        force: 'false'
         
     - name: "Create Tenderly fork"
       run: |
