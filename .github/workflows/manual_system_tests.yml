@@ -216,7 +216,7 @@ jobs:
             -H "x-access-key: ${{ secrets.TENDERLY_SECRET }}" \
             -H "Content-Type: application/json" \
             -d '{"alias":"", "description":"", "network_id":"1"}' \
-            https://api.tenderly.co/api/v1/account/zus_network/project/project/fork | jq '.simulation_fork.id') >> $GITHUB_ENV
+            https://api.tenderly.co/api/v1/account/zus_network/project/project/fork | jq -r '.simulation_fork.id') >> $GITHUB_ENV
 
     - name: "Get docker images for feature branches"
       if: ${{ env.SKIP_TESTS != 'true' }}
