@@ -786,6 +786,7 @@ runs:
         chmod 777 ./stake_validators.sh;
 
     - name: Add Address
+      shell: 'script --return --quiet --command "bash {0}"'
       run: |
         cd ~/.zcn
         mkdir wallets
