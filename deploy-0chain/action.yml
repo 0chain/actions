@@ -788,7 +788,6 @@ runs:
     - name: Add Address
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
-        cd ~/.zcn
         mkdir wallets
         cd wallets
         cat <<\EOF > UTC--2023-10-26T00-34-42.327566000Z--8e25cfd9bd6c0ca67a5522cd920b3c66d39d6e97
@@ -824,9 +823,9 @@ runs:
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
 
-        ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432
-        ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a
-        ./zwallet auth-sc-register --ethereum_address=0xa149B58b7e1390D152383BB03dBc79B390F648e2
+        ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-sc-register --ethereum_address=0xa149B58b7e1390D152383BB03dBc79B390F648e2 --configDir . --path . --config config.yaml --wallet wallet.json
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
