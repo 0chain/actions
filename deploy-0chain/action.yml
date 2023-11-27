@@ -785,6 +785,15 @@ runs:
         ' > ./stake_validators.sh;
         chmod 777 ./stake_validators.sh;
 
+    - name: Add Address
+      run: |
+        cd ~/.zcn
+        mkdir wallets
+        cd wallets
+        cat <<\EOF > UTC--2023-10-26T00-34-42.327566000Z--8e25cfd9bd6c0ca67a5522cd920b3c66d39d6e97
+        {"address":"8e25cfd9bd6c0ca67a5522cd920b3c66d39d6e97","crypto":{"cipher":"aes-128-ctr","ciphertext":"3e6a7c7fc1875e9437fb1b19d8195b707d2143f5aa40615b02efce3ef0422619","cipherparams":{"iv":"ab9d87b14b8593112338abc7da502866"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"94cdd599dd1c4a9eb24f837ca0dbd02d30a33b890bd43eca936c0ca25fd2e983"},"mac":"f07cf9a0c324e8449a1f7c17f5d7f6d3a942ec47b1ee73e157dfc3f325cbb9d3"},"id":"db1bba38-3573-4d53-905f-f075458da3d4","version":3}
+        EOF
+
     - name: "Register Authorizers"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -803,8 +812,8 @@ runs:
           bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b
           token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78
           authorizers_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42
-          ethereum_address: 0xD8c9156e782C68EE671C09b6b92de76C97948432
-          password: "\"02289b9\""
+          ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97
+          password: "12345678"
         ' > config.yaml
         cat config.yaml
 
@@ -813,6 +822,10 @@ runs:
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+
+        ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432
+        ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a
+        ./zwallet auth-sc-register --ethereum_address=0xa149B58b7e1390D152383BB03dBc79B390F648e2
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
