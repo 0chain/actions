@@ -20,10 +20,6 @@ inputs:
     description: 'validator DOCKER IMAGE to deploy'
     default: ''
     required: false
-  authorizer_image:
-    description: 'authorizer DOCKER IMAGE to deploy'
-    default: ''
-    required: false
   zbox_image:
     description: '0box DOCKER IMAGE to deploy'
     default: ''
@@ -52,21 +48,6 @@ inputs:
     required: false
     default: ""
     description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
-  TENDERLY_FORK_ID:
-    required: true
-    description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
-  SUBGRAPH_API_URL:
-    required: true
-    description: 'API URL of the subgraph, which is used by internal components'
-  graphnode_sc:
-    required: true
-    description: 'graph node smart contract used to track DEX operations'
-  graphnode_network:
-    required: true
-    description: 'graph node network name for example goerli.'
-  graphnode_ethereum_node_url:
-    required: true
-    description: 'Ethereum node url.'
   repo_snapshots_branch:
     description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit image params above.'
     default: ''
@@ -133,7 +114,6 @@ runs:
         ./check-params.sh "${{inputs.sharder_image}}"          "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
         ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
         ./check-params.sh "${{inputs.validator_image}}"        "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
-        ./check-params.sh "${{inputs.authorizer_image}}"       "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
         ./check-params.sh "${{inputs.zbox_image}}"             "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
         ./check-params.sh "${{inputs.zdns_image}}"             "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
         ./check-params.sh "${{inputs.zbox_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
@@ -146,11 +126,6 @@ runs:
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
-        echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
-        echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
-        echo "GRAPHNODE_SC=$(echo ${{ inputs.graphnode_sc }})" >> $GITHUB_ENV
-        echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
-        echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
         
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
@@ -178,16 +153,8 @@ runs:
         echo "Sharder docker image:                  [${{ env.SHARDER_TAG }}]"
         echo "Blobber docker image:                  [${{ env.BLOBBER_TAG }}]"
         echo "Validator docker image:                [${{ env.VALIDATOR_TAG }}]"
-        echo "Authorizer docker image:               [${{ env.AUTHORIZER_TAG }}]"
         echo "0box docker image:                     [${{ env.ZBOX_TAG }}]"
         echo "0dns docker image:                     [${{ env.ZDNS_TAG }}]"
-        echo "S3 server client docker image:         [${{ env.ZS3_CLIENT }}]"
-        echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
-        echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
-        echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
-        echo "Graphnode smart contract:              [${{ env.GRAPHNODE_SC }}]"
-        echo "Graphnode network:                     [${{ env.GRAPHNODE_NETWORK }}]"
-        echo "Graphnode ethereum node url            [${{ env.GRAPHNODE_ETHEREUM_NODE_URL }}]"
 
     - name: "Install helm"
       uses: azure/setup-helm@v1
@@ -416,24 +383,7 @@ runs:
            sleep 2
         done
 
-        ##############----------------- Installing authorizer helm-chart --------------------###################
-        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
-        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
-           helm upgrade --install authorizer \
-             --set authorizer.config.nativeEventFetch=true \
-             --set authorizer.authorizerCount=3 \
-             --set authorizer.hostName=${{ env.NAMESPACE }} \
-             --set authorizer.host=devnet-0chain.net \
-             --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} \
-             --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
-             --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} \
-             -n ${{ env.NAMESPACE }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
+
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
         ./deploy.sh
