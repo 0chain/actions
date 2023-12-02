@@ -707,7 +707,7 @@ runs:
         else 
           echo "Randomly selected Blobber ID: $add_blobber_id"
         
-          ./zbox updateallocation --add_blobber "$add_blobber_id" --remove_blobber "$remove_blobber_id" --allocation "$(cat allocation5.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+          ./zbox updateallocation --lock 0.1 --add_blobber "$add_blobber_id" --remove_blobber "$remove_blobber_id" --allocation "$(cat allocation5.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
           ./zbox upload --allocation "$(cat allocation5.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
           
           # Insert add and remove blobber id in challenge_blobbers.txt
