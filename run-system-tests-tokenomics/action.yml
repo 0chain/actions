@@ -86,29 +86,29 @@ runs:
         fi
         ' > ./check-params.sh;
         chmod 777 check-params.sh
-        
+
         ./check-params.sh "${{inputs.zbox_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"      "ZBOX_BRANCH"
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
         ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
-        
+
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
         echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
         echo "HOME=/root" >> $GITHUB_ENV
         echo "CYPRESS_NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
-        
-        
-        
-        
+
+
+
+
         if [ "${{ inputs.retry_failures }}" == "true" ];
           then
             echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
           else
             echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
         fi
-        
+
         echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
         echo RUN_TOKENOMICS_SUBSET_OF_TESTS=true >> $GITHUB_ENV
 
@@ -130,6 +130,11 @@ runs:
         echo "Custom gosdk version:     [${{ env.GOSDK_VERSION }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
+
+    - name: Setup go 1.20
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.20'
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -174,13 +179,13 @@ runs:
         sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/yarn.gpg
         sudo sed -i '/yarnpkg/d' /etc/apt/sources.list.d/yarn.list
         sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
-        
+
         # echo
         # echo "2> installing youtube-dl..."
         # sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         # sudo chmod a+rx /usr/local/bin/youtube-dl
         # echo
-        
+
         # echo "3> installing ffmpeg..."
         # sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
         # sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
@@ -199,25 +204,25 @@ runs:
         echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI, ZS3CLI & SYSTEM TESTS"
         echo "=============================================================="
         echo
-        
+
         GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
         if [[ "$GOSDK_HEAD" == "null" ]]; then
             echo "[${{ env.GOSDK_VERSION }}] does not seem to be a valid branch (possibly a commit hash?). Will pass directly to go to resolve"
             GOSDK_HEAD="${{ env.GOSDK_VERSION }}"
         fi
-        
+
         echo '#!/bin/bash
         echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
         go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
         go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         ' > ./upgrade-gosdk.sh;
         chmod 555 ./upgrade-gosdk.sh
-        
-        cd ./zwalletcli 
+
+        cd ./zwalletcli
         ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
         cd ../zboxcli
         ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
-        
+
         sudo rm -rf upgrade-gosdk.sh
 
     - name: "Build CLI Binaries"
@@ -228,19 +233,19 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
-        
+
         export HOME="/root"
-        
+
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         cp zwallet ../tests/tokenomics_tests
-        
+
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         cp zbox ../tests/tokenomics_tests
-        
+
         echo "CLI build SUCCESS!"
 
     - name: "Set up system tests"
@@ -259,15 +264,15 @@ runs:
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
-        
+
         go install gotest.tools/gotestsum@latest
         go install github.com/vakenbolt/go-test-report@latest
 
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/tokenomics_tests/config/zbox_config.yaml
         sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/tokenomics_tests/config/zbox_config.yaml
-        
-        
-        
+
+
+
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/tokenomics
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
@@ -355,13 +360,13 @@ runs:
         echo "RUNNING TOKENOMICS SUBSET SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
+
         if [ -n "${{ env.NAMESPACE }}" ]; then
           kubectl get pods -A --kubeconfig ../kube/${{ env.NAMESPACE }}-config | awk '$5>0' |  awk '$2 ~ /.*miner|sharder|blobber|validator|authorizer|zbox|zdns|NAME|RESTARTS.*/' | awk {'print $2" " $5'} | column -t > pod_status_pre_test_run.txt
         fi
 
         cd tests/tokenomics_tests
-        
+
         echo $(ls)
         echo $(ls config)
         cat config/zbox_config.yaml
