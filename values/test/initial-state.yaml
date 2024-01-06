@@ -83,6 +83,9 @@ data:
       #authorizer03
       - id: f3a55293d130876ae61a65b16c169610375994fc492a8776eef16c86152535b7
         tokens: 20000000000000000
+      #authorizer_delegate_wallet
+      - id: 2ec884a02a43ad2ebf0b937f4d6f04fc1c76c42bfc6d694324c1e520105ec8c6
+        tokens: 20000000000000000
       #authorizersc01
       - id: d8d8f187f309fa3c24b0c10609bd518d3d9997fa1e0c433095994fe21b924d87
         tokens: 20000000000000000
