@@ -829,9 +829,9 @@ runs:
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 2ec884a02a43ad2ebf0b937f4d6f04fc1c76c42bfc6d694324c1e520105ec8c6 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
         ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 2ec884a02a43ad2ebf0b937f4d6f04fc1c76c42bfc6d694324c1e520105ec8c6 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
 
-        # ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432 --configDir . --path . --config config.yaml --wallet wallet.json
-        # ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a --configDir . --path . --config config.yaml --wallet wallet.json
-        # ./zwallet auth-sc-register --ethereum_address=0xa149B58b7e1390D152383BB03dBc79B390F648e2 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-sc-register --ethereum_address=0xa149B58b7e1390D152383BB03dBc79B390F648e2 --configDir . --path . --config config.yaml --wallet wallet.json
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
