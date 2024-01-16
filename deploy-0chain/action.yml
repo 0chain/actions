@@ -628,21 +628,16 @@ runs:
       run: |
         echo
         echo "======================================================"
-        echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
+        echo "Downloading prebuilt zwalletcli and zboxcli"
         echo "======================================================"
         echo
-        echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
-        cd zwalletcli
-        go mod tidy
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
-        mv zwallet ..
 
-        echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
-        cd ../zboxcli
-        go mod tidy
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
-        mv zbox ..
-        echo "CLI build SUCCESS!"
+        wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zbox
+        chmod +x ./zbox
+        ls -al ./zbox
+        wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zwallet
+        chmod +x ./zwallet
+        ls -al ./zwallet
 
     - name: "Health Check"
       shell: 'script --return --quiet --command "bash {0}"'
