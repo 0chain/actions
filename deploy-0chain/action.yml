@@ -680,6 +680,12 @@ runs:
         ./check_health.sh ${{ env.NETWORK_URL }} "blobber05/"
         ./check_health.sh ${{ env.NETWORK_URL }} "blobber06/"
 
+    - name: "Add latest hard fork"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        ./zwallet mn-update-config --keys  cost.add_hardfork --values <cost>
+        ./zwallet add-hardfork -n <hard_fork_name> -r <round>
+
     - name: "Stake blobbers using above built binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
