@@ -72,58 +72,6 @@ data:
         tokens: 20000000000000000
     # zcnsc
     - id: 6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712e0
-      tokens: 2200000000000000000
-      state:
-      #authorizer01
-      - id: 8d52670d774c2d82e97632c7392611641cefcddadbb45efa0c0f9a8351bfbe85
-        tokens: 20000000000000000
-      #authorizer02
-      - id: e285536ac2b2e9d9a115d16891a8f87e4982ad5e507eb52c1af050da38fec622
-        tokens: 20000000000000000
-      #authorizer03
-      - id: f3a55293d130876ae61a65b16c169610375994fc492a8776eef16c86152535b7
-        tokens: 20000000000000000
-      #authorizer_delegate_wallet
-      - id: 2ec884a02a43ad2ebf0b937f4d6f04fc1c76c42bfc6d694324c1e520105ec8c6
-        tokens: 20000000000000000
-      #authorizersc01
-      - id: d8d8f187f309fa3c24b0c10609bd518d3d9997fa1e0c433095994fe21b924d87
-        tokens: 20000000000000000
-      #authorizersc02
-      - id: 94f6236714edea74f580a98fbd015886dac2afbfdafc857703afb91f3234d6ac
-        tokens: 20000000000000000
-      #authorizersc03
-      - id: 46d1d0369f26d273859dd03ba3d460cf43d6b980cd9951994004d51bf0e92b5a
-        tokens: 20000000000000000
-      #authorizer01yaroslav
-      - id: d6e9b3222434faa043c683d1a939d6a0fa2818c4d56e794974d64a32005330d3
-        tokens: 20000000000000000
-      #authorizer02yaroslav
-      - id: 7b07c0489e2f35d7c13160f4da2866b4aa69aa4e8d2b2cd9c4fc002693dca5d7
-        tokens: 20000000000000000
-      #authorizer03yaroslav
-      - id: 896c171639937a647f9e91d5ba676be580f6d2b7e0d708e4fe6ea36610a13ffd
-        tokens: 20000000000000000
-      #0box_id
-      - id: 66ddbb7d040d02d82f9304bf1c70ddf8e86a2ddd1bd9fc9053ac9df6c59d9af6
-        tokens: 20000000000000000
-      #owner
-      - id: 1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802
-        tokens: 20000000000000000
-      #zs3server
-      - id: a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50
-        tokens: 20000000000000000
-      #nft_wallet
-      - id: 8a15e216a3b4237330c1fff19c7b3916ece5b0f47341013ceb64d53595a4cebb
-        tokens: 20000000000000000
-      #faucetSCAddress
-      - id: 6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d3
-        tokens: 20000000000000000
-      # wifi
-      - id: 6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712e7
-        tokens: 400000000000000000
-    # zcnsc
-    - id: 6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712e0
       tokens: 2400000000000000000
       state:
       #authorizer01
