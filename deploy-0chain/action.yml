@@ -305,9 +305,15 @@ runs:
         ./add-configmap.sh a0node02-keys
         ./add-configmap.sh a0node03-keys
 
-        ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
+
+        # ./add-configmap.sh initial-state
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap initial-state || true
+        ## Placed initial-state.yaml file directly on the system-tests servers.
+        # wget -N https://github.com/0chain/actions/raw/update/initial-state-fromfile/values/test/large-initial-state.yaml
+        # mkdir -p /root/mb
+        # mv large-initial-state.yaml /root/mb/initial-state.yaml
 
         ##############----------------- Installing 0chain helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
