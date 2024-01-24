@@ -305,9 +305,11 @@ runs:
         ./add-configmap.sh a0node02-keys
         ./add-configmap.sh a0node03-keys
 
-        # ./add-configmap.sh initial-state
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
+
+        # ./add-configmap.sh initial-state
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap initial-state || true
         wget -N https://github.com/0chain/actions/raw/feature/hard-fork/values/test/initial-state.yaml
         mkdir -p /root/mb
         mv initial-state.yaml /root/mb/
