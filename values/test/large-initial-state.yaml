@@ -43,8 +43,8 @@ initialStates:
     #blobber06
     - id: ff6424d80c49e57b7c2f0621b726f55efc6ca9ce327bdff89ef364adb8278b22
       tokens: 20000000000000000
-    #blobber07
-    - id: e27d4888e6d735ef72031411469b1ef2f42f66f37c482ce95539c1e68aa85856
+    #blobber_owner_wallet
+    - id: 591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8
       tokens: 20000000000000000
     #validator01
     - id: 7c8e5922b29aa9a7be01c8cfb97c111958ba6f45a979895a4bdccd5778a7c19d
@@ -64,8 +64,8 @@ initialStates:
     #validator06
     - id: aaa1fc238cd6e4b5c9892221094278695086bc5b28f3b0e4e6017563a24ac979
       tokens: 20000000000000000
-    #validator07
-    - id: 9df3dd20f00cca5b176bc0dd282f0dd3c116fa2ea18aec0f05794a6beb1ef9b2
+    #validator_owner_wallet
+    - id: ff867f12bdcc4999f3c42c5d61a81854f6510f71e3c9d9531a6d8bcd206e2d65
       tokens: 20000000000000000
 # zcnsc
 - id: 6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712e0
