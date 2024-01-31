@@ -331,7 +331,7 @@ runs:
              --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
              --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
              --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
-             --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
+             --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \ƒ
              --set commonConf.sc.smart_contracts.storagesc.time_unit="1h" \
              --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
              --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
@@ -339,7 +339,7 @@ runs:
              --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
              --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
              --set commonConf.sc.smart_contracts.storagesc.max_blobber_select_for_challenge=1 \
-             --set commonConf.sc.smart_contracts.storagesc.max_delegates=30 \
+             --set commonConf.sc.smart_contracts.storagesc.max_delegates=200 \
              --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
              --set commonConf.zchainUp.network.user_handlers.rate_limit=1500 \
              --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=4 \
