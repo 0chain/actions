@@ -331,7 +331,7 @@ runs:
              --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
              --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
              --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
-             --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \ƒ
+             --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
              --set commonConf.sc.smart_contracts.storagesc.time_unit="1h" \
              --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
              --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
