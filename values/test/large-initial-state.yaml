@@ -18,6 +18,21 @@ initialStates:
     #miner03
     - id: c6f4b8ce5da386b278ba8c4e6cf98b24b32d15bc675b4d12c95e082079c91937
       tokens: 20000000000000000
+    #miner1_delegate
+    - id: 9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8
+      tokens: 2000000000000000
+    #miner2_delegate
+    - id: b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f
+      tokens: 2000000000000000
+    #miner3_delegate
+    - id: bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d
+      tokens: 2000000000000000
+    #sharder1_delegate
+    - id: b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae
+      tokens: 2000000000000000
+    #sharder2_delegate
+    - id: b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50
+      tokens: 2000000000000000
 # storagesc
 - id: 6dba10422e368813802877a85039d3985d96760ed844092319743fb3a76712d7
   tokens: 900000000000000000
