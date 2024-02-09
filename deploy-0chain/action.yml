@@ -577,10 +577,10 @@ runs:
     #     which go
     #     go env
 
-    # - name: Setup go 1.20
-    #   uses: actions/setup-go@v4
-    #   with:
-    #     go-version: '1.20' # The Go version to download (if necessary) and use.
+    - name: Setup go 1.20
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20' # The Go version to download (if necessary) and use.
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -607,6 +607,7 @@ runs:
         echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI"
         echo "=============================================================="
         echo
+        go env
 
         GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
         if [[ "$GOSDK_HEAD" == "null" ]]; then
@@ -619,6 +620,7 @@ runs:
         go clean -modcache -cache
         go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
         go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=$2 CLI build failed::$2 CLI build failed" && exit 1; }
         ' > ./upgrade-gosdk.sh;
         chmod 555 ./upgrade-gosdk.sh
 
@@ -642,13 +644,13 @@ runs:
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         go mod tidy
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
+        # make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
 
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         go mod tidy
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
+        # make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ..
         echo "CLI build SUCCESS!"
 
