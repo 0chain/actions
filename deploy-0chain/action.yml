@@ -638,8 +638,8 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
-        echo "removing go.work file if present"
-        rm go.work || true
+        # echo "removing go.work file if present"
+        # rm go.work || true
 
         export HOME="/root"
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
