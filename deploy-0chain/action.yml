@@ -641,7 +641,6 @@ runs:
         export HOME="/root"
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
-        go get github.com/0chain/zwalletcli/cmd
         go mod tidy
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
@@ -1073,7 +1072,7 @@ runs:
            echo "SKIPPING TEARDOWN AS CONDITION - [${{ env.TEARDOWN_CONDITION }}] WAS [$${{ env.TEARDOWN_CONDITION }}]"
         fi
         ' > ./post.sh;
-        chmod 777 ./post.sh;
+        # chmod 777 ./post.sh;
 
     - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
       continue-on-error: true
