@@ -638,8 +638,8 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
-        echo "GO ENV's"
-        go env
+        echo "removing go.work file if present"
+        rm go.work || true
 
         export HOME="/root"
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
@@ -759,11 +759,11 @@ runs:
         }
 
         export HOME="/root"
-        retry ./zwallet create-wallet --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
-        for i in {1..25}
-        do
-            retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
-        done
+        # retry ./zwallet create-wallet --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        # for i in {1..25}
+        # do
+        #     retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        # done
 
         # Wait for 7 blobbers to register for 60 seconds...
         count=0
@@ -793,10 +793,10 @@ runs:
         done
 
         # Validator staking
-        for i in {1..25}
-        do
-            retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
-        done
+        # for i in {1..25}
+        # do
+        #     retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        # done
         count=0
         while [[ $count -le 5 ]]
         do
