@@ -349,7 +349,7 @@ runs:
              --set commonConf.sc.smart_contracts.storagesc.max_delegates=200 \
              --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
              --set commonConf.zchainUp.network.user_handlers.rate_limit=1500 \
-             --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=4 \
+             --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=1 \
              --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=0 \
              --set commonConf.sc.smart_contracts.storagesc.min_lock_demand=1 \
              --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=0 \
