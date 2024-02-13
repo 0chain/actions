@@ -150,8 +150,8 @@ runs:
             echo RUN_SMOKE_TESTS=false >> $GITHUB_ENV
         fi
         
-        echo "$RUN_SMOKE_TESTS"
-        echo "${{ inputs.run_smoke_tests }}"
+        echo "RUN_SMOKE_TESTS : $RUN_SMOKE_TESTS"
+        echo "run_smoke_tests : ${{ inputs.run_smoke_tests }}"
         
         
         if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("$GOSDK_VERSION" != "" && "$GOSDK_VERSION" != "NONE") ]];
