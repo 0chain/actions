@@ -97,7 +97,7 @@ runs:
   steps:
     - name: "Get sprint branch from repo_snapshots_branch"
       if: ${{ inputs.repo_snapshots_branch != '' }}
-      uses: 0chain/actions/resolve-repo-snapshot@master
+      uses: 0chain/actions/resolve-repo-snapshot@fix/repo-snapshots
       with:
         repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
         svc_account_secret: ${{ inputs.svc_account_secret }}
