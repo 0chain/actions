@@ -127,8 +127,7 @@ runs:
         fi
 
         echo "ACTIONS_BRANCH=$actionsBranch" >> $GITHUB_ENV
-        echo "RUNNER_NAME=$(echo dev-st.devnet-0chain.net)" >> $GITHUB_ENV
-        echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-2)}.devnet-0chain.net)" >> $GITHUB_ENV
+        echo "NETWORK_URL=$(echo dev-st.devnet-0chain.net)" >> $GITHUB_ENV
 
         echo '#!/bin/bash
         if [[ -z "$1" || "$1" == "NONE" ]];then
@@ -169,11 +168,11 @@ runs:
         echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
         echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
 
-        echo "RUNNER_NUMBER=${RUNNER_NAME:(-2)}" >> $GITHUB_ENV
-        echo "NAMESPACE=dev-${RUNNER_NAME:(-2)}" >> $GITHUB_ENV
+        echo "RUNNER_NUMBER=st" >> $GITHUB_ENV
+        echo "NAMESPACE=dev-st" >> $GITHUB_ENV
 
         echo "HOME=/root" >> $GITHUB_ENV
-        echo "CYPRESS_NETWORK_URL=$(echo dev-${RUNNER_NAME:(-2)}.devnet-0chain.net)" >> $GITHUB_ENV
+        echo "CYPRESS_NETWORK_URL=$(echo dev-st.devnet-0chain.net)" >> $GITHUB_ENV
 
     - name: Fail if image cannot be retrieved
       if: ${{ env.IMAGE_RETRIEVAL_FAILURE == 'true' }}
