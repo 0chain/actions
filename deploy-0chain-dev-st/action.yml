@@ -1,0 +1,1088 @@
+name: "Deploy 0Chain Network"
+description: "Deploy 0Chain Network to k8s cluster using helm"
+inputs:
+  kube_config:
+    description: 'cluster details'
+    required: true
+  miner_image:
+    description: 'miner DOCKER IMAGE to deploy'
+    default: ''
+    required: false
+  sharder_image:
+    description: 'sharder DOCKER IMAGE to deploy'
+    default: ''
+    required: false
+  blobber_image:
+    description: 'blobber DOCKER IMAGE to deploy'
+    default: ''
+    required: false
+  validator_image:
+    description: 'validator DOCKER IMAGE to deploy'
+    default: ''
+    required: false
+  authorizer_image:
+    description: 'authorizer DOCKER IMAGE to deploy'
+    default: ''
+    required: false
+  zbox_image:
+    description: '0box DOCKER IMAGE to deploy'
+    default: ''
+    required: false
+  zdns_image:
+    description: '0dns DOCKER IMAGE to deploy'
+    default: ''
+    required: false
+  teardown_condition:
+    description: 'Variable on which to teardown network'
+    default: 'ALWAYS_TEARDOWN'
+    required: false
+  miner_fee:
+    description: 'Miner fee per transaction'
+    default: '0'
+    required: false
+  zbox_cli_branch:
+    required: false
+    description: '0Box CLI (branch or commit SHA) which the tests will use'
+    default: ''
+  zwallet_cli_branch:
+    required: false
+    description: '0Wallet CLI (branch or commit SHA) which the tests will use'
+    default: ''
+  custom_go_sdk_version:
+    required: false
+    default: ""
+    description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+  TENDERLY_FORK_ID:
+    required: true
+    description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
+  SUBGRAPH_API_URL:
+    required: true
+    description: 'API URL of the subgraph, which is used by internal components'
+  zs3_client:
+    required: true
+    default: ''
+    description: 'zs3server client DOCKER IMAGE to deploy'
+  zs3_logsearchapi:
+    required: true
+    default: ''
+    description: 'zs3server logsearchapi DOCKER IMAGE to deploy'
+  zs3_minio:
+    required: true
+    default: ''
+    description: 'zs3server minio DOCKER IMAGE to deploy'
+  graphnode_sc:
+    required: true
+    description: 'graph node smart contract used to track DEX operations'
+  graphnode_network:
+    required: true
+    description: 'graph node network name for example goerli.'
+  graphnode_ethereum_node_url:
+    required: true
+    description: 'Ethereum node url.'
+  repo_snapshots_branch:
+    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit image params above.'
+    default: ''
+    required: false
+  svc_account_secret:
+    description: 'secret used to publish test results - will use your own credentials if not supplied'
+    default: ''
+    required: false
+  web-apps-image-tag:
+    description: 'Image tag for web-apps (should be common to all web-apps)'
+    default: ''
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Get sprint branch from repo_snapshots_branch"
+      if: ${{ inputs.repo_snapshots_branch != '' }}
+      uses: 0chain/actions/resolve-repo-snapshot@master
+      with:
+        repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
+        svc_account_secret: ${{ inputs.svc_account_secret }}
+        resolve_images: true
+
+    - name: "Setup Config"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
+        branchesCount=$(echo -n $branchList | xargs | grep -o ' ' | wc -l)
+        branchesCount=$((branchesCount + 1))
+
+        if [ "$branchesCount" -gt "2" ]; then
+          actionsBranch="master"
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
+        elif [ "$branchesCount" -gt "1" ]; then
+          for branch in $branchList
+          do
+            if [ "$branch" != "master" ]; then
+              actionsBranch=$branch
+            fi
+          done
+          echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [$actionsBranch] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions/*@$actionsBranch' to match the intended branch"
+        else
+          actionsBranch=$branchList
+          echo "Single actions branch [$actionsBranch] found in workflow file."
+        fi
+
+        echo "ACTIONS_BRANCH=$actionsBranch" >> $GITHUB_ENV
+        echo "NETWORK_URL=$(echo dev-st.devnet-0chain.net)" >> $GITHUB_ENV
+
+        echo '#!/bin/bash
+        if [[ -z "$1" || "$1" == "NONE" ]];then
+            if [[ -z "$2" ]];then
+              echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
+              echo "BRANCH_NOT_SPECIFIED_FAILURE=true" >> $GITHUB_ENV
+            else
+              echo "Using $3 [$2] from repo_snapshots_branch"
+              echo "$3=$2" >> $GITHUB_ENV
+            fi
+        else
+            echo "Using $3 [$1] from explicit variable"
+            echo "$3=$1" >> $GITHUB_ENV
+        fi
+        ' > ./check-params.sh;
+        chmod 777 check-params.sh
+
+        ./check-params.sh "${{inputs.miner_image}}"            "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
+        ./check-params.sh "${{inputs.sharder_image}}"          "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
+        ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
+        ./check-params.sh "${{inputs.validator_image}}"        "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
+        ./check-params.sh "${{inputs.authorizer_image}}"       "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
+        ./check-params.sh "${{inputs.zbox_image}}"             "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
+        ./check-params.sh "${{inputs.zdns_image}}"             "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
+        ./check-params.sh "${{inputs.zbox_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}"     "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.zs3_minio}}"              "${{ env.SNAPSHOT_BRANCH_MIBIOSERVER_TAG }}"  "ZS3_MINIO"
+        ./check-params.sh "${{inputs.zs3_logsearchapi}}"       "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
+        ./check-params.sh "${{inputs.zs3_client}}"             "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"  "${{ env.SNAPSHOT_BRANCH_GOSDK }}"            "GOSDK_VERSION"
+
+        ALWAYS_TEARDOWN=true
+        echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
+        echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
+        echo "ETHEREUM_NODE_URL=$(echo https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }})" >> $GITHUB_ENV
+        echo "SUBGRAPH_API_URL=$(echo ${{ inputs.SUBGRAPH_API_URL }})" >> $GITHUB_ENV
+        echo "GRAPHNODE_SC=$(echo ${{ inputs.graphnode_sc }})" >> $GITHUB_ENV
+        echo "GRAPHNODE_NETWORK=$(echo ${{ inputs.graphnode_network }})" >> $GITHUB_ENV
+        echo "GRAPHNODE_ETHEREUM_NODE_URL=$(echo ${{ inputs.graphnode_ethereum_node_url }})" >> $GITHUB_ENV
+
+        echo "RUNNER_NUMBER=st" >> $GITHUB_ENV
+        echo "NAMESPACE=dev-st" >> $GITHUB_ENV
+
+        echo "HOME=/root" >> $GITHUB_ENV
+        echo "CYPRESS_NETWORK_URL=$(echo dev-st.devnet-0chain.net)" >> $GITHUB_ENV
+
+    - name: Fail if image cannot be retrieved
+      if: ${{ env.IMAGE_RETRIEVAL_FAILURE == 'true' }}
+      uses: actions/github-script@v3
+      with:
+        script: |
+          core.setFailed('Branch not specified failed!')
+
+    - name: "VIEW DEPLOY CONFIGURATION"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "=================================================="
+        echo "DEPLOYING 0CHAIN WITH THE FOLLOWING CONFIGURATION:"
+        echo "=================================================="
+        echo "0Chain network URL:                    [${{ env.NETWORK_URL }}]"
+        echo "repo-snapshots branch:                 [${{ env.REPO_SNAPSHOTS_BRANCH }}]"
+        echo "Miner docker image:                    [${{ env.MINER_TAG }}]"
+        echo "Sharder docker image:                  [${{ env.SHARDER_TAG }}]"
+        echo "Blobber docker image:                  [${{ env.BLOBBER_TAG }}]"
+        echo "Validator docker image:                [${{ env.VALIDATOR_TAG }}]"
+        echo "Authorizer docker image:               [${{ env.AUTHORIZER_TAG }}]"
+        echo "0box docker image:                     [${{ env.ZBOX_TAG }}]"
+        echo "0dns docker image:                     [${{ env.ZDNS_TAG }}]"
+        echo "S3 server client docker image:         [${{ env.ZS3_CLIENT }}]"
+        echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
+        echo "S3 server minio docker image:          [${{ env.ZS3_MINIO }}]"
+        echo "Ethereum node url:                     [${{ env.ETHEREUM_NODE_URL }}]"
+        echo "Graphnode smart contract:              [${{ env.GRAPHNODE_SC }}]"
+        echo "Graphnode network:                     [${{ env.GRAPHNODE_NETWORK }}]"
+        echo "Graphnode ethereum node url            [${{ env.GRAPHNODE_ETHEREUM_NODE_URL }}]"
+
+    - name: "Install helm"
+      uses: azure/setup-helm@v1
+      with:
+        version: 'v3.2.2'
+
+    - name: "Install kubectl"
+      uses: azure/setup-kubectl@v1
+      id: install
+
+    # - name: "Installing NodeJS 19"
+    #   shell: 'script --return --quiet --command "bash {0}"'
+    #   run: |
+    #     curl -sL https://deb.nodesource.com/setup_19.x -o nodesource_setup.sh
+    #     sudo bash nodesource_setup.sh
+    #     sudo apt install nodejs -y
+    #     node -v
+
+    - name: "Configure helm & kubectl"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "=================================================="
+        echo "CONFIGURING HELM"
+        echo "=================================================="
+        echo
+        cd ..
+        helm repo remove 0chain-helm
+        helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/dev/
+        helm repo update
+        mkdir -p ./kube
+        echo "${{ inputs.kube_config }}" | xargs | base64 -d > ./kube/${{ env.NAMESPACE }}-config
+
+    - name: "Remove existing 0Chain network and data"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd ..
+        echo '#!/bin/bash
+        echo
+        echo "=================================================="
+        echo "REMOVING EXISTING 0CHAIN NETWORK"
+        echo "=================================================="
+        echo
+
+        output=$(helm list -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | wc -l);
+        if [ $output -gt 1 ]; then
+            helm list --short -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" -a | xargs -L1 helm delete -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config"
+            sleep 30
+        fi
+            helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            kubectl wait --for=condition=complete --timeout 900s job/helm-clean-directory -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            kubectl delete all --all -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        ' > ./teardown.sh;
+        chmod 777 ./teardown.sh;
+        ./teardown.sh
+
+    - name: "Deploy 0Chain network"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        cd ..
+        echo "ACTIONS branch: ${{ env.ACTIONS_BRANCH }}"
+
+        echo '#!/bin/bash
+        sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap $1
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config apply -f ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
+        ' > ./add-configmap.sh;
+        chmod 777 ./add-configmap.sh;
+
+        echo '#!/bin/bash
+        echo
+        echo "=================================================="
+        echo "DEPLOYING 0CHAIN NETWORK"
+        echo "=================================================="
+        echo
+
+        ./add-configmap.sh magicblock
+        ./add-configmap.sh b0mnode01-keys
+        ./add-configmap.sh b0mnode01-dkg
+        ./add-configmap.sh b0mnode02-keys
+        ./add-configmap.sh b0mnode02-dkg
+        ./add-configmap.sh b0mnode03-keys
+        ./add-configmap.sh b0mnode03-dkg
+        ./add-configmap.sh b0snode01-keys
+        ./add-configmap.sh b0snode02-keys
+        ./add-configmap.sh b0bnode01-keys
+        ./add-configmap.sh b0bnode02-keys
+        ./add-configmap.sh b0bnode03-keys
+        ./add-configmap.sh b0bnode04-keys
+        ./add-configmap.sh b0bnode05-keys
+        ./add-configmap.sh b0bnode06-keys
+        ./add-configmap.sh b0vnode01-keys
+        ./add-configmap.sh b0vnode02-keys
+        ./add-configmap.sh b0vnode03-keys
+        ./add-configmap.sh b0vnode04-keys
+        ./add-configmap.sh b0vnode05-keys
+        ./add-configmap.sh b0vnode06-keys
+        ./add-configmap.sh a0node01-keys
+        ./add-configmap.sh a0node02-keys
+        ./add-configmap.sh a0node03-keys
+
+        ./add-configmap.sh initial-state
+        ./add-configmap.sh delegate-wallet-json
+        ./add-configmap.sh nodes
+
+        # ./add-configmap.sh initial-state
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap initial-state || true
+        ## Placed initial-state.yaml file directly on the system-tests servers.
+        # wget -N https://github.com/0chain/actions/raw/update/initial-state-fromfile/values/test/large-initial-state.yaml
+        # mkdir -p /root/mb
+        # mv large-initial-state.yaml /root/mb/initial-state.yaml
+
+        ##############----------------- Installing 0chain helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
+             --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
+             --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
+             --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
+             --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
+             --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
+             --set commonConf.zchainUp.server_chain.transaction.timeout=600 \
+             --set miner.hostName=${{ env.NAMESPACE }} \
+             --set miner.host=devnet-0chain.net \
+             --set miner.image.tag=${{ env.MINER_TAG }} \
+             --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
+             --set commonConf.zchainUp.server_chain.transaction.max_fee=0.01 \
+             --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
+             --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
+             --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
+             --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
+             --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
+             --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
+             --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
+             --set commonConf.sc.smart_contracts.storagesc.time_unit="1h" \
+             --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
+             --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
+             --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
+             --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
+             --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
+             --set commonConf.sc.smart_contracts.storagesc.max_blobber_select_for_challenge=1 \
+             --set commonConf.sc.smart_contracts.storagesc.max_delegates=200 \
+             --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
+             --set commonConf.zchainUp.network.user_handlers.rate_limit=1500 \
+             --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=4 \
+             --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=0 \
+             --set commonConf.sc.smart_contracts.storagesc.min_lock_demand=1 \
+             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=0 \
+             --set commonConf.sc.smart_contracts.storagesc.min_lock_demand=1 \
+             --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=0 \
+             -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing 0dns helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0dns helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install 0dns --wait --timeout 60s \
+             --set zdns.image.tag=${{ env.ZDNS_TAG }} \
+             --set zdns.hostName=${{ env.NAMESPACE }} \
+             --set zdns.host=devnet-0chain.net \
+             -n ${{ env.NAMESPACE }}  0chain-helm/zdns --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing blobber helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install blobber --wait --timeout 180s \
+             --set blobber.blobberCount=6 \
+             --set validator.validatorCount=6 \
+             --set blobber.config.read_price=0.01 \
+             --set blobber.config.price_in_usd="false" \
+             --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
+             --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
+             --set blobber.hostName=${{ env.NAMESPACE }} \
+             --set blobber.host=devnet-0chain.net \
+             --set blobber.image.tag=${{ env.BLOBBER_TAG }} \
+             --set validator.image.tag=${{ env.VALIDATOR_TAG }} \
+             --set validator.hostName=${{ env.NAMESPACE }} \
+             --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }} \
+             0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing 0box helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the 0Box helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install 0box --wait \
+             --set zbox.hostName=${{ env.NAMESPACE }} \
+             --set zbox.host=devnet-0chain.net \
+             --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ \
+             --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set zbox.config.graph_node.network=${{ env.NAMESPACE }} \
+             --set zbox.config.graph_node.domain=devnet-0chain.net \
+             --set zbox.config.graph.snapshot_interval=1000 \
+             --set zbox.config.funding.referral_award_tokens=1000 \
+             --set zbox.config.funding.admin_user=0chain \
+             --set zbox.config.funding.admin_password=0chain123 \
+             --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
+             0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing pgadmin helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the pgadmin helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install pgadmin --wait \
+             --set pgadmin.hostName=${{ env.NAMESPACE }} \
+             --set pgadmin.host=devnet-0chain.net  -n ${{ env.NAMESPACE }} \
+             0chain-helm/pgadmin --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing authorizer helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install authorizer \
+             --set authorizer.config.nativeEventFetch=true \
+             --set authorizer.authorizerCount=3 \
+             --set authorizer.hostName=${{ env.NAMESPACE }} \
+             --set authorizer.host=devnet-0chain.net \
+             --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} \
+             --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+             --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} \
+             -n ${{ env.NAMESPACE }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+        ' > ./deploy.sh;
+        chmod 777 ./deploy.sh;
+        ./deploy.sh
+
+        if [[ -n "${{ inputs.web-apps-image-tag }}" ]]; then
+          ##############----------------- Installing atlus helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the atlus helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install atlus --wait --timeout 60s \
+              --set atlus.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set atlus.hostName=${{ env.NAMESPACE }} \
+              --set atlus.host=devnet-0chain.net \
+              --set atlus.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/atlus --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing blimp helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the blimp helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install blimp --wait --timeout 60s \
+              --set blimp.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set blimp.hostName=${{ env.NAMESPACE }} \
+              --set blimp.host=devnet-0chain.net \
+              --set blimp.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/blimp --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing bolt helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the bolt helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install bolt --wait --timeout 60s \
+              --set bolt.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set bolt.hostName=${{ env.NAMESPACE }} \
+              --set bolt.host=devnet-0chain.net \
+              --set bolt.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/bolt --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing chalk helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the chalk helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install chalk --wait --timeout 60s \
+              --set chalk.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set chalk.hostName=${{ env.NAMESPACE }} \
+              --set chalk.host=devnet-0chain.net \
+              --set chalk.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/chalk --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing chimney helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the chimney helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install chimney --wait --timeout 60s \
+              --set chimney.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set chimney.hostName=${{ env.NAMESPACE }} \
+              --set chimney.host=devnet-0chain.net \
+              --set chimney.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/chimney --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+
+          ##############----------------- Installing vult helm-chart --------------------###################
+          COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+          RET=1         #You can set RET=0 to skip the vult helm-chart deployment
+          while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+            helm upgrade --install vult --wait --timeout 60s \
+              --set vult.image.tag=${{ inputs.web-apps-image-tag }} \
+              --set vult.hostName=${{ env.NAMESPACE }} \
+              --set vult.host=devnet-0chain.net \
+              --set vult.env.DOMAIN=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+              -n ${{ env.NAMESPACE }} 0chain-helm/vult --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+          done
+        fi
+
+    # - name: "Setup Go"
+    #   shell: 'script --return --quiet --command "bash {0}"'
+    #   run: |
+    #     if ! go env &> /dev/null; then
+    #         [ -f ./https://go.dev/dl/go1.20.3.linux-amd64.tar.gz ] || wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+    #         [ -d /usr/local/go ] &&  rm -rf /usr/local/go
+    #         [ -f /usr/local/bin/go ] &&  rm -rf /usr/local/bin/go
+    #         tar -C /usr/local -xzf ./go1.20.3.linux-amd64.tar.gz
+    #     else
+    #         echo "go already exists"
+    #     fi
+
+    #     echo "PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
+    #     export PATH=$PATH:/usr/local/go/bin
+    #     which go
+    #     go env
+
+    - name: Setup go 1.20
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20' # The Go version to download (if necessary) and use.
+
+    - name: "Checkout 0wallet CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.ZWALLET_BRANCH }}
+        repository: 0chain/zwalletcli
+        fetch-depth: 1
+        path: ./zwalletcli
+
+    - name: "Checkout 0box CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.ZBOX_BRANCH }}
+        repository: 0chain/zboxcli
+        fetch-depth: 1
+        path: ./zboxcli
+
+    - name: "Upgrade GoSDK"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
+      run: |
+        echo
+        echo "=============================================================="
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI"
+        echo "=============================================================="
+        echo
+
+        GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
+        if [[ "$GOSDK_HEAD" == "null" ]]; then
+            echo "[${{ env.GOSDK_VERSION }}] does not seem to be a valid branch (possibly a commit hash?). Will pass directly to go to resolve"
+            GOSDK_HEAD="${{ env.GOSDK_VERSION }}"
+        fi
+
+        echo '#!/bin/bash
+        echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
+        go clean -modcache -cache
+        go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
+        ' > ./upgrade-gosdk.sh;
+        chmod 555 ./upgrade-gosdk.sh
+
+        cd ./zwalletcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
+        cd ../zboxcli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+
+        sudo rm -rf upgrade-gosdk.sh
+
+
+    - name: "Build CLI Binaries"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
+        echo "======================================================"
+        echo
+        # echo "removing go.work file if present"
+        # rm go.work || true
+
+        export HOME="/root"
+        echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
+        cd zwalletcli
+        go mod tidy
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
+        mv zwallet ..
+
+        echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
+        cd ../zboxcli
+        go mod tidy
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
+        mv zbox ..
+        echo "CLI build SUCCESS!"
+
+    - name: "Health Check"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "HEALTH CHECK NETWORK COMPONENTS:"
+        echo "======================================================"
+        echo
+        echo '#!/bin/bash
+        success=0
+        Green="\033[0;32m"
+        Color_Off="\033[0m"
+        for i in 1..60
+        do
+            echo "checking health: $2 "
+            curl -s https://$1/$2 > build.log && echo -e "[$Green $2 OK $Color_Off]" && success=1 && break || sleep 10
+        done
+        if [ "$success" -ne "1" ];
+        then
+            echo "$2 not healthy.. Exiting..."
+            exit 0;
+        fi
+        ' > check_health.sh
+        chmod 777 ./check_health.sh;
+        ./check_health.sh ${{ env.NETWORK_URL }} "sharder01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "sharder02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "miner03/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber01/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber02/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber03/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber04/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber05/"
+        ./check_health.sh ${{ env.NETWORK_URL }} "blobber06/"
+
+    - name: "Add latest hard fork"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
+        signature_scheme: bls0chain
+        min_submit: 50 # in percentage
+        min_confirmation: 50 # in percentage
+        confirmation_chain_length: 3
+        store_unlock_duration_sec: 2
+        ' > zbox_config.yaml
+        
+        echo "==========================================================="
+        echo "ADDING LATEST HARFORK"
+        echo "==========================================================="
+        
+
+        echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > owner_wallet.json
+        ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        ./zwallet add-hardfork -n apollo -r 1 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+
+    - name: "Stake blobbers using above built binaries"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
+        signature_scheme: bls0chain
+        min_submit: 50 # in percentage
+        min_confirmation: 50 # in percentage
+        confirmation_chain_length: 3
+        store_unlock_duration_sec: 2
+        ' > zbox_config.yaml
+
+        echo "Creating Staking wallet."
+        echo '{"client_id":"f6f9fdbb244721cd4839135898a9b6bb3e929632865b0e3f9aa27f9f27659896","client_key":"9623de0125ec1e93ca474e5ae2d333d4d1b75604db7eea2f29498be50650231a5eba174762f6b9ec9dc5b7c822526056403a548d2a613fff0db72b19a81ff29a","keys":[{"public_key":"9623de0125ec1e93ca474e5ae2d333d4d1b75604db7eea2f29498be50650231a5eba174762f6b9ec9dc5b7c822526056403a548d2a613fff0db72b19a81ff29a","private_key":"c225c78f32702d157d8b7c00f6480a24490e133a71aaed77042b5285581bef0e"}],"mnemonics":"effort pelican sudden thought fence punch hedgehog emerge coast certain seat middle sting purchase diet alter spread motion story donkey have tank power smart","version":"1.0","date_created":"2024-02-09T11:20:55+01:00","nonce":0}' > ../ignore
+
+        echo "==========================================================="
+        echo "SHOW BLOBBERS LIST"
+        echo "==========================================================="
+        ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
+
+        echo '#!/bin/bash
+        echo
+        echo "===================================================================="
+        echo "STAKING BLOBBERS AND VALIDATORS USING ZWALLETCLI & ZBOXCLI BINARIES"
+        echo "===================================================================="
+        echo
+        exec 6>&1 # Save stdout to file descriptor 6
+        function retry {
+            local n=1
+            local max=3
+            local delay=5
+            while true; do
+            "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                    ((n++))
+                    echo "Command failed. Attempt $n/$max:"
+                    sleep $delay;
+                else
+                    exec 1>&6 6>&- # Revert output to stdout instead of build.log and close file descriptor 6
+                    echo "failed to run $@"
+                    cat build.log && echo "::error title=Failed to stake the blobbers";
+                    echo "exiting blobber stake process..."
+                    exit 1
+                fi
+            }
+            done
+        }
+
+        export HOME="/root"
+        # retry ./zwallet create-wallet --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        # for i in {1..25}
+        # do
+        #     retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        # done
+
+        # Wait for 7 blobbers to register for 60 seconds...
+        count=0
+        while [[ $count -le 6 ]]
+        do
+          retry ./zwallet getblobbers --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep -o "[a-z0-9]\{64\}" > build.log
+          num=$(cat build.log | wc -l)
+
+          echo "List Blobbers [$count] output:"
+          cat build.log
+          echo
+
+          [[ $num -eq 6 ]] && break
+          sleep 10
+          ((count++))
+        done
+        if [[ $num -lt 6 ]]
+        then
+          echo "::error title=Number of blobbers registered is less than 6:: Only ${num}/6 blobbers are registered. Exiting run..."
+          cat build.log
+          exit 1
+        fi
+        readarray -t blobber_ids < build.log
+        for id in "${blobber_ids[@]}"
+        do
+            retry ./zbox sp-lock --blobber_id $id --tokens 5 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        done
+
+        # Validator staking
+        # for i in {1..25}
+        # do
+        #     retry ./zwallet faucet --methodName "pour" --input "{}" --tokens 9 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        # done
+        count=0
+        while [[ $count -le 5 ]]
+        do
+          retry ./zbox ls-validators --silent --configDir . --config ./zbox_config.yaml --wallet ../ignore | grep "id" | grep -o "[a-z0-9]\{64\}" > build.log
+          num=$(cat build.log | wc -l)
+
+          echo "List Validators [$count] output:"
+          cat build.log
+          echo
+
+          [[ $num -eq 6 ]] && break
+          sleep 10
+          ((count++))
+        done
+        if [[ $num -lt 6 ]]
+        then
+          echo "::error title=Number of Validators registered is less than 6:: Only ${num}/6 validators are registered. Exiting run..."
+          cat build.log
+          exit 1
+        fi
+        readarray -t validator_ids < build.log
+        for id in "${validator_ids[@]}"
+        do
+            retry ./zbox sp-lock --validator_id $id --tokens 10 --configDir . --config ./zbox_config.yaml --wallet ../ignore > build.log 2>&1
+        done
+        ' > ./stake_validators.sh;
+        chmod 777 ./stake_validators.sh;
+
+    - name: Add Address
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        mkdir wallets
+        cd wallets
+        cat <<\EOF > UTC--2023-10-26T00-34-42.327566000Z--8e25cfd9bd6c0ca67a5522cd920b3c66d39d6e97
+        {"address":"8e25cfd9bd6c0ca67a5522cd920b3c66d39d6e97","crypto":{"cipher":"aes-128-ctr","ciphertext":"3e6a7c7fc1875e9437fb1b19d8195b707d2143f5aa40615b02efce3ef0422619","cipherparams":{"iv":"ab9d87b14b8593112338abc7da502866"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"94cdd599dd1c4a9eb24f837ca0dbd02d30a33b890bd43eca936c0ca25fd2e983"},"mac":"f07cf9a0c324e8449a1f7c17f5d7f6d3a942ec47b1ee73e157dfc3f325cbb9d3"},"id":"db1bba38-3573-4d53-905f-f075458da3d4","version":3}
+        EOF
+
+    - name: "Register Authorizers"
+      shell: 'script --return --quiet --command "bash {0}"'
+      continue-on-error: true
+      run: |
+        export HOME="/root"
+
+        echo '> config.yaml'
+        echo '
+        block_worker: https://${{ env.NETWORK_URL }}/dns
+        confirmation_chain_length: 3
+        ethereum_node_url: ${{ env.ETHEREUM_NODE_URL }}
+        min_confirmation: 50
+        min_submit: 50
+        signature_scheme: bls0chain
+        store_unlock_duration_sec: 2
+        bridge:
+          bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b
+          token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78
+          authorizers_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42
+          ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97
+          password: "12345678"
+        ' > config.yaml
+        cat config.yaml
+
+        echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > wallet.json
+
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer01/ --client_key b41d6232f11e0feefe895483688410216b3b1101e5db55044b22f0342fc18718b96b3124c9373dd116c50bd9b60512f28930a0e5771e58ecdc7d5bc2b570111a --client_id 2ec884a02a43ad2ebf0b937f4d6f04fc1c76c42bfc6d694324c1e520105ec8c6 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer02/ --client_key aa6b6a16ae362189008cd4e7b4573174460965ab8d9c18515f0142cee4d8ba0708584cfbb8074120586998157ccb808954cde6c68443f22aab0b5ca72175c79d --client_id 2ec884a02a43ad2ebf0b937f4d6f04fc1c76c42bfc6d694324c1e520105ec8c6 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+        ./zwallet auth-register --url https://${{ env.NETWORK_URL }}/authorizer03/ --client_key aa894f74724dbb774deafda1de89b1d2853e1849c148c632ef7c9877338d5d129c9ccca3fe6a4581af2b07bbfb1225da4f674b1f76b49bc2187dc761896dff87 --client_id 2ec884a02a43ad2ebf0b937f4d6f04fc1c76c42bfc6d694324c1e520105ec8c6 --min_stake 1 --max_stake 10 --num_delegates 5 --service_charge 0.0 --configDir . --path . --config config.yaml --wallet wallet.json
+
+        ./zwallet auth-sc-register --ethereum_address=0xD8c9156e782C68EE671C09b6b92de76C97948432 --configDir . --path . --config config.yaml --wallet wallet.json || true
+        ./zwallet auth-sc-register --ethereum_address=0x557850520d8AcD3177B445CAaeD6410899Ef976a --configDir . --path . --config config.yaml --wallet wallet.json || true
+        ./zwallet auth-sc-register --ethereum_address=0xa149B58b7e1390D152383BB03dBc79B390F648e2 --configDir . --path . --config config.yaml --wallet wallet.json || true
+
+    - name: "Wait for 0Chain network deployment to complete"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        timeout 300 ./stake_validators.sh
+        if [[ $? -ne 0 ]]
+        then
+          cat build.log
+          cd ..
+          echo '#!/bin/bash
+          RED="\033[0;31m"
+          NC="\033[0m"
+          echo
+          echo -e "${RED}======================================================${NC}"
+          echo -e "${RED}RETRYING DEPLOYMENT ($(echo $1 | awk '"'"'{ print toupper($0) }'"'"') ATTEMPT):${NC}"
+          echo -e "${RED}======================================================${NC}"
+          echo
+          ./teardown.sh && ./deploy.sh && cd $GITHUB_WORKSPACE && ./stake_validators.sh $1;
+          ' > ./retry.sh;
+          chmod 777 ./retry.sh;
+          timeout 300 ./retry.sh "second" || cd $GITHUB_WORKSPACE && cat build.log && cd .. && timeout 300 ./retry.sh "final" || cd $GITHUB_WORKSPACE && cat build.log && exit 1;
+        else
+          echo "Blobbers staked succefully on try $((ITER+1))."
+          echo
+          echo "==========================================================="
+          echo "  0CHAIN DEPLOYMENT COMPLETED SUCCESSFULLY"
+          echo "==========================================================="
+        fi
+
+    - name: "Setup Zs3Server: Create allocation"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        export HOME="/root"
+        echo 'block_worker: https://${{ env.NETWORK_URL }}/dns
+        signature_scheme: bls0chain
+        min_submit: 50 # in percentage
+        min_confirmation: 50 # in percentage
+        confirmation_chain_length: 3
+        store_unlock_duration_sec: 2
+        ' > config.yaml
+        echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
+        ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zbox newallocation --lock 5 --data 2 --parity 2 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation.txt
+        ./zbox rp-lock --tokens 3 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        echo "Allocation hash: $(cat allocation.txt)"
+        echo "ALLOCATION=$(cat allocation.txt)" >> $GITHUB_ENV
+
+    - name: "Install Zs3Server"
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        COUNT=3
+        ##############----------------- Installing zs3server helm-chart --------------------###################
+        RET=1         #You can set RET=0 to skip the zs3server helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+          helm upgrade --install --wait \
+             --set zs3server.hostName=dev-${{ env.RUNNER_NUMBER }} \
+             --set zs3server.host=devnet-0chain.net \
+             --set zs3server.client.image.tag=${{ env.ZS3_CLIENT }} \
+             --set zs3server.logsearchapi.image.tag=${{ env.ZS3_LOGSEARCHAPI }} \
+             --set zs3server.minio.image.tag=${{ env.ZS3_MINIO }} \
+             --set zs3server.minio.config.zcn_config.block_worker=https://${{ env.NETWORK_URL }}/dns \
+             --set zs3server.minio.config.allocation_1=${{ env.ALLOCATION }} \
+             zs3server -n dev-${{ env.RUNNER_NUMBER }} 0chain-helm/zs3server --kubeconfig ../kube/${{ env.NAMESPACE }}-config
+            RET=$?
+            ((COUNT--))
+            echo "Retrying helm install"
+            sleep 2
+        done
+
+    - name: "Extract Logs From Pods"
+      if: ${{ failure() && env.NAMESPACE != '' }}
+      continue-on-error: true
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "Extracting Logging From Pods"
+        echo "======================================================"
+
+
+        echo '#!/bin/bash
+        app=$1
+        output=$2
+
+        Green="\033[0;32m"
+
+        podname=$(kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods --no-headers -l app=$app -o custom-columns=:metadata.name)
+
+        echo -ne "$Green [+] $app:$podname "
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config cp $podname:log $output && echo "OK"
+
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get events --sort-by='.metadata.creationTimestamp' | grep $podname
+        ' > ./logging.sh
+
+        chmod 777 ./logging.sh;
+
+        echo "-----------------------------"
+        echo "> Show blobbers"
+        echo "-----------------------------"
+        ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
+
+        echo "-----------------------------"
+        echo "> Show pods"
+        echo "-----------------------------"
+        kubectl -n ${{ env.NAMESPACE }} --kubeconfig ../kube/${{ env.NAMESPACE }}-config get pods
+
+        echo "-----------------------------"
+        echo "> Extract logs"
+        echo "-----------------------------"
+
+        ./logging.sh 0chain-sharder-01 ./logs/sharder-01
+        ./logging.sh 0chain-sharder-02 ./logs/sharder-02
+        echo
+
+        ./logging.sh 0chain-miner-01 ./logs/miner-01
+        ./logging.sh 0chain-miner-02 ./logs/miner-02
+        ./logging.sh 0chain-miner-03 ./logs/miner-03
+        echo
+
+        ./logging.sh blobber-blobber-01 ./logs/blobber-01
+        ./logging.sh blobber-blobber-02 ./logs/blobber-02
+        ./logging.sh blobber-blobber-03 ./logs/blobber-03
+        ./logging.sh blobber-blobber-04 ./logs/blobber-04
+        ./logging.sh blobber-blobber-05 ./logs/blobber-05
+        ./logging.sh blobber-blobber-06 ./logs/blobber-06
+        echo
+
+        ./logging.sh blobber-validator-01 ./logs/validator-01
+        ./logging.sh blobber-validator-02 ./logs/validator-02
+        ./logging.sh blobber-validator-03 ./logs/validator-03
+        ./logging.sh blobber-validator-04 ./logs/validator-04
+        ./logging.sh blobber-validator-05 ./logs/validator-05
+        ./logging.sh blobber-validator-06 ./logs/validator-06
+
+    - name: "Archive Sharder Logs"
+      continue-on-error: true
+      if: ${{ failure() && env.NAMESPACE != '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: logging-pods-tests-sharder
+        path: |
+          ./logs/sharder-01
+          ./logs/sharder-02
+        retention-days: 5
+
+    - name: "Archive Miner Logs"
+      continue-on-error: true
+      if: ${{ failure() && env.NAMESPACE != '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: logging-pods-tests-miner
+        path: |
+          ./logs/miner-01
+          ./logs/miner-02
+          ./logs/miner-03
+        retention-days: 5
+
+    - name: "Archive Blobber Logs"
+      continue-on-error: true
+      if: ${{ failure() && env.NAMESPACE != '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: logging-pods-tests-blobber
+        path: |
+          ./logs/blobber-01
+          ./logs/blobber-01
+          ./logs/blobber-03
+          ./logs/blobber-04
+          ./logs/blobber-05
+          ./logs/blobber-06
+        retention-days: 5
+
+    - name: "Archive Validator Logs"
+      continue-on-error: true
+      if: ${{ failure() && env.NAMESPACE != '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: logging-pods-tests-validator
+        path: |
+          ./logs/validator-01
+          ./logs/validator-01
+          ./logs/validator-03
+          ./logs/validator-04
+          ./logs/validator-05
+          ./logs/validator-06
+        retention-days: 5
+
+    # - name: "Create post run teardown script"
+    #   continue-on-error: true
+    #   shell: 'script --return --quiet --command "bash {0}"'
+    #   run: |
+    #     cd ..
+    #     echo '#!/bin/bash
+
+    #     if [ "$${{ env.TEARDOWN_CONDITION }}" == "true" ]; then
+    #        echo
+    #        echo "======================================================"
+    #        echo "TEARING DOWN 0CHAIN NETWORK AFTER WORKFLOW RUN:"
+    #        echo "======================================================"
+    #        echo
+    #        output=$(helm list -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" | wc -l);
+    #        if [ $output -gt 1 ]; then
+    #           helm list --short -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config" | xargs -L1 helm delete -n ${{ env.NAMESPACE }} --kubeconfig "./kube/${{ env.NAMESPACE }}-config";
+    #           sleep 30;
+    #        fi
+    #        kubectl delete pvc --all -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config;
+    #        helm upgrade --install --wait --timeout 120s cleanup -n ${{ env.NAMESPACE }} 0chain-helm2/cleanDir --kubeconfig ./kube/${{ env.NAMESPACE }}-config;
+    #     else
+    #        echo "SKIPPING TEARDOWN AS CONDITION - [${{ env.TEARDOWN_CONDITION }}] WAS [$${{ env.TEARDOWN_CONDITION }}]"
+    #     fi
+    #     ' > ./post.sh;
+    #     chmod 777 ./post.sh;
+
+    # - name: "POST WORKFLOW RUN: Destroy 0Chain Network"
+    #   continue-on-error: true
+    #   uses: webiny/action-post-run@2.0.1
+    #   with:
+    #     run: ./post.sh
+    #     working-directory: ../
