@@ -231,10 +231,13 @@ runs:
         echo "=================================================="
         echo
         cd ..
-        helm repo remove 0chain-helm
+        # sudo helm repo remove 0chain-helm || true
         helm repo add 0chain-helm http://0chain-helm-chart.s3-website.us-east-2.amazonaws.com/dev/
+        echo "1"
         helm repo update
+        echo "2"
         mkdir -p ./kube
+        echo "3"
         echo "${{ inputs.kube_config }}" | xargs | base64 -d > ./kube/${{ env.NAMESPACE }}-config
 
     - name: "Remove existing 0Chain network and data"
