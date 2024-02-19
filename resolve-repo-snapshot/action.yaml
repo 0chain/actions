@@ -82,7 +82,7 @@ runs:
     - name: "Get docker images for sprint branches"
       id: get-images
       if: ${{ inputs.resolve_images == 'true' }}
-      uses: 0chain/actions/get-latest-image-for-branch@master
+      uses: 0chain/actions/get-latest-image-for-branch@update/delay-retrieve-commit
       with:
         miner_sharder_branch: ${{ env.SNAPSHOT_BRANCH_0CHAIN }}
         blobber_validator_branch: ${{ env.SNAPSHOT_BRANCH_BLOBBER }}
