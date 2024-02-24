@@ -385,6 +385,7 @@ runs:
              --set blobber.blobberCount=6 \
              --set validator.validatorCount=6 \
              --set blobber.config.read_price=0.01 \
+             --set blobber.config.0box.public_key=5212ec756399e7af0340333ebe401eaa555512b6b1b2fdda34d0dd4ff6f02b1882f6b5c35449b29c51caedfa690c1f527e37f695a12f19e214457a3232fd2003 \
              --set blobber.config.price_in_usd="false" \
              --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
