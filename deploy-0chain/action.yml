@@ -358,7 +358,7 @@ runs:
              --set commonConf.sc.smart_contracts.zcnsc.cost.add-to-delegate-pool=100 \
              --set commonConf.sc.smart_contracts.zcnsc.cost.delete-from-delegate-pool=100 \
              --set commonConf.zchainDown.kafka.host=108.59.11.66 \
-             --set commonConf.zchainDown.kafka.topic="events" \
+             --set commonConf.zchainDown.kafka.topic="system_test_events" \
              --set commonConf.zchainDown.kafka.write_timeout=10s \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
