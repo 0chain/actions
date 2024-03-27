@@ -316,6 +316,21 @@ runs:
         # mkdir -p /root/mb
         # mv large-initial-state.yaml /root/mb/initial-state.yaml
 
+
+        ##############----------------- Installing kafka helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the kafka helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install kafka --wait --timeout 3m  0chain-helm/kafka \
+             --set kafka.hostName=${{ env.NAMESPACE }} \
+             --set kafka.host=devnet-0chain.net \
+             -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
         ##############----------------- Installing 0chain helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
@@ -324,11 +339,11 @@ runs:
              --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
              --set sharder.config.zchain01.kafka.enabled=true \
-             --set sharder.config.zchain01.kafka.host=108.59.11.66:9092 \
-             --set sharder.config.zchain01.kafka.topic="system_test_events_debug_${RUNNER_NAME:(-1)}" \
+             --set sharder.config.zchain01.kafka.host=helm-kafka-01:9092 \
+             --set sharder.config.zchain01.kafka.topic="events" \
              --set sharder.config.zchain02.kafka.enabled=false \
-             --set sharder.config.zchain02.kafka.host=108.59.11.66:9092 \
-             --set sharder.config.zchain02.kafka.topic="system_test_events_debug_${RUNNER_NAME:(-1)}" \
+             --set sharder.config.zchain02.kafka.host=helm-kafka-01:9092 \
+             --set sharder.config.zchain02.kafka.topic="events" \
              --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
              --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
              --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
@@ -427,10 +442,10 @@ runs:
              --set zbox.config.funding.referral_award_tokens=1000 \
              --set zbox.config.funding.admin_user=0chain \
              --set zbox.config.funding.admin_password=0chain123 \
-             --set zbox.config.kafka.host="108.59.11.66:9092" \
-             --set zbox.config.kafka.eventsTopic=system_test_events_debug_${RUNNER_NAME:(-1)} \
+             --set zbox.config.kafka.host=helm-kafka-01:9092 \
+             --set zbox.config.kafka.eventsTopic=events \
              --set zbox.config.kafka.eventsGroupId=events-consumer \
-             --set zbox.config.kafka.eventsRetryTopic=events-retry-${RUNNER_NAME:(-1)} \
+             --set zbox.config.kafka.eventsRetryTopic=events-retry \
              --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
              0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
