@@ -358,6 +358,10 @@ runs:
              --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
              --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
              --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
+             --set commonConf.zchainUp.server_chain.dbs.settings.partition_change_period=2000000 \
+             --set commonConf.zchainUp.server_chain.dbs.settings.partition_keep_count=1 \
+             --set commonConf.zchainUp.server_chain.dbs.settings.rolling_partition_change_period=100000 \
+             --set commonConf.zchainUp.server_chain.dbs.settings.rolling_partition_keep_count=20 \
              --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
              --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
              --set commonConf.sc.smart_contracts.storagesc.time_unit="1h" \
