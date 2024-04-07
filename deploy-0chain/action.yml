@@ -405,8 +405,6 @@ runs:
              --set zbox.host=devnet-0chain.net \
              --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ \
              --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
-             --set zbox.config.network.name=${{ env.NAMESPACE }} \
-             --set zbox.config.network.domain=devnet-0chain.net \
              --set zbox.config.nft_tracker.domain=devnet-0chain.net \
              --set zbox.config.chimney.domain=devnet-0chain.net \
              --set zbox.config.blimp.domain=devnet-0chain.net \
