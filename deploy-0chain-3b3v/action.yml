@@ -329,6 +329,9 @@ runs:
              --set validator.validatorCount=3 \
              --set blobber.config.read_price=0.01 \
              --set blobber.config.price_in_usd="false" \
+             --set blobber.config.writemarker_redeem.max_chain_length=1 \
+             --set blobber.config.writemarker_redeem.max_timestamp_gap=1800 \
+             --set blobber.config.writemarker_redeem.marker_redeem_interval=10m \
              --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
