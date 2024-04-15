@@ -367,10 +367,8 @@ runs:
 
         cd tests/tokenomics_tests
 
-        echo $(ls)
         echo $(ls config)
         cat config/zbox_config.yaml
-        cat ./zbox_config.yaml
 
         testFunctions=$(echo ${{ inputs.tokenomics_test_filter }})
         echo "Attempting to resolve filter to test files..."
