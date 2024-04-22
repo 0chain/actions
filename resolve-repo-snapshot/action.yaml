@@ -35,12 +35,7 @@ runs:
         if [[ "${{ inputs.repo_snapshots_branch }}" == "<CURRENT BRANCH WITH FALLBACK TO CURRENT_SPRINT>" ]]; then
           echo "repo-snapshots branch was set to ${{ inputs.repo_snapshots_branch }}. Trying to find current branch name in repo-snapshots. Will fall back to current-sprint if unsuccessful."
           CURRENT_BRANCH=$([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF)
-          echo "github.event.pull_request.head.sha --> ${{ github.event.pull_request.head.sha }}"
-          echo "GITHUB_REF --> ${GITHUB_REF#refs/*/}"
-          echo "GITHUB_HEAD_REF --> $GITHUB_HEAD_REF"
-          echo "CURRENT_BRANCH --> $CURRENT_BRANCH"
-          # curl --location "https://api.github.com/repos/0chain/repo-snapshots/branches/$CURRENT_BRANCH" --header 'Authorization: Bearer ${{ inputs.svc_account_secret }}' --fail >> /dev/null
-          curl --location "https://api.github.com/repos/0chain/repo-snapshots/branches/$CURRENT_BRANCH" --header 'Authorization: Bearer ${{ inputs.svc_account_secret }}' --fail
+          curl --location "https://api.github.com/repos/0chain/repo-snapshots/branches/$CURRENT_BRANCH" --header 'Authorization: Bearer ${{ inputs.svc_account_secret }}' --fail >> /dev/null
           if [[ $? -ne 0 ]]; then
             echo "repo-snapshots branch [$CURRENT_BRANCH] does NOT exist. Checking out current-sprint instead"
             echo REPO_SNAPSHOTS_BRANCH=current-sprint >> $GITHUB_ENV
