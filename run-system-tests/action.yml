@@ -124,7 +124,7 @@ runs:
              echo "$3=$2" >> $GITHUB_ENV
            fi
         else
-           echo "Using $3 tag [$1] from repo_snapshots_branch"
+           echo "Using $3 tag [$1] from input values"
            export $3=$1
            echo "$3=$1" >> $GITHUB_ENV
         fi
