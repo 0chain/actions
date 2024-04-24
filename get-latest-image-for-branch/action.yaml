@@ -97,18 +97,17 @@ runs:
         fi
 
         exit_code=0
-        SHORT_SHA=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
-        echo "Debugging for $SHORT_SHA"
-        if [[ -z "$SHORT_SHA" ]]; then
-          echo "Commit id not retrieved"
-          for (( i=1 ; i<=10 && -z "$SHORT_SHA" ; i++ )); 
-          do
-            echo "Waiting for 10 seconds to retrieve commit id"
-            sleep 10s
-            SHORT_SHA=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
-          done
-        fi
-        echo "Debugging for $SHORT_SHA"
+        for (( retry_n=1 ; retry_n<=10 ; retry_n++ )); 
+        do
+          SHORT_SHA=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/repos/0chain/$1/git/refs/heads/$2 | jq --raw-output .object.sha | head -c 8)
+          if [[ "$SHORT_SHA" != "null" ]]; then
+            echo "Latest commit id $SHORT_SHA found for $1 repository and $2 branch"
+            break
+          else
+            echo "Commit id not retrieved, Retry $retry_n after 2 seconds"
+            sleep 2s
+          fi
+        done
 
         TAG=$(echo $2 | sed '"'"'s/\//-/g'"'"')
 
@@ -121,18 +120,17 @@ runs:
           exit 0
         fi
 
-        PR_ID=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:${SHORT_SHA}+head:$2 | jq --raw-output .items[0].number)
-        echo "Debugging for $PR_ID"
-        if [[ -z "$PR_ID" ]]; then
-          echo "Commit id not retrieved"
-          for (( i=1 ; i<=10 && -z "$PR_ID" ; i++ )); 
-          do
-            echo "Waiting for 10 seconds to retrieve commit id"
-            sleep 10s
-            PR_ID=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:${SHORT_SHA}+head:$2 | jq --raw-output .items[0].number)
-          done
-        fi
-        echo "Debugging for $PR_ID"
+        for (( retry_n=1 ; retry_n<=10 ; retry_n++ )); 
+        do
+          PR_ID=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/search/issues?q=is:pr+org:0chain+sha:${SHORT_SHA}+head:$2 | jq --raw-output .items[0].number)
+          if [[ "$PR_ID" != "null" ]]; then
+            echo "Latest PR commit id $PR_ID found for $1 repository and $2 branch"
+            break
+          else
+            echo "Commit id for PR not retrieved, Retry $retry_n after 2 seconds"
+            sleep 2s
+          fi
+        done
 
         if [[ -z "$PR_ID" || "$PR_ID" == "null" ]];then
           PREV_SHA=$(curl --silent -u ${{ inputs.svc_account_secret }}:x-oauth-basic https://api.github.com/repos/0chain/$1/commits/$2 | jq --raw-output ".parents[0].sha")
