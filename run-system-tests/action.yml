@@ -58,10 +58,6 @@ inputs:
     required: false
     default: "true"
     description: 'Enable or disable S3 migration CLI system tests'
-  run_monitoring_system_tests:
-    required: false
-    default: "true"
-    description: 'Enable or disable monitoring system tests'
   run_api_system_tests:
     required: false
     default: "true"
@@ -214,13 +210,6 @@ runs:
           else
             echo RUN_CHIMNEY_BLOBBER_TESTS=true >> $GITHUB_ENV
         fi
-        
-        if [ "${{ inputs.run_monitoring_system_tests }}" == "false" ];
-          then
-            echo RUN_MONITORING_SYSTEM_TESTS=false >> $GITHUB_ENV
-          else
-            echo RUN_MONITORING_SYSTEM_TESTS=true >> $GITHUB_ENV
-        fi
 
     - name: "VIEW TEST CONFIGURATION"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -241,7 +230,6 @@ runs:
         echo "Test file filter:              [${{ inputs.test_file_filter }}]"
         echo "Running CLI tests:             [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
         echo "Running S3 CLI tests:          [${{ env.RUN_S3_CLI_SYSTEM_TESTS }}]"
-        echo "Running Monitoring tests:      [${{ env.RUN_MONITORING_SYSTEM_TESTS }}]"
         echo "Running API tests:             [${{ env.RUN_API_SYSTEM_TESTS }}]"
         echo "Running Tokenomics tests:      [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
         echo "Running Chimney Blobber tests: [${{ env.RUN_CHIMNEY_BLOBBER_TESTS }}]"
@@ -823,8 +811,12 @@ runs:
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../KILL_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli/index.html --title "0Chain System test suite: Kill tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../MONITORING_TEST_RUNNER_COMMAND.sh || monitoring_system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoring/index.html --title "0Chain Monitoring System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+  
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli ../../${{ env.BRANCH_DIR }}/latest/
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoring ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
         if [[ $system_tests_exit_code == 0 ]];
@@ -906,47 +898,6 @@ runs:
           ./${{ env.BRANCH_DIR }}/latest/cli/index.html
           ./${{ env.BRANCH_DIR }}/latest/killtestscli/index.html
 
-    - name: "Run Monitoring System Tests"
-      shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ always() && env.TESTS_READY && env.RUN_MONITORING_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
-      run: |
-          echo
-          echo "======================================================"
-          echo "RUNNING MONITORING SYSTEM TESTS:"
-          echo "======================================================"
-          echo
-  
-          export HOME="/root"
-          GOPATH=$(echo $(go env GOPATH))
-  
-          cd tests/monitoring_tests
-          monitoring_system_tests_exit_code=0
-          ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../MONITORING_TEST_RUNNER_COMMAND.sh || monitoring_system_tests_exit_code=$?
-          cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoring/index.html --title "0Chain Monitoring System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-  
-          cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoring ../../${{ env.BRANCH_DIR }}/latest/
-          echo "MONITORING_TESTS_RAN=true" >> $GITHUB_ENV
-  
-          if [[ $monitoring_system_tests_exit_code == 0 ]];
-              then
-              echo MONITORING_TESTS_PASSED=true >> $GITHUB_ENV
-              else
-              echo MONITORING_TESTS_PASSED=false >> $GITHUB_ENV
-              echo "::error title=Monitoring System tests faled!::Monitoring System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
-          fi
-  
-          exit $monitoring_system_tests_exit_code
-
-    - name: "Archive Monitoring Test Config & Console Output"
-      continue-on-error: true
-      if: ${{ always() && env.RUN_MONITORING_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
-      uses: actions/upload-artifact@v3
-      with:
-          name: Monitoring-System-Test-${{ env.TEST_TIME }}
-          path: |
-            ./tests/monitoring_tests/config
-            ./${{ env.BRANCH_DIR }}/latest/monitoring/index.html
-        
         
         
 
