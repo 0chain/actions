@@ -898,9 +898,6 @@ runs:
           ./${{ env.BRANCH_DIR }}/latest/cli/index.html
           ./${{ env.BRANCH_DIR }}/latest/killtestscli/index.html
 
-        
-        
-
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
       if:  ${{ always() && env.TESTS_READY && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
