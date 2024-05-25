@@ -425,6 +425,7 @@ runs:
              --set zbox.config.blimp.domain=devnet-0chain.net \
              --set zbox.config.graph.snapshot_interval=1000 \
              --set zbox.config.funding.referral_award_tokens=1000 \
+             --set zbox.config.kafka.trigger_round=0 \
              --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
              0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
