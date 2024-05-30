@@ -311,6 +311,10 @@ runs:
              --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=10 \
              --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=10 \
              --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=30 \
+             --set sharder.config.zchain01.kafka.host=helm-kafka-01:9092 \
+             --set sharder.config.zchain01.kafka.topic="events" \
+             --set sharder.config.zchain02.kafka.host=helm-kafka-01:9092 \
+             --set sharder.config.zchain02.kafka.topic="events" \
              --set sharder.config.zchain01.kafka.enabled=true \
              --set sharder.config.zchain01.kafka.trigger_round=0 \
              --set sharder.config.zchain02.kafka.enabled=false \
@@ -383,6 +387,10 @@ runs:
              --set zbox.config.funding.admin_password=0chain123 \
              --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
              --set zbox.config.kafka.trigger_round=0 \
+             --set zbox.config.kafka.host=helm-kafka-01:9092 \
+             --set zbox.config.kafka.eventsTopic=events \
+             --set zbox.config.kafka.eventsGroupId=events-consumer \
+             --set zbox.config.kafka.eventsRetryTopic=events-retry \
              0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
