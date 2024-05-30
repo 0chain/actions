@@ -260,6 +260,23 @@ runs:
         ./add-configmap.sh delegate-wallet-json
         ./add-configmap.sh nodes
 
+
+        ##############----------------- Installing kafka helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the kafka helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install kafka --wait --timeout 3m  0chain-helm/kafka \
+             --set kafka.hostName=${{ env.NAMESPACE }} \
+             --set kafka.host=devnet-0chain.net \
+             -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+        
+        
+        
         ##############----------------- Installing 0chain helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
@@ -298,6 +315,10 @@ runs:
              --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=0 \
              --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=0 \
              --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=0 \
+             --set sharder.config.zchain01.kafka.enabled=true \
+             --set sharder.config.zchain01.kafka.trigger_round=0 \
+             --set sharder.config.zchain02.kafka.enabled=false \
+             --set sharder.config.zchain02.kafka.trigger_round=0 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
@@ -371,6 +392,7 @@ runs:
              --set zbox.config.funding.admin_user=0chain \
              --set zbox.config.funding.admin_password=0chain123 \
              --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
+             --set zbox.config.kafka.trigger_round=0 \
              0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
