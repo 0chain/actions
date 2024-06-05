@@ -294,6 +294,28 @@ runs:
              --set miner.host=devnet-0chain.net \
              --set miner.image.tag=${{ env.MINER_TAG }} \
              --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
+             --set commonConf.zchainUp.server_chain.transaction.max_fee=0.01 \
+             --set commonConf.zchainUp.server_chain.smart_contract.multisig=true \
+             --set commonConf.zchainUp.server_chain.smart_contract.vesting=true \
+             --set commonConf.zchainUp.server_chain.dbs.events.aggregate_period=11 \
+             --set commonConf.zchainUp.server_chain.smart_contract.setting_update_period=2 \
+             --set commonConf.zchainUp.server_chain.dbs.settings.debug=true \
+             --set commonConf.sc.smart_contracts.minersc.num_sharders_rewarded=5 \
+             --set commonConf.sc.smart_contracts.minersc.num_sharder_delegates_rewarded=1 \
+             --set commonConf.sc.smart_contracts.storagesc.time_unit="1h" \
+             --set commonConf.sc.smart_contracts.storagesc.cost.cancel_allocation=5000 \
+             --set commonConf.sc.smart_contracts.faucetsc.periodic_limit=10000000 \
+             --set commonConf.sc.smart_contracts.faucetsc.global_limit=100000000 \
+             --set commonConf.sc.smart_contracts.faucetsc.max_pour_amount=10000 \
+             --set commonConf.sc.smart_contracts.storagesc.max_challenge_completion_rounds=1000 \
+             --set commonConf.sc.smart_contracts.storagesc.max_blobber_select_for_challenge=1 \
+             --set commonConf.sc.smart_contracts.storagesc.max_delegates=30 \
+             --set commonConf.sc.smart_contracts.storagesc.max_file_size=2048000000000 \
+             --set commnConf.zchainUp.network.user_handlers.rate_limit=1500 \
+             --set commonConf.sc.smart_contracts.storagesc.min_lock_demand=1 \
+             --set commonConf.sc.smart_contracts.storagesc.min_stake_per_delegate=0 \
+             --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=0 \
+             --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=0 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
