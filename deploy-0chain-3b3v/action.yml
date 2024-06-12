@@ -517,7 +517,7 @@ runs:
         ./zwallet add-hardfork -n ares -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n artemis -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n athena -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-
+        ./zwallet add-hardfork -n demeter -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
