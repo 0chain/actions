@@ -345,7 +345,7 @@ runs:
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
-           helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=${{ env.SHARDER_TAG }} \
+           helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=v1.15.5 \
              --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
              --set sharder.config.zchain01.kafka.enabled=true \
@@ -357,7 +357,7 @@ runs:
              --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
              --set miner.hostName=${{ env.NAMESPACE }} \
              --set miner.host=devnet-0chain.net \
-             --set miner.image.tag=${{ env.MINER_TAG }} \
+             --set miner.image.tag=v1.15.5 \
              --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
