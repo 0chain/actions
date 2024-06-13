@@ -285,10 +285,13 @@ runs:
            helm upgrade --install 0chain --wait --timeout 10m  0chain-helm/zchainDel --set sharder.hostName=${{ env.NAMESPACE }} --set sharder.host=devnet-0chain.net --set sharder.image.tag=v1.15.5 \
              --set sharder.config.zchain01.delegate_wallet="b888ae3400b67a47362aad7d6263fcfeb6585fe696e8d182d3bb4f4a9d737bae" \
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
+             --set sharder.config.zchain01.kafka.enabled=true \
+             --set sharder.config.zchain01.kafka.trigger_round=0 \
+             --set sharder.config.zchain02.kafka.enabled=false \
+             --set sharder.config.zchain02.kafka.trigger_round=0 \
              --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
              --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
              --set miner.config.zchain03.delegate_wallet="bbe8b6abdb54b0642324a103c49f8b04e2623db74cd7f1427cd2d5f0308e674d" \
-             --set commonConf.zchainUp.server_chain.transaction.timeout=600 \
              --set miner.hostName=${{ env.NAMESPACE }} \
              --set miner.host=devnet-0chain.net \
              --set miner.image.tag=${{ env.MINER_TAG }} \
@@ -311,14 +314,6 @@ runs:
              --set commonConf.sc.smart_contracts.minersc.min_stake_per_delegate=10 \
              --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=10 \
              --set commonConf.sc.smart_contracts.storagesc.challenge_generation_gap=30 \
-             --set sharder.config.zchain01.kafka.host=helm-kafka-01:9092 \
-             --set sharder.config.zchain01.kafka.topic="events" \
-             --set sharder.config.zchain02.kafka.host=helm-kafka-01:9092 \
-             --set sharder.config.zchain02.kafka.topic="events" \
-             --set sharder.config.zchain01.kafka.enabled=true \
-             --set sharder.config.zchain01.kafka.trigger_round=0 \
-             --set sharder.config.zchain02.kafka.enabled=false \
-             --set sharder.config.zchain02.kafka.trigger_round=0 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
            ((COUNT--))
@@ -380,18 +375,14 @@ runs:
              --set zbox.host=devnet-0chain.net \
              --set zbox.config.host=https://${{ env.NAMESPACE }}.devnet-0chain.net/ \
              --set zbox.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
-             --set zbox.config.graph_node.network=${{ env.NAMESPACE }} \
-             --set zbox.config.graph_node.domain=devnet-0chain.net \
+             --set zbox.config.nft_tracker.domain=devnet-0chain.net \
+             --set zbox.config.chimney.domain=devnet-0chain.net \
+             --set zbox.config.blimp.domain=devnet-0chain.net \
+             --set zbox.config.graph.snapshot_interval=1000 \
              --set zbox.config.funding.referral_award_tokens=1000 \
-             --set zbox.config.funding.admin_user=0chain \
-             --set zbox.config.funding.admin_password=0chain123 \
-             --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
              --set zbox.config.kafka.trigger_round=0 \
              --set zbox.config.kafka.enabled=true \
-             --set zbox.config.kafka.host=helm-kafka-01:9092 \
-             --set zbox.config.kafka.eventsTopic=events \
-             --set zbox.config.kafka.eventsGroupId=events-consumer \
-             --set zbox.config.kafka.eventsRetryTopic=events-retry \
+             --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
              0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
@@ -522,7 +513,7 @@ runs:
         ./zwallet add-hardfork -n ares -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n artemis -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n athena -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-
+        ./zwallet add-hardfork -n demeter -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
