@@ -352,7 +352,7 @@ jobs:
         S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         s3_migration_cli_branch: ${{ inputs.s3_migration_cli_branch }}
 
-    - name: "Remove Tenderly fork"
+    - name: "Remove Tenderly virtual testnet"
       if: always()
       run: |
         curl -X DELETE \
