@@ -46,9 +46,9 @@ inputs:
     required: false
     default: "false"
     description: 'Enable or disable tokenomics system tests'
-  TENDERLY_FORK_ID:
+  TENDERLY_VIRTUAL_TESTNET_ID:
     required: true
-    description: 'Tenderly fork ID is used to use Tenderly fork simulations for bridge tests'
+    description: 'Tenderly virtual testnet ID is used to use Tenderly virtual testnet simulations for bridge tests'
   DEVOPS_CHANNEL_WEBHOOK_URL:
     required: false
     default: ""
@@ -126,7 +126,7 @@ runs:
         echo "0box CLI branch:          [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:       [${{ env.ZWALLET_BRANCH }}]"
         echo "s3 migration CLI branch:  [${{ env.S3_MIGRATION_BRANCH }}]"
-        echo "Ethereum node URL:        [https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}]"
+        echo "Ethereum node URL:        [https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_ID }}]"
         echo "Custom gosdk version:     [${{ env.GOSDK_VERSION }}]"
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
@@ -269,9 +269,7 @@ runs:
         go install github.com/vakenbolt/go-test-report@latest
 
         sed "s,block_worker:.*,block_worker: https://${{ env.NETWORK_URL }}/dns," -i ./tests/tokenomics_tests/config/zbox_config.yaml
-        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://rpc.tenderly.co/fork/${{ inputs.TENDERLY_FORK_ID }}'," -i ./tests/tokenomics_tests/config/zbox_config.yaml
-
-
+        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_ID }}'," -i ./tests/tokenomics_tests/config/zbox_config.yaml
 
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/tokenomics
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
