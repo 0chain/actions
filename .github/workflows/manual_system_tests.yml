@@ -218,6 +218,7 @@ jobs:
     - name: "Parse Tenderly virtual testnet creation transaction result"
       run: |
         echo "TENDERLY_VIRTUAL_TESTNET_ID=$(echo '${{ env.TENDERLY_CREATION_INFO }}' | jq -r '.container.id')" >> $GITHUB_ENV
+        echo "TENDERLY_VIRTUAL_TESTNET_RPC_ID=$(echo '${{ env.TENDERLY_CREATION_INFO }}' | jq -r '.container.connectivityConfig.endpoints[0].id')" >> $GITHUB_ENV
 
     - name: "Transfer Bridge ownership in Tenderly fork"
       run: |
@@ -314,14 +315,14 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        TENDERLY_VIRTUAL_TESTNET_ID: ${{ env.TENDERLY_VIRTUAL_TESTNET_ID }}
+        TENDERLY_VIRTUAL_TESTNET_RPC_ID: ${{ env.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}
         SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
         zs3_client: ${{ steps.get-images.outputs.blimp_clientapi-tag }}
         zs3_logsearchapi: ${{ steps.get-images.outputs.blimp_logsearchapi-tag }}
         zs3_minio:  ${{ steps.get-images.outputs.blimp_minioserver-tag }}
         graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
-        graphnode_ethereum_node_url: https://rpc.tenderly.co/fork/${{ env.TENDERLY_VIRTUAL_TESTNET_ID }}
+        graphnode_ethereum_node_url: https://virtual.mainnet.rpc.tenderly.co/${{ env.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Run System tests"
@@ -346,7 +347,7 @@ jobs:
         run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
         run_smoke_tests: ${{ inputs.run_smoke_tests }}
         run_frontend_tests: ${{ inputs.run_frontend_tests }}
-        TENDERLY_VIRTUAL_TESTNET_ID: ${{ env.TENDERLY_VIRTUAL_TESTNET_ID }}
+        TENDERLY_VIRTUAL_TESTNET_RPC_ID: ${{ env.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
         S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
         S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
