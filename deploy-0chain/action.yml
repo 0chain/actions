@@ -725,6 +725,7 @@ runs:
         ./zwallet add-hardfork -n artemis -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n athena -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n demeter -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        ./zwallet add-hardfork -n electra -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
     - name: "Stake blobbers using above built binaries"
       shell: 'script --return --quiet --command "bash {0}"'
