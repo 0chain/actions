@@ -361,6 +361,7 @@ runs:
              --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
+           kubectl set image deployment/helm-sharder-01 -n=${{ env.NAMESPACE }} helm-sharder-01=0chaindev/sharder:sprint-1.17 --record --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            ((COUNT--))
            echo "Retrying helm install"
            sleep 2
@@ -725,7 +726,7 @@ runs:
         ./zwallet add-hardfork -n artemis -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n athena -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         ./zwallet add-hardfork -n demeter -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n electra -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        # ./zwallet add-hardfork -n electra -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
     - name: "Stake blobbers using above built binaries"
       shell: 'script --return --quiet --command "bash {0}"'
