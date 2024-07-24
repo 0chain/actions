@@ -610,7 +610,7 @@ runs:
     - name: "Checkout 0mc CLI"
       uses: actions/checkout@v3
       with:
-        ref: ${{ env.MC_BRANCH }}
+        ref: ${{ env.MC_BRANCH || 'staging' }}
         repository: 0chain/mc
         fetch-depth: 1
         path: ./mc
@@ -618,7 +618,7 @@ runs:
     - name: "Checkout 0minio CLI"
       uses: actions/checkout@v3
       with:
-        ref: ${{ env.MINIO_BRANCH }}
+        ref: ${{ env.MINIO_BRANCH || 'master' }}
         repository: minio/minio
         fetch-depth: 1
         path: ./minio
@@ -626,7 +626,7 @@ runs:
     - name: "Checkout 0Warp CLI"
       uses: actions/checkout@v3
       with:
-        ref: ${{ env.WARP_BRANCH }}
+        ref: ${{ env.WARP_BRANCH || 'master' }}
         repository: minio/warp
         fetch-depth: 1
         path: ./warp
