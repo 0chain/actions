@@ -149,6 +149,9 @@ runs:
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
         ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
+        ./check-params.sh "${{inputs.mc_cli_branch}}"           "${{ env.SNAPSHOT_BRANCH_MC_BRANCH }}"    "MC_BRANCH"
+        ./check-params.sh "${{inputs.minio_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_MINIO_BRANCH }}" "MINIO_BRANCH"
+        ./check-params.sh "${{inputs.warp_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_WARP_BRANCH }}"  "WARP_BRANCH"
         
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
@@ -279,6 +282,7 @@ runs:
         fetch-depth: 1
         path: ./s3-migration
         token: "${{ inputs.svc_account_secret }}"
+
     - name: "Checkout 0MC CLI"
       uses: actions/checkout@v3
       with:
