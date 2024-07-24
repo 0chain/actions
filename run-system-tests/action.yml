@@ -394,12 +394,6 @@ runs:
         make install > build.log 2>&1 || { cat build.log && echo "::error title=mc CLI build failed::mc CLI build failed" && exit 1; }
         mv mc ../tests/cli_tests
 
-        echo "Building minio CLI master branch...."
-        cd ../minio
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=minio CLI build failed::minio CLI build failed" && exit 1; }
-        mv minio ../tests/cli_tests
-
-
         echo "Building warp CLI master branch...."
         cd ../warp
         make install > build.log 2>&1 || { cat build.log && echo "::error title=warp CLI build failed::warp CLI build failed" && exit 1; }
