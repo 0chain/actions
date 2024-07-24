@@ -19,6 +19,19 @@ inputs:
     required: false
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: ''
+  mc_cli_branch:
+    required: false
+    description: "0Mc CLI (branch or commit SHA) which the tests will use"
+    default: "staging"
+  minio_cli_branch:
+    required: false
+    description: "0Minio CLI (branch or commit SHA) which the tests will use"
+    default: "master"
+  warp_cli_branch:
+    required: false
+    description: "0Warp CLI (branch or commit SHA) which the tests will use"
+    default: "master"
+
   s3_migration_cli_branch:
     required: false
     description: 'S3 Migration CLI (branch or commit SHA) which the tests will use'
@@ -266,6 +279,29 @@ runs:
         fetch-depth: 1
         path: ./s3-migration
         token: "${{ inputs.svc_account_secret }}"
+    - name: "Checkout 0MC CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.MC_BRANCH }}
+        repository: 0chain/mc
+        fetch-depth: 1
+        path: ./mc
+
+    - name: "Checkout 0Minio CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.MINIO_BRANCH }}
+        repository: minio/minio
+        fetch-depth: 1
+        path: ./minio
+
+    - name: "Checkout 0Warp CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.WARP_BRANCH }}
+        repository: minio/warp
+        fetch-depth: 1
+        path: ./warp
 
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -356,7 +392,23 @@ runs:
         cd ../s3-migration
         make build > build.log 2>&1 || { cat build.log && echo "::error title=s3 migration CLI build failed::s3 migration CLI build failed" && exit 1; }
         mv s3mgrt ../tests/cli_tests
-        
+                
+        echo "Building mc CLI staging branch...."
+        cd ../mc
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=mc CLI build failed::mc CLI build failed" && exit 1; }
+        mv mc ../tests/cli_tests
+
+        echo "Building minio CLI master branch...."
+        cd ../minio
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=minio CLI build failed::minio CLI build failed" && exit 1; }
+        mv minio ../tests/cli_tests
+
+
+        echo "Building warp CLI master branch...."
+        cd ../warp
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=warp CLI build failed::warp CLI build failed" && exit 1; }
+        mv warp ../tests/cli_tests
+
         echo "CLI build SUCCESS!"
 
     - name: "Set up system tests"
