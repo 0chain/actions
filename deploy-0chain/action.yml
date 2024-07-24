@@ -607,6 +607,31 @@ runs:
         fetch-depth: 1
         path: ./zboxcli
 
+    - name: "Checkout 0mc CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.MC_BRANCH }}
+        repository: 0chain/mc
+        fetch-depth: 1
+        path: ./mc
+
+    - name: "Checkout 0minio CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.MINIO_BRANCH }}
+        repository: minio/minio
+        fetch-depth: 1
+        path: ./minio
+
+    - name: "Checkout 0Warp CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.WARP_BRANCH }}
+        repository: minio/warp
+        fetch-depth: 1
+        path: ./warp
+
+
     - name: "Upgrade GoSDK"
       shell: 'script --return --quiet --command "bash {0}"'
       if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
