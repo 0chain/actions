@@ -373,7 +373,7 @@ runs:
       run: |
         echo
         echo "======================================================"
-        echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
+        echo "BUILDING 0WALLET  0BOX 0MC 0WARP 0MINIO CLI BINARIES:"
         echo "======================================================"
         echo
         
