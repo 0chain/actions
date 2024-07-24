@@ -664,6 +664,22 @@ runs:
         docker run --rm -v ./:/zboxcli -w /zboxcli golang:1.21 make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         # make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ..
+
+        echo "Building mc CLI staging branch...."
+        cd ../mc
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=mc CLI build failed::mc CLI build failed" && exit 1; }
+        mv mc ../tests/cli_tests
+
+        echo "Building minio CLI master branch...."
+        cd ../minio
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=minio CLI build failed::minio CLI build failed" && exit 1; }
+        mv minio ../tests/cli_tests
+        
+
+        echo "Building warp CLI master branch...."
+        cd ../warp
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=warp CLI build failed::warp CLI build failed" && exit 1; }
+        mv warp ../tests/cli_tests
         echo "CLI build SUCCESS!"
 
     - name: "Health Check"

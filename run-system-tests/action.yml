@@ -395,21 +395,18 @@ runs:
         mv s3mgrt ../tests/cli_tests
 
         echo "Building mc CLI staging branch...."
-        git clone https://github.com/0chain/mc.git staging
-        cd mc
+        cd ../mc
         make install > build.log 2>&1 || { cat build.log && echo "::error title=mc CLI build failed::mc CLI build failed" && exit 1; }
         mv mc ../tests/cli_tests
 
         echo "Building minio CLI master branch...."
-        git clone https://github.com/minio/minio.git master
-        cd minio
+        cd ../minio
         make install > build.log 2>&1 || { cat build.log && echo "::error title=minio CLI build failed::minio CLI build failed" && exit 1; }
         mv minio ../tests/cli_tests
         
 
         echo "Building warp CLI master branch...."
-        git clone https://github.com/minio/warp.git master
-        cd warp
+        cd ../warp
         make install > build.log 2>&1 || { cat build.log && echo "::error title=warp CLI build failed::warp CLI build failed" && exit 1; }
         mv warp ../tests/cli_tests
 
