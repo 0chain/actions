@@ -408,6 +408,7 @@ runs:
         
 
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1P]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\nTESTS_TO_RUN="-run ^TestCompares0boxTablesWithSharder$ ./..."\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > COMPARE_TEST_RUNNER.sh && chmod 777 COMPARE_TEST_RUNNER.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^K0P][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestProtocolChallengeTimings[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=30m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHALLENGE_API_TEST_RUNNER_COMMAND.sh && chmod 777 CHALLENGE_API_TEST_RUNNER_COMMAND.sh
@@ -1038,6 +1039,36 @@ runs:
           ./tests/cli_tests/cmdlog.log
           ./${{ env.BRANCH_DIR }}/latest/flaky_cli/index.html
 
+    - name: "Run Table Compare API Test"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if:  ${{ always() && env.TESTS_READY && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING TABLE COMPARE API TEST: TestCompares0boxTablesWithSharder"
+        echo "======================================================"
+        echo
+
+        export HOME="/root"
+        GOPATH=$(echo $(go env GOPATH))
+
+        cd tests/api_tests
+        table_compare_test_exit_code=0
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../COMPARE_TEST_RUNNER.sh || table_compare_test_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/table_compare_test/index.html --title "0Chain API Table Compare test [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/table_compare_test ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TABLE_COMPARE_API_TEST_RAN=true" >> $GITHUB_ENV
+
+        if [[ $table_compare_test_exit_code == 0 ]];
+          then
+            echo TABLE_COMPARE_API_TEST_PASSED=true >> $GITHUB_ENV
+          else
+            echo TABLE_COMPARE_API_TEST_PASSED=false >> $GITHUB_ENV
+            echo "::error title=Table Compare API test failed!::Table Compare API test failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+        
+        exit $table_compare_test_exit_code
 
     - name: "Extract Logs From Pods"
       continue-on-error: true
