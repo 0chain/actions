@@ -373,11 +373,11 @@ runs:
         chmod +x ./zwallet
 
         ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n apollo -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n ares -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n artemis -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n athena -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n demeter -r 500 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        ./zwallet add-hardfork -n ares -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        ./zwallet add-hardfork -n artemis -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
         ##############----------------- Installing 0dns helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
