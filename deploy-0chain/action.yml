@@ -32,6 +32,10 @@ inputs:
     description: 'zvault DOCKER IMAGE to deploy'
     default: ''
     required: false
+  zauth_image:
+    description: 'zauth DOCKER IMAGE to deploy'
+    default: ''
+    required: false
   zdns_image:
     description: '0dns DOCKER IMAGE to deploy'
     default: ''
@@ -160,6 +164,7 @@ runs:
         ./check-params.sh "${{inputs.authorizer_image}}"       "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
         ./check-params.sh "${{inputs.zbox_image}}"             "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
         ./check-params.sh "${{inputs.zvault_image}}"           "${{ env.SNAPSHOT_BRANCH_ZVAULT_TAG }}"       "ZVAULT_TAG"
+        ./check-params.sh "${{inputs.zauth_image}}"            "${{ env.SNAPSHOT_BRANCH_AUTH_TAG }}"         "ZAUTH_TAG"
         ./check-params.sh "${{inputs.zdns_image}}"             "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
         ./check-params.sh "${{inputs.zbox_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"     "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
@@ -212,6 +217,7 @@ runs:
         echo "Authorizer docker image:               [${{ env.AUTHORIZER_TAG }}]"
         echo "0box docker image:                     [${{ env.ZBOX_TAG }}]"
         echo "zvault docker image:                   [${{ env.ZVAULT_TAG }}]"
+        echo "zauth docker image:                    [${{ env.ZAUTH_TAG }}]"
         echo "0dns docker image:                     [${{ env.ZDNS_TAG }}]"
         echo "S3 server client docker image:         [${{ env.ZS3_CLIENT }}]"
         echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
@@ -465,6 +471,21 @@ runs:
              --set zvault.host=devnet-0chain.net \
              --set zvault.image.tag=${{ env.AUTHORIZER_TAG }} \
              -n ${{ env.NAMESPACE }} 0chain-helm/zvault --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing zauth-server helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the zauth helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install zauth \
+             --set zauthServer.hostName=${{ env.NAMESPACE }} \
+             --set zauthServer.host=devnet-0chain.net \
+             --set zauthServer.image.tag=${{ env.AUTHORIZER_TAG }} \
+             -n ${{ env.NAMESPACE }} 0chain-helm/zauth-server --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
            echo "Retrying helm install"
