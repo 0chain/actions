@@ -32,6 +32,14 @@ inputs:
     description: '0box branch to notify'
     default: 'staging'
     required: true
+  zvault_branch:
+    description: 'zvault branch to notify'
+    default: 'staging'
+    required: true
+  zauth_branch:
+    description: 'zauth branch to notify'
+    default: 'staging'
+    required: true
   zdns_branch:
     description: '0dns branch to notify'
     default: 'staging'
@@ -75,9 +83,9 @@ runs:
         echo ZEROCHAIN_SHA=$(./get_sha.sh 0chain ${{ inputs.zerochain_branch }}) >> $GITHUB_ENV
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
         echo ZBOX_SHA=$(./get_sha.sh 0box ${{ inputs.zbox_branch }}) >> $GITHUB_ENV
+        echo ZVAULT_SHA=$(./get_sha.sh zvault ${{ inputs.zvault_branch }}) >> $GITHUB_ENV
+        echo ZAUTH_SHA=$(./get_sha.sh zauth-server ${{ inputs.zauth_branch }}) >> $GITHUB_ENV
         echo AUTHORIZER_SHA=$(./get_sha.sh token_bridge_authserver ${{ inputs.authorizer_branch }}) >> $GITHUB_ENV
-
-
 
     - name: "Get system tests branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -116,10 +124,10 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
-
-
 
     - name: "Get zbox cli branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -158,10 +166,10 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
-
-
 
     - name: "Get zwallet cli branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -200,10 +208,10 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
-
-
 
     - name: "Get 0chain branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -242,10 +250,10 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
-
-
 
     - name: "Get blobber branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -284,10 +292,10 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
-
-
 
     - name: "Get authorizer branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -326,10 +334,10 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
-
-
 
     - name: "Get gosdk branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -368,10 +376,10 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
-
-
 
     - name: "Get 0box branch PR"
       uses: stewartie4/gh-find-current-pr@master
@@ -410,5 +418,91 @@ runs:
           | blobber  | ${{ inputs.blobber_branch }}  |
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+        repo-token: ${{ inputs.github_token }}
+
+    - name: "Get zvault branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.ZVAULT_SHA }}
+        owner: "0chain"
+        repo: "zvault"
+      id: zvault
+    - name: "Set zvault branch PR status"
+      uses: 0chain/actions/set-pr-status@master
+      if: steps.zvault.outputs.number
+      with:
+        pr_number: ${{ steps.zvault.outputs.pr }}
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/zvault"
+        status_name: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        github_token: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
+        owner: "0chain"
+        repo: "zvault"
+        pr-number: ${{ steps.zvault.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | config  | value |
+          | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
+          | 0dns  | ${{ inputs.zdns_branch }}  |
+        repo-token: ${{ inputs.github_token }}
+
+    - name: "Get zauth-server branch PR"
+      uses: stewartie4/gh-find-current-pr@master
+      with:
+        sha: ${{ env.ZAUTH_SHA }}
+        owner: "0chain"
+        repo: "zauth-server"
+      id: zauth
+    - name: "Set zauth branch PR status"
+      uses: 0chain/actions/set-pr-status@master
+      if: steps.zauth.outputs.number
+      with:
+        pr_number: ${{ steps.zauth.outputs.pr }}
+        description: "System tests ${{ inputs.state }} - ${{ inputs.message }}"
+        state: ${{ inputs.state }}
+        repository: "0chain/zauth-server"
+        status_name: ${{ github.workflow }}
+        target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        github_token: ${{ inputs.github_token }}
+    - uses: stewartie4/add-pr-comment@master
+      with:
+        skip: ${{ inputs.state == 'pending' || inputs.state == 'cencelled' }}
+        owner: "0chain"
+        repo: "zauth-server"
+        pr-number: ${{ steps.zauth.outputs.pr }}
+        message: |
+          Manual system tests [${{ inputs.state }}] with the following config
+          | config  | value |
+          | ------------- | ------------- |
+          | tests skipped  | ${{ inputs.skip_tests }}  |
+          | system-tests  | ${{ inputs.system_tests_branch }}  |
+          | gosdk  | ${{ inputs.gosdk_branch }}  |
+          | zboxcli  | ${{ inputs.zbox_cli_branch }}  |
+          | zwalletcli  | ${{ inputs.zwallet_cli_branch }}  |
+          | 0chain  | ${{ inputs.zerochain_branch }}  |
+          | blobber  | ${{ inputs.blobber_branch }}  |
+          | authorizer  | ${{ inputs.authorizer_branch }}  |
+          | 0box  | ${{ inputs.zbox_branch }}  |
+          | zvault  | ${{ inputs.zvault_branch }}  |
+          | zauth  | ${{ inputs.zauth_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
