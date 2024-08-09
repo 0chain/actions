@@ -361,8 +361,6 @@ runs:
              --set commonConf.zchainUp.server_chain.transaction.min_fee=${{ env.MINER_FEE }} \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
-           kubectl set image deployment/helm-sharder-01 -n=${{ env.NAMESPACE }} helm-sharder-01=0chaindev/sharder:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           kubectl set image deployment/helm-miner-01 -n=${{ env.NAMESPACE }} helm-miner-01=0chaindev/miner:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            ((COUNT--))
            echo "Retrying helm install"
            sleep 2
@@ -399,6 +397,8 @@ runs:
         ##############----------------- Installing blobber helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
+        kubectl set image deployment/helm-sharder-01 -n=${{ env.NAMESPACE }} helm-sharder-01=0chaindev/sharder:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+        kubectl set image deployment/helm-miner-01 -n=${{ env.NAMESPACE }} helm-miner-01=0chaindev/miner:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install blobber --wait --timeout 180s \
              --set blobber.blobberCount=6 \
