@@ -462,21 +462,6 @@ runs:
            sleep 2
         done
 
-        ##############----------------- Installing zvault helm-chart --------------------###################
-        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
-        RET=1         #You can set RET=0 to skip the zvault helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
-           helm upgrade --install zvault \
-             --set zvault.hostName=${{ env.NAMESPACE }} \
-             --set zvault.host=devnet-0chain.net \
-             --set zvault.image.tag=${{ env.AUTHORIZER_TAG }} \
-             -n ${{ env.NAMESPACE }} 0chain-helm/zvault --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
-
         ##############----------------- Installing zauth-server helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the zauth helm-chart deployment
@@ -486,6 +471,22 @@ runs:
              --set zauthServer.host=devnet-0chain.net \
              --set zauthServer.image.tag=${{ env.AUTHORIZER_TAG }} \
              -n ${{ env.NAMESPACE }} 0chain-helm/zauth --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           RET=$?
+           ((COUNT--))
+           echo "Retrying helm install"
+           sleep 2
+        done
+
+        ##############----------------- Installing zvault helm-chart --------------------###################
+        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+        RET=1         #You can set RET=0 to skip the zvault helm-chart deployment
+        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+           helm upgrade --install zvault \
+             --set zvault.hostName=${{ env.NAMESPACE }} \
+             --set zvault.host=devnet-0chain.net \
+             --set zvault.image.tag=${{ env.AUTHORIZER_TAG }} \
+             --set zvault.config.zvault_yaml.zauth_server=https://${{ env.NAMESPACE }}.devnet-0chain.net \
+             -n ${{ env.NAMESPACE }} 0chain-helm/zvault --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
            echo "Retrying helm install"
