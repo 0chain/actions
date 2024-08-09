@@ -485,7 +485,6 @@ runs:
              --set zvault.hostName=${{ env.NAMESPACE }} \
              --set zvault.host=devnet-0chain.net \
              --set zvault.image.tag=${{ env.AUTHORIZER_TAG }} \
-             --set zvault.config.zvault_yaml.zauth_server=https://${{ env.NAMESPACE }}.devnet-0chain.net \
              -n ${{ env.NAMESPACE }} 0chain-helm/zvault --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
