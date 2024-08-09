@@ -382,7 +382,7 @@ runs:
         done
 
         echo "waiting for 5 minutes so that chain should be up and running to apply hardfork"
-        sleep 300s
+        sleep 120s
         echo ""
         
         echo "==========================================================="
