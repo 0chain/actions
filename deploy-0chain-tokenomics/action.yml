@@ -318,8 +318,8 @@ runs:
              --set commonConf.sc.smart_contracts.zcnsc.min_stake_per_delegate=0 \
              -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config || exit 1;
            RET=$?
-           kubectl set image deployment/helm-sharder-01 -n=${{ env.NAMESPACE }} helm-sharder-01=0chaindev/sharder:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           kubectl set image deployment/helm-miner-01 -n=${{ env.NAMESPACE }} helm-miner-01=0chaindev/miner:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-sharder-01 -n=${{ env.NAMESPACE }} helm-sharder-01=0chaindev/sharder:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-miner-01 -n=${{ env.NAMESPACE }} helm-miner-01=0chaindev/miner:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            ((COUNT--))
            echo "Retrying helm install"
            sleep 2
@@ -378,12 +378,12 @@ runs:
              --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }} \
              0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
-           kubectl set image deployment/helm-blobber-01 -n=${{ env.NAMESPACE }} helm-blobber-01=0chaindev/blobber:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           kubectl set image deployment/helm-blobber-02 -n=${{ env.NAMESPACE }} helm-blobber-02=0chaindev/blobber:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           kubectl set image deployment/helm-blobber-03 -n=${{ env.NAMESPACE }} helm-blobber-03=0chaindev/blobber:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           kubectl set image deployment/helm-validator-01 -n=${{ env.NAMESPACE }} helm-validator-01=0chaindev/validator:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           kubectl set image deployment/helm-validator-02 -n=${{ env.NAMESPACE }} helm-validator-02=0chaindev/validator:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           kubectl set image deployment/helm-validator-03 -n=${{ env.NAMESPACE }} helm-validator-03=0chaindev/validator:pr-3360 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-blobber-01 -n=${{ env.NAMESPACE }} helm-blobber-01=0chaindev/blobber:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-blobber-02 -n=${{ env.NAMESPACE }} helm-blobber-02=0chaindev/blobber:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-blobber-03 -n=${{ env.NAMESPACE }} helm-blobber-03=0chaindev/blobber:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-validator-01 -n=${{ env.NAMESPACE }} helm-validator-01=0chaindev/validator:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-validator-02 -n=${{ env.NAMESPACE }} helm-validator-02=0chaindev/validator:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+           kubectl set image deployment/helm-validator-03 -n=${{ env.NAMESPACE }} helm-validator-03=0chaindev/validator:sprint-1.17 --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            ((COUNT--))
            echo "Retrying helm install"
            sleep 2
