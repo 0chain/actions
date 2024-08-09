@@ -380,6 +380,10 @@ runs:
            echo "Retrying helm install"
            sleep 2
         done
+
+        echo "waiting for 5 minutes so that chain should be up and running to apply hardfork"
+        sleep 300s
+        echo ""
         
         echo "==========================================================="
         echo "ADDING apollo, ares, artemis, athena and demeter HARFORK"
