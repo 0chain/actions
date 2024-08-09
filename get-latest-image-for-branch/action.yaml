@@ -25,6 +25,14 @@ inputs:
     description: '0box branch to deploy'
     default: ''
     required: false
+  zvault_branch:
+    description: 'zvault branch to deploy'
+    default: ''
+    required: false
+  zauth_branch:
+    description: 'zauth branch to deploy'
+    default: ''
+    required: false
   zdns_branch:
     description: '0dns branch to deploy'
     default: ''
@@ -57,6 +65,12 @@ outputs:
   zbox-tag:
     description: "0box docker image"
     value: ${{ steps.get-images.outputs.ZBOX_TAG }}
+  zvault-tag:
+    description: "zvault docker image"
+    value: ${{ steps.get-images.outputs.ZVAULT_TAG }}
+  zauth-tag:
+    description: "zauth docker image"
+    value: ${{ steps.get-images.outputs.ZAUTH_TAG }}
   zdns-tag:
     description: "0dns docker image"
     value: ${{ steps.get-images.outputs.ZDNS_TAG }}
@@ -209,14 +223,28 @@ runs:
             echo "authorizer_branch NOT specified, will skip deriving authorizer image tag"
         fi
         
-         if [[ -n "${{ inputs.zbox_branch }}" ]];
+        if [[ -n "${{ inputs.zbox_branch }}" ]];
           then
              ./get_tag.sh 0box ${{ inputs.zbox_branch }} 0box
           else
             echo "zbox_branch NOT specified, will skip deriving 0box image tag"
         fi
+
+        if [[ -n "${{ inputs.zvault_branch }}" ]];
+          then
+             ./get_tag.sh zvault ${{ inputs.zvault_branch }} zvault
+          else
+            echo "zvault_branch NOT specified, will skip deriving zvault image tag"
+        fi
+
+        if [[ -n "${{ inputs.zauth_branch }}" ]];
+          then
+             ./get_tag.sh zauth ${{ inputs.zauth_branch }} zauth
+          else
+            echo "zauth_branch NOT specified, will skip deriving zauth image tag"
+        fi
         
-         if [[ -n "${{ inputs.zdns_branch }}" ]];
+        if [[ -n "${{ inputs.zdns_branch }}" ]];
           then
              ./get_tag.sh 0dns ${{ inputs.zdns_branch }} 0dns
           else

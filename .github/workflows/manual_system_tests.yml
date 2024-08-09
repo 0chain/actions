@@ -111,6 +111,16 @@ on:
         default: ''
         required: false
         type: string
+      zvault_branch:
+        description: 'zvault branch to deploy'
+        default: ''
+        required: false
+        type: string
+      zauth_branch:
+        description: 'zauth-server branch to deploy'
+        default: ''
+        required: false
+        type: string
       zdns_branch:
         description: '0dns branch to deploy'
         default: ''
@@ -247,6 +257,8 @@ jobs:
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
+        zvault_branch: ${{ inputs.zvault_branch }}
+        zauth_branch: ${{ inputs.zauth_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
@@ -265,6 +277,8 @@ jobs:
         validator_image: ${{ steps.get-images.outputs.validator-tag }}
         authorizer_image: ${{ steps.get-images.outputs.authorizer-tag }}
         zbox_image: ${{ steps.get-images.outputs.zbox-tag }}
+        zvault_image: ${{ steps.get-images.outputs.zvault-tag }}
+        zauth_image: ${{ steps.get-images.outputs.zauth-tag }}
         zdns_image: ${{ steps.get-images.outputs.zdns-tag }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
