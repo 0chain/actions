@@ -1,0 +1,1806 @@
+name: webapp_build_and_deploy
+on:
+  workflow_call:
+      inputs:
+        webapp_name:
+          description: 'name of the web-app to build and publish'
+          default: ""
+          required: true
+        webapps_branch:
+          description: 'web-apps branch to publish'
+          default: ""
+          required: true
+        network_url:
+          description: 'network url for web-apps to point to, example: demo.zus.network'
+          default: ""
+          required: true
+        runner_number:
+          description: 'runner number'
+          default: ""
+          required: false
+        git_user:
+          description: 'secrets.GIT_USER'
+          default: ""
+          required: true
+        git_pat:
+          description: 'secrets.GIT_PAT'
+          default: ""
+          required: true
+        dockerhub_username:
+          description: 'secrets.DOCKERHUB_USERNAME'
+          default: ""
+          required: true
+        dockerhub_password:
+          description: 'secrets.DOCKERHUB_PASSWORD'
+          default: ""
+          required: true
+        webapp_registry:
+          description: 'docker registry for web-app to be published to'
+          default: ""
+          required: true
+        gosdk_branch:
+          description: 'GOSDK branch to build wasm'
+          default: ""
+          required: false
+        FBASE_API_KEY:
+          description: 'FBASE_API_KEY'
+          default: ""
+          required: true
+        FBASE_AUTH_DOMAIN:
+          description: 'FBASE_AUTH_DOMAIN'
+          default: ""
+          required: true
+        FBASE_DB_URL:
+          description: 'FBASE_DB_URL'
+          default: ""
+          required: true
+        FBASE_PROJECT_ID:
+          description: 'FBASE_PROJECT_ID'
+          default: ""
+          required: true
+        FBASE_STORAGE_BUCKET:
+          description: 'FBASE_STORAGE_BUCKET'
+          default: ""
+          required: true
+        FBASE_MESSAGING_SENDER_ID:
+          description: 'FBASE_MESSAGING_SENDER_ID'
+          default: ""
+          required: true
+        FBASE_APP_ID:
+          description: 'FBASE_APP_ID'
+          default: ""
+          required: true
+        WEBHOOK_API_TOKEN:
+          description: 'WEBHOOK_API_TOKEN'
+          default: ""
+          required: true
+        TRANSLATION_API_KEY:
+          description: 'TRANSLATION_API_KEY'
+          default: ""
+          required: true
+        ZENDESK_KEY:
+          description: 'ZENDESK_KEY'
+          default: ""
+          required: true
+        DOMAIN:
+          description: 'DOMAIN'
+          default: ""
+          required: true
+        ZBOX_APP:
+          description: 'ZBOX_APP'
+          default: ""
+          required: true
+        JWT_ENABLED:
+          description: 'JWT_ENABLED'
+          default: ""
+          required: true
+        BE_URL:
+          description: 'BE_URL'
+          default: ""
+          required: true
+        NEXT_PUBLIC_MONDAY_FORM:
+          description: 'NEXT_PUBLIC_MONDAY_FORM'
+          default: ""
+          required: true
+        DEFAULT_THEME:
+          description: 'DEFAULT_THEME'
+          default: ""
+          required: true
+        ATLUS_URL:
+          description: 'ATLUS_URL'
+          default: ""
+          required: true
+        NODE_ENV:
+          description: 'NODE_ENV'
+          default: ""
+          required: true
+        APP_ENV:
+          description: 'APP_ENV'
+          default: ""
+          required: true
+        ETH_CHAIN_ID:
+          description: 'ETH_CHAIN_ID'
+          default: ""
+          required: true
+        DEX_CHAIN_ID:
+          description: 'DEX_CHAIN_ID'
+          default: ""
+          required: true
+        ZCN_TOKEN:
+          description: 'ZCN_TOKEN'
+          default: ""
+          required: true
+        MOCK_ZCN_TOKEN:
+          description: 'MOCK_ZCN_TOKEN'
+          default: ""
+          required: true
+        ETH_TOKEN:
+          description: 'ETH_TOKEN'
+          default: ""
+          required: true
+        BANCOR_NETWORK:
+          description: 'BANCOR_NETWORK'
+          default: ""
+          required: true
+        BRIDGE:
+          description: 'BRIDGE'
+          default: ""
+          required: true
+        AUTHORIZER_ADDRESS:
+          description: 'AUTHORIZER_ADDRESS'
+          default: ""
+          required: true
+        ETH_NODE_URL:
+          description: 'ETH_NODE_URL'
+          default: ""
+          required: true
+        NFT_NODE_URL:
+          description: 'NFT_NODE_URL'
+          default: ""
+          required: true
+        REVERSE_BRIDGE:
+          description: 'REVERSE_BRIDGE'
+          default: ""
+          required: true
+        BANCOR_TOKEN_ADDRESS:
+          description: 'BANCOR_TOKEN_ADDRESS'
+          default: ""
+          required: true
+        USDC_TOKEN_ADDRESS:
+          description: 'USDC_TOKEN_ADDRESS'
+          default: ""
+          required: true
+        EURC_TOKEN_ADDRESS:
+          description: 'EURC_TOKEN_ADDRESS'
+          default: ""
+          required: true
+        NFT_FACTORY_ADDRESS:
+          description: 'NFT_FACTORY_ADDRESS'
+          default: ""
+          required: true
+        NFT_FACTORY_MODULE_ERC_721_ADDRESS:
+          description: 'NFT_FACTORY_MODULE_ERC_721_ADDRESS'
+          default: ""
+          required: true
+        NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS:
+          description: 'NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS'
+          default: ""
+          required: true
+        NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS:
+          description: 'NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS'
+          default: ""
+          required: true
+        NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS:
+          description: 'NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS'
+          default: ""
+          required: true
+        MUMBAI_TESTNET_NETWORK_ID:
+          description: 'MUMBAI_TESTNET_NETWORK_ID'
+          default: ""
+          required: true
+        POLYGON_MAINNET_NETWORK_ID:
+          description: 'POLYGON_MAINNET_NETWORK_ID'
+          default: ""
+          required: true
+        ETHEREUM_NETWORK_ID:
+          description: 'ETHEREUM_NETWORK_ID'
+          default: ""
+          required: true
+        MUMBAI_TESTNET_CHAIN_ID:
+          description: 'MUMBAI_TESTNET_CHAIN_ID'
+          default: ""
+          required: true
+        POLYGON_MAINNET_CHAIN_ID:
+          description: 'POLYGON_MAINNET_CHAIN_ID'
+          default: ""
+          required: true
+        ETHEREUM_CHAIN_ID:
+          description: 'ETHEREUM_CHAIN_ID'
+          default: ""
+          required: true
+        BLOCK_EXPLORER_URL:
+          description: 'BLOCK_EXPLORER_URL'
+          default: ""
+          required: true
+
+      outputs:
+        atlus-build-tag:
+          description: "build-tag"
+          value: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+jobs:
+  build-and-generate-wasm:
+    runs-on: arc-runner
+    steps:
+      - name: "Clone gosdk Repo"
+        run: |
+          git clone https://github.com/0chain/gosdk.git
+          cd gosdk
+          git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | while read remote; do git branch --track "${remote#origin/}" "$remote"; done || true
+          BRANCH="${{ inputs.gosdk_branch }}"
+          if [[ $BRANCH == "" ]]; then
+            echo "Checking for latest sprint branch"
+            git branch --sort=-committerdate | grep "sprint-*" | head -1
+            BRANCH=$(git branch --sort=-committerdate | grep "sprint-*" | head -1)
+            echo ::set-output name=BRANCH::${BRANCH}
+          fi
+          echo "Branch name is ${BRANCH}"
+          git checkout ${BRANCH}
+
+      - name: "build wasm-sdk"
+        run: |
+          cd gosdk
+          docker run --rm -v $PWD:/gosdk -w /gosdk golang:1.21.5 sh -c "git config --global --add safe.directory /gosdk; make wasm-build"
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: zcn.wasm
+          path: ./gosdk/zcn.wasm
+
+  build-and-push-bolt-docker-image:
+    if: ${{ github.event.inputs.bolt == 'true' || github.event.client_payload.bolt || github.ref == 'refs/heads/master' }}
+    runs-on: arc-runner
+    needs: [build-and-generate-wasm]
+
+    outputs:
+      output1: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # - name: Cloning web-apps Repository.
+      #   run: |
+      #     git clone https://${{ secrets.USER_NAME }}:${{ secrets.ACCESS_TOKEN }}@github.com/0chain/web-apps.git
+      #     echo "Successfully cloned the web-apps repository"
+
+      - name: Set Docker Image Tags.
+        id: get_info
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          if [[ "${{github.ref}}" == refs/pull/* ]]; then
+            tag=${GITHUB_REF/\/merge/}
+            echo "TAG=$(echo pr-${tag:10})" >> $GITHUB_ENV
+          else
+            echo "TAG=$(echo ${GITHUB_REF#refs/*/} | sed 's/\//-/g')" >> $GITHUB_ENV
+          fi
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Setting Up Environment Variables.
+        run: |
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=${{ secrets.TRANSLATION_API_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "ZBOX_APP=bolt" >> .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          cd packages/bolt
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=${{ secrets.TRANSLATION_API_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "ZBOX_APP=bolt" >> .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.bolt.holdings" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+          cd ../../packages/shared
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=${{ secrets.TRANSLATION_API_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "ZBOX_APP=bolt" >> .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.bolt.holdings" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+      - name: Download the wasm binary
+        uses: actions/download-artifact@v3
+        with:
+          name: zcn.wasm
+
+      - name: Copy the wasm binary
+        run: |
+          cp zcn.wasm packages/bolt/public/zcn.wasm
+          cp zcn.wasm packages/shared/public/zcn.wasm
+
+      - name: Build & Push Docker Image.
+        id: docker_build
+        run: |
+          docker build -f ./packages/bolt/docker/dockerfile . -t ${{ secrets.BOLT_REGISTRY }}:latest
+          echo $TAG-$SHORT_SHA
+          echo "COMMIT_TAG=dev-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+
+          docker tag ${{ secrets.BOLT_REGISTRY }}:latest ${{ secrets.BOLT_REGISTRY }}:dev-$TAG-$SHORT_SHA
+          docker push ${{ secrets.BOLT_REGISTRY }}:dev-$TAG-$SHORT_SHA
+
+      - name: Push latest
+        if: ${{ github.event.inputs.branch }} == 'master'
+        run: |
+          docker push ${{ secrets.BOLT_REGISTRY }}:latest
+
+      - name: Clean Up The Workspace.
+        if: ${{ always() }}
+        run: |
+          rm -rf ./*
+
+  deploy-bolt-on-dev:
+    runs-on: dev-webapps
+
+    needs: [build-and-push-bolt-docker-image]
+
+    steps:
+      - name: Preparing docker-compose file.
+        run: |
+          mkdir -p /home/root/codebase/bolt
+          cd /home/root/codebase/bolt
+          touch .env
+          echo "DOMAIN=dev.zus.network" > .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          
+          cat <<\EOF >./docker-compose.yaml
+          version: '3.2'
+          services:
+            bolt-app:
+              container_name: bolt_webapp
+              image: ${{ secrets.BOLT_REGISTRY }}:${{ needs.build-and-push-bolt-docker-image.outputs.output1 }}
+              env_file:
+                - ./.env
+              restart: "always"
+              networks:
+                - bolt_network
+              ports:
+                - 3002:3000
+          
+          networks:
+            bolt_network:
+              driver: bridge
+          EOF
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Deploying dev.bolt.holdings
+        run: |
+          cd /home/root/codebase/bolt
+          docker-compose pull
+          docker-compose up -d
+          sleep 5s
+          docker ps -a
+
+      - name: Cleanup Docker Images
+        run: |
+          echo 'y' | docker system prune -a
+
+      - name: Cleanup Docker Images
+        run: |
+          echo 'y' | docker system prune -a
+
+  build-and-push-atlus-docker-image:
+    if: ${{ github.event.inputs.atlus == 'true' || github.event.client_payload.atlus || github.ref == 'refs/heads/master'  }}
+    runs-on: arc-runner
+    needs: [build-and-generate-wasm]
+
+    outputs:
+      output2: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # - name: Cloning web-apps Repository.
+      #   run: |
+      #     git clone https://${{ secrets.USER_NAME }}:${{ secrets.ACCESS_TOKEN }}@github.com/0chain/web-apps.git
+      #     echo "Successfully cloned the web-apps repository"
+
+      - name: Set Docker Image Tags.
+        id: get_info
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          if [[ "${{github.ref}}" == refs/pull/* ]]; then
+            tag=${GITHUB_REF/\/merge/}
+            echo "TAG=$(echo pr-${tag:10})" >> $GITHUB_ENV
+          else
+            echo "TAG=$(echo ${GITHUB_REF#refs/*/} | sed 's/\//-/g')" >> $GITHUB_ENV
+          fi
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Setting Up Environment Variables.
+        run: |
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=A7280aF1dfF458d1E60F0D28575C77A82Ac37391f0DeEEB7" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=atlus" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          cd packages/explorer
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=A7280aF1dfF458d1E60F0D28575C77A82Ac37391f0DeEEB7" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=atlus" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          cd ../../packages/shared
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=A7280aF1dfF458d1E60F0D28575C77A82Ac37391f0DeEEB7" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=atlus" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+      - name: Download the wasm binary
+        uses: actions/download-artifact@v3
+        with:
+          name: zcn.wasm
+
+      - name: Copy the wasm binary
+        run: |
+          cp zcn.wasm packages/explorer/public/zcn.wasm
+          cp zcn.wasm packages/shared/public/zcn.wasm
+
+      - name: Build & Push Docker Image.
+        id: docker_build
+        run: |
+          docker build -f ./packages/explorer/docker/dockerfile . -t ${{ secrets.ATLUS_REGISTRY }}:latest
+          echo $TAG-$SHORT_SHA
+          echo "COMMIT_TAG=dev-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+
+          docker tag ${{ secrets.ATLUS_REGISTRY }}:latest ${{ secrets.ATLUS_REGISTRY }}:dev-$TAG-$SHORT_SHA
+          docker push ${{ secrets.ATLUS_REGISTRY }}:dev-$TAG-$SHORT_SHA
+
+      - name: Push latest
+        if: ${{ github.event.inputs.branch }} == 'master'
+        run: |
+          docker push ${{ secrets.ATLUS_REGISTRY }}:latest
+
+      - name: Clean Up The Workspace.
+        if: ${{ always() }}
+        run: |
+          rm -rf ./*
+
+  deploy-atlus-on-dev:
+    runs-on: dev-webapps
+
+    needs: [build-and-push-atlus-docker-image]
+
+    steps:
+      - name: Preparing docker-compose file.
+        run: |
+          mkdir -p /home/root/codebase/atlus
+          cd /home/root/codebase/atlus
+          touch .env
+          echo "DOMAIN=dev.zus.network" > .env
+          
+          cat <<\EOF >./docker-compose.yaml
+          version: '3.2'
+          services:
+            atlus-app:
+              container_name: atlus_webapp
+              image: ${{ secrets.ATLUS_REGISTRY }}:${{ needs.build-and-push-atlus-docker-image.outputs.output2 }}
+              env_file:
+                - ./.env
+              restart: "always"
+              networks:
+                - atlus_network
+              ports:
+                - 3001:3000
+          
+          networks:
+            atlus_network:
+              driver: bridge
+          EOF
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Deploying dev.atlus.cloud
+        run: |
+          cd /home/root/codebase/atlus
+          docker-compose pull
+          docker-compose up -d
+          sleep 5s
+          docker ps -a
+
+      - name: Cleanup Docker Images
+        run: |
+          echo 'y' | docker system prune -a
+
+  build-and-push-chalk-docker-image:
+    if: ${{ github.event.inputs.znft == 'true' || github.event.client_payload.znft || github.ref == 'refs/heads/master' }}
+    runs-on: arc-runner
+    needs: [build-and-generate-wasm]
+
+    outputs:
+      output2: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # - name: Cloning web-apps Repository.
+      #   run: |
+      #     git clone https://${{ secrets.USER_NAME }}:${{ secrets.ACCESS_TOKEN }}@github.com/0chain/web-apps.git
+      #     echo "Successfully cloned the web-apps repository"
+
+      - name: Set Docker Image Tags.
+        id: get_info
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          if [[ "${{github.ref}}" == refs/pull/* ]]; then
+            tag=${GITHUB_REF/\/merge/}
+            echo "TAG=$(echo pr-${tag:10})" >> $GITHUB_ENV
+          else
+            echo "TAG=$(echo ${GITHUB_REF#refs/*/} | sed 's/\//-/g')" >> $GITHUB_ENV
+          fi
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Setting Up Environment Variables.
+        run: |
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=chalk" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "NEXT_PUBLIC_MONDAY_FORM=https://forms.monday.com/forms/66a8452f47fe1e157bdced96242f53b2?r=use1" >> .env
+          echo "DEFAULT_THEME=dark" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "NFT_CHAIN_ID=0x89" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "NFT_NODE_URL=${{ secrets.DEV_NFT_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x135542d2F25dA82FFf81720462DD8B4c4315F21a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0x08c29927773ba3983b2f4Bcb9f8f4E5aF9C4A088" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0x2c731a94C41d468c7416e0ceA6ac601b0f38b2Aa" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          echo "MUMBAI_TESTNET_NETWORK_ID=80001" >> .env
+          echo "POLYGON_MAINNET_NETWORK_ID=137" >> .env
+          echo "ETHEREUM_NETWORK_ID=1" >> .env
+
+          echo "MUMBAI_TESTNET_CHAIN_ID=0x13881" >> .env
+          echo "POLYGON_MAINNET_CHAIN_ID=0x89" >> .env
+          echo "ETHEREUM_CHAIN_ID=0x1" >> .env
+
+          echo "BLOCK_EXPLORER_URL=https://polygonscan.com/tx" >> .env
+
+          cd packages/chalk
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=chalk" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "NEXT_PUBLIC_MONDAY_FORM=https://forms.monday.com/forms/66a8452f47fe1e157bdced96242f53b2?r=use1" >> .env
+          echo "DEFAULT_THEME=dark" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "NFT_CHAIN_ID=0x89" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "NFT_NODE_URL=${{ secrets.DEV_NFT_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x135542d2F25dA82FFf81720462DD8B4c4315F21a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0x08c29927773ba3983b2f4Bcb9f8f4E5aF9C4A088" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0x2c731a94C41d468c7416e0ceA6ac601b0f38b2Aa" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          echo "MUMBAI_TESTNET_NETWORK_ID=80001" >> .env
+          echo "POLYGON_MAINNET_NETWORK_ID=137" >> .env
+          echo "ETHEREUM_NETWORK_ID=1" >> .env
+
+          echo "MUMBAI_TESTNET_CHAIN_ID=0x13881" >> .env
+          echo "POLYGON_MAINNET_CHAIN_ID=0x89" >> .env
+          echo "ETHEREUM_CHAIN_ID=0x1" >> .env
+
+          echo "BLOCK_EXPLORER_URL=https://polygonscan.com/tx" >> .env
+
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.chalk.software" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+          cd ../../packages/shared
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=chalk" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "NEXT_PUBLIC_MONDAY_FORM=https://forms.monday.com/forms/66a8452f47fe1e157bdced96242f53b2?r=use1" >> .env
+          echo "DEFAULT_THEME=dark" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "NFT_CHAIN_ID=0x89" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "NFT_NODE_URL=${{ secrets.DEV_NFT_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x135542d2F25dA82FFf81720462DD8B4c4315F21a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0x08c29927773ba3983b2f4Bcb9f8f4E5aF9C4A088" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0x2c731a94C41d468c7416e0ceA6ac601b0f38b2Aa" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          echo "MUMBAI_TESTNET_NETWORK_ID=80001" >> .env
+          echo "POLYGON_MAINNET_NETWORK_ID=137" >> .env
+          echo "ETHEREUM_NETWORK_ID=1" >> .env
+
+          echo "MUMBAI_TESTNET_CHAIN_ID=0x13881" >> .env
+          echo "POLYGON_MAINNET_CHAIN_ID=0x89" >> .env
+          echo "ETHEREUM_CHAIN_ID=0x1" >> .env
+
+          echo "BLOCK_EXPLORER_URL=https://polygonscan.com/tx" >> .env
+
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.chalk.software" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+      - name: Download the wasm binary
+        uses: actions/download-artifact@v3
+        with:
+          name: zcn.wasm
+
+      - name: Copy the wasm binary
+        run: |
+          cp zcn.wasm packages/chalk/public/zcn.wasm
+          cp zcn.wasm packages/shared/public/zcn.wasm
+
+      - name: Build & Push Docker Image.
+        id: docker_build
+        run: |
+          docker build -f ./packages/chalk/docker/dockerfile . -t ${{ secrets.ZNFT_REGISTRY }}:latest
+          echo $TAG-$SHORT_SHA
+          echo "COMMIT_TAG=dev-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+
+          docker tag ${{ secrets.ZNFT_REGISTRY }}:latest ${{ secrets.ZNFT_REGISTRY }}:dev-$TAG-$SHORT_SHA
+          docker push ${{ secrets.ZNFT_REGISTRY }}:dev-$TAG-$SHORT_SHA
+
+      - name: Push latest
+        if: ${{ github.event.inputs.branch }} == 'master'
+        run: |
+          docker push ${{ secrets.ZNFT_REGISTRY }}:latest
+
+      - name: Clean Up The Workspace.
+        if: ${{ always() }}
+        run: |
+          rm -rf ./*
+
+  deploy-chalk-on-dev:
+    runs-on: dev-webapps
+
+    needs: [build-and-push-chalk-docker-image]
+
+    steps:
+      - name: Preparing docker-compose file.
+        run: |
+          mkdir -p /home/root/codebase/chalk
+          cd /home/root/codebase/chalk
+          touch .env
+          echo "DOMAIN=dev.zus.network" > .env
+          
+          cat <<\EOF >./docker-compose.yaml
+          version: '3.2'
+          services:
+            atlus-app:
+              container_name: chalk_webapp
+              image: ${{ secrets.ZNFT_REGISTRY }}:${{ needs.build-and-push-chalk-docker-image.outputs.output2 }}
+              env_file:
+                - ./.env
+              restart: "always"
+              networks:
+                - chalk_network
+              ports:
+                - 3004:3000
+          networks:
+            chalk_network:
+              driver: bridge
+          EOF
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Deploying dev.chalk.software
+        run: |
+          cd /home/root/codebase/chalk
+          docker-compose pull
+          docker-compose up -d
+          sleep 5s
+          docker ps -a
+
+      - name: Cleanup Docker Images
+        run: |
+          echo 'y' | docker system prune -a
+
+  build-and-push-chimney-docker-image:
+    if: ${{ github.event.inputs.chimney == 'true' || github.event.client_payload.chimney || github.ref == 'refs/heads/master' }}
+    runs-on: arc-runner
+    needs: [build-and-generate-wasm]
+
+    outputs:
+      output2: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # - name: Cloning web-apps Repository.
+      #   run: |
+      #     git clone https://${{ secrets.USER_NAME }}:${{ secrets.ACCESS_TOKEN }}@github.com/0chain/web-apps.git
+      #     echo "Successfully cloned the web-apps repository"
+
+      - name: Set Docker Image Tags.
+        id: get_info
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          if [[ "${{github.ref}}" == refs/pull/* ]]; then
+            tag=${GITHUB_REF/\/merge/}
+            echo "TAG=$(echo pr-${tag:10})" >> $GITHUB_ENV
+          else
+            echo "TAG=$(echo ${GITHUB_REF#refs/*/} | sed 's/\//-/g')" >> $GITHUB_ENV
+          fi
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Setting Up Environment Variables.
+        run: |
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=${{ secrets.CHIMNEY_TRANSLATION_API_KEY }}" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          cd packages/chimney
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=${{ secrets.CHIMNEY_TRANSLATION_API_KEY }}" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.chimney.software" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+          cd ../../packages/shared
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "TRANSLATION_API_KEY=${{ secrets.CHIMNEY_TRANSLATION_API_KEY }}" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.chimney.software" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+      - name: Download the wasm binary
+        uses: actions/download-artifact@v3
+        with:
+          name: zcn.wasm
+
+      - name: Copy the wasm binary
+        run: |
+          cp zcn.wasm packages/chimney/public/zcn.wasm
+          cp zcn.wasm packages/shared/public/zcn.wasm
+
+      - name: Build & Push Docker Image.
+        id: docker_build
+        run: |
+          docker build -f ./packages/chimney/docker/dockerfile . -t ${{ secrets.CHIMNEY_REGISTRY }}:latest
+          echo $TAG-$SHORT_SHA
+          echo "COMMIT_TAG=dev-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+
+          docker tag ${{ secrets.CHIMNEY_REGISTRY }}:latest ${{ secrets.CHIMNEY_REGISTRY }}:dev-$TAG-$SHORT_SHA
+          docker push ${{ secrets.CHIMNEY_REGISTRY }}:dev-$TAG-$SHORT_SHA
+
+      - name: Push latest
+        if: ${{ github.event.inputs.branch }} == 'master'
+        run: |
+          docker push ${{ secrets.CHIMNEY_REGISTRY }}:latest
+
+      - name: Clean Up The Workspace.
+        if: ${{ always() }}
+        run: |
+          rm -rf ./*
+
+  deploy-chimney-on-dev:
+    runs-on: dev-webapps
+
+    needs: [build-and-push-chimney-docker-image]
+
+    steps:
+      - name: Preparing docker-compose file.
+        run: |
+          mkdir -p /home/root/codebase/chimney
+          cd /home/root/codebase/chimney
+          touch .env
+          echo "DOMAIN=dev.zus.network" > .env
+          echo "ATLUS_URL=https://dev.atlus.cloud" >> .env
+          
+          cat <<\EOF >./docker-compose.yaml
+          version: '3.2'
+          services:
+            atlus-app:
+              container_name: chimney_webapp
+              image: ${{ secrets.CHIMNEY_REGISTRY }}:${{ needs.build-and-push-chimney-docker-image.outputs.output2 }}
+              env_file:
+                - ./.env
+              restart: "always"
+              networks:
+                - chimney_network
+              ports:
+                - 3005:3000
+          networks:
+            chimney_network:
+              driver: bridge
+          EOF
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Deploying dev.chimney.software
+        run: |
+          cd /home/root/codebase/chimney
+          docker-compose pull
+          docker-compose up -d
+          sleep 5s
+          docker ps -a
+
+      - name: Cleanup Docker Images
+        run: |
+          echo 'y' | docker system prune -a
+
+  build-and-push-blimp-docker-image:
+    if: ${{ github.event.inputs.blimp == 'true' || github.event.client_payload.blimp || github.ref == 'refs/heads/master' }}
+    runs-on: arc-runner
+    needs: [build-and-generate-wasm]
+
+    outputs:
+      output2: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # - name: Cloning web-apps Repository.
+      #   run: |
+      #     git clone https://${{ secrets.USER_NAME }}:${{ secrets.ACCESS_TOKEN }}@github.com/0chain/web-apps.git
+      #     echo "Successfully cloned the web-apps repository"
+
+      - name: Set Docker Image Tags.
+        id: get_info
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          if [[ "${{github.ref}}" == refs/pull/* ]]; then
+            tag=${GITHUB_REF/\/merge/}
+            echo "TAG=$(echo pr-${tag:10})" >> $GITHUB_ENV
+          else
+            echo "TAG=$(echo ${GITHUB_REF#refs/*/} | sed 's/\//-/g')" >> $GITHUB_ENV
+          fi
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Setting Up Environment Variables.
+        run: |
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=blimp" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          cd packages/blimp
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=blimp" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.blimp.software" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+          cd ../../packages/shared
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=blimp" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.blimp.software" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+      - name: Download the wasm binary
+        uses: actions/download-artifact@v3
+        with:
+          name: zcn.wasm
+
+      - name: Copy the wasm binary
+        run: |
+          cp zcn.wasm packages/blimp/public/zcn.wasm
+          cp zcn.wasm packages/shared/public/zcn.wasm
+
+      - name: Build & Push Docker Image.
+        id: docker_build
+        run: |
+          docker build -f ./packages/blimp/docker/dockerfile . -t ${{ secrets.BLIMP_REGISTRY }}:latest
+          echo $TAG-$SHORT_SHA
+          echo "COMMIT_TAG=dev-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+
+          docker tag ${{ secrets.BLIMP_REGISTRY }}:latest ${{ secrets.BLIMP_REGISTRY }}:dev-$TAG-$SHORT_SHA
+          docker push ${{ secrets.BLIMP_REGISTRY }}:dev-$TAG-$SHORT_SHA
+
+      - name: Push latest
+        if: ${{ github.event.inputs.branch }} == 'master'
+        run: |
+          docker push ${{ secrets.BLIMP_REGISTRY }}:latest
+
+      - name: Clean Up The Workspace.
+        if: ${{ always() }}
+        run: |
+          rm -rf ./*
+
+  deploy-blimp-on-dev:
+    runs-on: dev-webapps
+
+    needs: [build-and-push-blimp-docker-image]
+
+    steps:
+      - name: Preparing docker-compose file.
+        run: |
+          mkdir -p /home/root/codebase/blimp
+          cd /home/root/codebase/blimp
+          touch .env
+          echo "DOMAIN=dev.zus.network" > .env
+          
+          cat <<\EOF >./docker-compose.yaml
+          version: '3.2'
+          services:
+            atlus-app:
+              container_name: blimp_webapp
+              image: ${{ secrets.BLIMP_REGISTRY }}:${{ needs.build-and-push-blimp-docker-image.outputs.output2 }}
+              env_file:
+                - ./.env
+              restart: "always"
+              networks:
+                - blimp_network
+              ports:
+                - 3006:3000
+          networks:
+            blimp_network:
+              driver: bridge
+          EOF
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Deploying dev.blimp.software
+        run: |
+          cd /home/root/codebase/blimp
+          docker-compose pull
+          docker-compose up -d
+          sleep 5s
+          docker ps -a
+
+      - name: Cleanup Docker Images
+        run: |
+          echo 'y' | docker system prune -a
+
+  build-and-push-vult-docker-image:
+    if: ${{ github.event.inputs.vult == 'true' || github.event.client_payload.vult || github.ref == 'refs/heads/master' }}
+    runs-on: arc-runner
+    needs: [build-and-generate-wasm]
+
+    outputs:
+      output2: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # - name: Cloning web-apps Repository.
+      #   run: |
+      #     git clone https://${{ secrets.USER_NAME }}:${{ secrets.ACCESS_TOKEN }}@github.com/0chain/web-apps.git
+      #     echo "Successfully cloned the web-apps repository"
+
+      - name: Set Docker Image Tags.
+        id: get_info
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
+          if [[ "${{github.ref}}" == refs/pull/* ]]; then
+            tag=${GITHUB_REF/\/merge/}
+            echo "TAG=$(echo pr-${tag:10})" >> $GITHUB_ENV
+          else
+            echo "TAG=$(echo ${GITHUB_REF#refs/*/} | sed 's/\//-/g')" >> $GITHUB_ENV
+          fi
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Setting Up Environment Variables.
+        run: |
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=vult" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          cd packages/vult/
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=vult" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.vult.network" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+          cd ../../packages/shared/
+          touch .env
+          echo "FBASE_API_KEY=${{ secrets.FBASE_API_KEY }}" > .env
+          echo "FBASE_AUTH_DOMAIN=${{ secrets.FBASE_AUTH_DOMAIN }}" >> .env
+          echo "FBASE_DB_URL=${{ secrets.FBASE_DB_URL }}" >> .env
+          echo "FBASE_PROJECT_ID=${{ secrets.FBASE_PROJECT_ID }}" >> .env
+          echo "FBASE_STORAGE_BUCKET=${{ secrets.FBASE_STORAGE_BUCKET }}" >> .env
+          echo "FBASE_MESSAGING_SENDER_ID=${{ secrets.FBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FBASE_APP_ID=${{ secrets.FBASE_APP_ID }}" >> .env
+          echo "FBASE_SHARE_LINK=${{ secrets.FBASE_SHARE_LINK }}" >> .env
+          echo "WEBHOOK_API_TOKEN=${{ secrets.WEBHOOK_API_TOKEN }}" >> .env
+          echo "ZENDESK_KEY=${{ secrets.ZENDESK_KEY }}" >> .env
+          echo "DOMAIN=dev.zus.network" >> .env
+          echo "ZBOX_APP=vult" >> .env
+          echo "JWT_ENABLED=false" >> .env
+          echo "NODE_ENV=development" >> .env
+          echo "APP_ENV=development" >> .env
+          echo "ETH_CHAIN_ID=0x1" >> .env
+          echo "BE_URL=https://lp-backend.zus.network" >> .env
+          echo "ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "MOCK_ZCN_TOKEN=0xb9EF770B6A5e12E45983C5D80545258aA38F3B78" >> .env
+          echo "ETH_TOKEN=${{ secrets.ETH_TOKEN }}" >> .env
+          echo "BANCOR_NETWORK=${{ secrets.BANCOR_NETWORK }}" >> .env
+          echo "UNISWAP_V2_SWAP_ADDRESS=0x2d899d91a7ccd2126e03459ea08f6a8ad3342289" >> .env
+          echo "UNISWAP_V2_ROUTER02_ADDRESS=0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" >> .env
+          echo "BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "AUTHORIZER_ADDRESS=0x481daB4407b9880DE0A68dc62E6aF611c4949E42" >> .env
+          echo "ETH_NODE_URL=${{ secrets.DEV_ETH_NODE_RPC }}" >> .env
+          echo "REVERSE_BRIDGE=0x7700D773022b19622095118Fadf46f7B9448Be9b" >> .env
+          echo "BANCOR_TOKEN_ADDRESS=0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C" >> .env
+          echo "USDC_TOKEN_ADDRESS=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" >> .env
+          echo "EURC_TOKEN_ADDRESS=0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c" >> .env
+          echo "ALCHEMY_API_KEY=0VanLUbRE0pLmDHwCHGJlhs9GHosrfD0" >> .env
+
+          echo "NFT_FACTORY_ADDRESS=0x87747794eFD812a0e4783818941359f44a48940a" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_ADDRESS=0xfEfF421370229F962bacB2e8659242f90C632594" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS=0xe3cDc03417b8B713271C714f1D4886B80C7B86e6" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS=0xa27719459ee42AC07a625Ef874478a2bec984308" >> .env
+          echo "NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS=0x016aa145ae9f896cbB3611D5fA98c9F6b4A52EBd" >> .env
+
+          echo "APP_VERSION=1.15.4" >> .env
+
+
+          echo "AUTH0_SECRET=a7fc53d67120f8579e694c2621a08be7f168918f3807a2c6b1c8e7419f7d7c5d" >> .env          
+          echo "AUTH0_BASE_URL=https://dev.vult.network" >> .env
+          echo "AUTH0_ISSUER_BASE_URL=https://dev-fhstqbehghgjvy2s.us.auth0.com" >> .env
+          echo "AUTH0_CLIENT_ID=Fg0ce61kZ8PKeGfawzKrxuuxSEFEgKAt" >> .env
+          echo "AUTH0_CLIENT_SECRET=OQWDCBRry0ar7sYNvUuJqHfMYjgwSMToYvO2vTmdw383Fhz20cjwbff7xgsykfkS" >> .env
+
+      - name: Download the wasm binary
+        uses: actions/download-artifact@v3
+        with:
+          name: zcn.wasm
+
+      - name: Copy the wasm binary
+        run: |
+          cp zcn.wasm packages/vult/public/zcn.wasm
+          cp zcn.wasm packages/shared/public/zcn.wasm
+
+      - name: Build & Push Docker Image.
+        id: docker_build
+        run: |
+          docker build -f ./packages/vult/docker/dockerfile . -t ${{ secrets.VULT_REGISTRY }}:latest
+          echo $TAG-$SHORT_SHA
+          echo "COMMIT_TAG=dev-$TAG-$SHORT_SHA" >>$GITHUB_OUTPUT
+
+          docker tag ${{ secrets.VULT_REGISTRY }}:latest ${{ secrets.VULT_REGISTRY }}:dev-$TAG-$SHORT_SHA
+          docker push ${{ secrets.VULT_REGISTRY }}:dev-$TAG-$SHORT_SHA
+
+      - name: Push latest
+        if: ${{ github.event.inputs.branch }} == 'master'
+        run: |
+          docker push ${{ secrets.VULT_REGISTRY }}:latest
+
+      - name: Clean Up The Workspace.
+        if: ${{ always() }}
+        run: |
+          rm -rf ./*
+
+  deploy-vult-on-dev:
+    runs-on: dev-webapps
+
+    needs: [build-and-push-vult-docker-image]
+
+    steps:
+      - name: Preparing docker-compose file.
+        run: |
+          mkdir -p /home/root/codebase/vult
+          cd /home/root/codebase/vult
+          touch .env
+          echo "DOMAIN=dev.zus.network" > .env
+          
+          cat <<\EOF >./docker-compose.yaml
+          version: '3.2'
+          services:
+            atlus-app:
+              container_name: vult_webapp
+              image: ${{ secrets.VULT_REGISTRY }}:${{ needs.build-and-push-vult-docker-image.outputs.output2 }}
+              env_file:
+                - ./.env
+              restart: "always"
+              networks:
+                - vult_network
+              ports:
+                - 3003:3000
+          networks:
+            vult_network:
+              driver: bridge
+          EOF
+
+      - name: Login To Docker Repository.
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Deploying dev.vult.network
+        run: |
+          cd /home/root/codebase/vult
+          docker-compose pull
+          docker-compose up -d
+          sleep 5s
+          docker ps -a
+
+      - name: Cleanup Docker Images
+        run: |
+          echo 'y' | docker system prune -a
