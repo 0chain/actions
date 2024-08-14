@@ -6,222 +6,277 @@ on:
         description: 'name of the web-app to build and publish'
         default: ""
         required: true
+        type: string
       webapps_branch:
         description: 'web-apps branch to publish'
         default: ""
         required: true
+        type: string
       network_url:
         description: 'network url for web-apps to point to, example: demo.zus.network'
         default: ""
         required: true
+        type: string
       runner_number:
         description: 'runner number'
         default: ""
         required: false
+        type: string
       git_user:
         description: 'secrets.GIT_USER'
         default: ""
         required: true
+        type: string
       git_pat:
         description: 'secrets.GIT_PAT'
         default: ""
         required: true
+        type: string
       dockerhub_username:
         description: 'secrets.DOCKERHUB_USERNAME'
         default: ""
         required: true
+        type: string
       dockerhub_password:
         description: 'secrets.DOCKERHUB_PASSWORD'
         default: ""
         required: true
+        type: string
       webapp_registry:
         description: 'docker registry for web-app to be published to'
         default: ""
         required: true
+        type: string
       gosdk_branch:
         description: 'GOSDK branch to build wasm'
         default: ""
         required: false
+        type: string
       FBASE_API_KEY:
         description: 'FBASE_API_KEY'
         default: ""
         required: true
+        type: string
       FBASE_AUTH_DOMAIN:
         description: 'FBASE_AUTH_DOMAIN'
         default: ""
         required: true
+        type: string
       FBASE_DB_URL:
         description: 'FBASE_DB_URL'
         default: ""
         required: true
+        type: string
       FBASE_PROJECT_ID:
         description: 'FBASE_PROJECT_ID'
         default: ""
         required: true
+        type: string
       FBASE_STORAGE_BUCKET:
         description: 'FBASE_STORAGE_BUCKET'
         default: ""
         required: true
+        type: string
       FBASE_MESSAGING_SENDER_ID:
         description: 'FBASE_MESSAGING_SENDER_ID'
         default: ""
         required: true
+        type: string
       FBASE_APP_ID:
         description: 'FBASE_APP_ID'
         default: ""
         required: true
+        type: string
       WEBHOOK_API_TOKEN:
         description: 'WEBHOOK_API_TOKEN'
         default: ""
         required: true
+        type: string
       TRANSLATION_API_KEY:
         description: 'TRANSLATION_API_KEY'
         default: ""
         required: true
+        type: string
       ZENDESK_KEY:
         description: 'ZENDESK_KEY'
         default: ""
         required: true
+        type: string
       DOMAIN:
         description: 'DOMAIN'
         default: ""
         required: true
+        type: string
       ZBOX_APP:
         description: 'ZBOX_APP'
         default: ""
         required: true
+        type: string
       JWT_ENABLED:
         description: 'JWT_ENABLED'
         default: ""
         required: true
+        type: string
       BE_URL:
         description: 'BE_URL'
         default: ""
         required: true
+        type: string
       NEXT_PUBLIC_MONDAY_FORM:
         description: 'NEXT_PUBLIC_MONDAY_FORM'
         default: ""
         required: true
+        type: string
       DEFAULT_THEME:
         description: 'DEFAULT_THEME'
         default: ""
         required: true
+        type: string
       ATLUS_URL:
         description: 'ATLUS_URL'
         default: ""
         required: true
+        type: string
       NODE_ENV:
         description: 'NODE_ENV'
         default: ""
         required: true
+        type: string
       APP_ENV:
         description: 'APP_ENV'
         default: ""
         required: true
+        type: string
       ETH_CHAIN_ID:
         description: 'ETH_CHAIN_ID'
         default: ""
         required: true
+        type: string
       DEX_CHAIN_ID:
         description: 'DEX_CHAIN_ID'
         default: ""
         required: true
+        type: string
       ZCN_TOKEN:
         description: 'ZCN_TOKEN'
         default: ""
         required: true
+        type: string
       MOCK_ZCN_TOKEN:
         description: 'MOCK_ZCN_TOKEN'
         default: ""
         required: true
+        type: string
       ETH_TOKEN:
         description: 'ETH_TOKEN'
         default: ""
         required: true
+        type: string
       BANCOR_NETWORK:
         description: 'BANCOR_NETWORK'
         default: ""
         required: true
+        type: string
       BRIDGE:
         description: 'BRIDGE'
         default: ""
         required: true
+        type: string
       AUTHORIZER_ADDRESS:
         description: 'AUTHORIZER_ADDRESS'
         default: ""
         required: true
+        type: string
       ETH_NODE_URL:
         description: 'ETH_NODE_URL'
         default: ""
         required: true
+        type: string
       NFT_NODE_URL:
         description: 'NFT_NODE_URL'
         default: ""
         required: true
+        type: string
       REVERSE_BRIDGE:
         description: 'REVERSE_BRIDGE'
         default: ""
         required: true
+        type: string
       BANCOR_TOKEN_ADDRESS:
         description: 'BANCOR_TOKEN_ADDRESS'
         default: ""
         required: true
+        type: string
       USDC_TOKEN_ADDRESS:
         description: 'USDC_TOKEN_ADDRESS'
         default: ""
         required: true
+        type: string
       EURC_TOKEN_ADDRESS:
         description: 'EURC_TOKEN_ADDRESS'
         default: ""
         required: true
+        type: string
       NFT_FACTORY_ADDRESS:
         description: 'NFT_FACTORY_ADDRESS'
         default: ""
         required: true
+        type: string
       NFT_FACTORY_MODULE_ERC_721_ADDRESS:
         description: 'NFT_FACTORY_MODULE_ERC_721_ADDRESS'
         default: ""
         required: true
+        type: string
       NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS:
         description: 'NFT_FACTORY_MODULE_ERC_721_FIXED_ADDRESS'
         default: ""
         required: true
+        type: string
       NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS:
         description: 'NFT_FACTORY_MODULE_ERC_721_PACK_ADDRESS'
         default: ""
         required: true
+        type: string
       NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS:
         description: 'NFT_FACTORY_MODULE_ERC_721_RANDOM_ADDRESS'
         default: ""
         required: true
+        type: string
       MUMBAI_TESTNET_NETWORK_ID:
         description: 'MUMBAI_TESTNET_NETWORK_ID'
         default: ""
         required: true
+        type: string
       POLYGON_MAINNET_NETWORK_ID:
         description: 'POLYGON_MAINNET_NETWORK_ID'
         default: ""
         required: true
+        type: string
       ETHEREUM_NETWORK_ID:
         description: 'ETHEREUM_NETWORK_ID'
         default: ""
         required: true
+        type: string
       MUMBAI_TESTNET_CHAIN_ID:
         description: 'MUMBAI_TESTNET_CHAIN_ID'
         default: ""
         required: true
+        type: string
       POLYGON_MAINNET_CHAIN_ID:
         description: 'POLYGON_MAINNET_CHAIN_ID'
         default: ""
         required: true
+        type: string
       ETHEREUM_CHAIN_ID:
         description: 'ETHEREUM_CHAIN_ID'
         default: ""
         required: true
+        type: string
       BLOCK_EXPLORER_URL:
         description: 'BLOCK_EXPLORER_URL'
         default: ""
         required: true
+        type: string
 
     outputs:
       atlus-build-tag:
