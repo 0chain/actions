@@ -278,10 +278,10 @@ on:
         required: true
         type: string
 
-    outputs:
-      atlus-build-tag:
-        description: "build-tag"
-        value: ${{ steps.docker_build.outputs.COMMIT_TAG }}
+  # Allows external webhook trigger
+  repository_dispatch:
+    types:
+      - webhook
 jobs:
   build-and-generate-wasm:
     runs-on: arc-runner
