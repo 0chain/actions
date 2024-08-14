@@ -4,7 +4,7 @@ on:
     inputs:
       gosdk_branch:
         description: 'the gosdk branch for wasm else it will pick update latest sprint'
-        default: ''
+        default: 'false'
         required: false
         type: boolean
       bolt:
