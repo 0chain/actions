@@ -10,32 +10,32 @@ on:
       bolt:
         description: 'BOLT: Type true to deploy bolt wrt above input branch.'
         default: 'false'
-        required: true
+        required: false
         type: string
       atlus:
         description: 'ATLUS: Type true to deploy atlus wrt above input branch.'
         default: 'false'
-        required: true
+        required: false
         type: string
       znft:
         description: 'CHALK: Type true to deploy chalk wrt above input branch.'
         default: 'false'
-        required: true
+        required: false
         type: string
       chimney:
         description: 'CHIMNEY: Type true to deploy chimney wrt above input branch.'
         default: 'false'
-        required: true
+        required: false
         type: string
       blimp:
         description: 'BLIMP: Type true to deploy blimp wrt above input branch.'
         default: 'false'
-        required: true
+        required: false
         type: string
       vult:
         description: 'VULT: Type true to deploy vult wrt above input branch.'
         default: 'false'
-        required: true
+        required: false
         type: string
 
   # Allows external webhook trigger
