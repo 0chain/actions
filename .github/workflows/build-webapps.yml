@@ -4,39 +4,39 @@ on:
     inputs:
       gosdk_branch:
         description: 'the gosdk branch for wasm else it will pick update latest sprint'
-        default: 'false'
+        default: ''
         required: false
-        type: boolean
+        type: string
       bolt:
         description: 'BOLT: Type true to deploy bolt wrt above input branch.'
         default: 'false'
         required: true
-        type: boolean
+        type: string
       atlus:
         description: 'ATLUS: Type true to deploy atlus wrt above input branch.'
         default: 'false'
         required: true
-        type: boolean
+        type: string
       znft:
         description: 'CHALK: Type true to deploy chalk wrt above input branch.'
         default: 'false'
         required: true
-        type: boolean
+        type: string
       chimney:
         description: 'CHIMNEY: Type true to deploy chimney wrt above input branch.'
         default: 'false'
         required: true
-        type: boolean
+        type: string
       blimp:
         description: 'BLIMP: Type true to deploy blimp wrt above input branch.'
         default: 'false'
         required: true
-        type: boolean
+        type: string
       vult:
         description: 'VULT: Type true to deploy vult wrt above input branch.'
         default: 'false'
         required: true
-        type: boolean
+        type: string
 
   # Allows external webhook trigger
   repository_dispatch:
