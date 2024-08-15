@@ -416,7 +416,7 @@ runs:
 
         echo "Building warp CLI master branch...."
         cd ../warp
-        make install > build.log 2>&1 || { cat build.log && echo "::error title=warp CLI build failed::warp CLI build failed" && exit 1; }
+        go build > build.log 2>&1 || { cat build.log && echo "::error title=warp CLI build failed::warp CLI build failed" && exit 1; }
         mv warp ../tests/cli_tests
 
         echo "CLI build SUCCESS!"
