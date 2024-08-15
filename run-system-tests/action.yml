@@ -300,8 +300,8 @@ runs:
     - name: "Checkout 0Minio CLI"
       uses: actions/checkout@v3
       with:
-        ref: ${{ env.MINIO_BRANCH || 'master' }}
-        repository: minio/minio
+        ref: ${{ env.MINIO_BRANCH || 'staging' }}
+        repository: 0chain/zs3server
         fetch-depth: 1
         path: ./minio
 
