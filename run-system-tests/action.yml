@@ -252,6 +252,12 @@ runs:
         echo "Running smoke tests:           [${{ env.RUN_SMOKE_TESTS }}]"
         echo "Running frontend tests:        [${{ env.RUN_FRONTEND_TESTS }}]"
 
+    - name: "Set up Go 1.22"
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.22'
+        cache: 'go'
+
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
       with:
