@@ -240,6 +240,8 @@ jobs:
         authorizer_branch: ${{ inputs.authorizer_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
+        zvault_branch: ${{ inputs.zvault_branch }}
+        zauth_branch: ${{ inputs.zauth_branch }}
         zs3server_branch:  ${{ inputs.zs3server_branch }}
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
@@ -348,6 +350,8 @@ jobs:
         blobber_branch: ${{ inputs.blobber_branch }}
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
+        zvault_branch: ${{ inputs.zvault_branch }}
+        zauth_branch: ${{ inputs.zauth_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
