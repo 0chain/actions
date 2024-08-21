@@ -89,7 +89,7 @@ runs:
         authorizer_branch: ${{ env.SNAPSHOT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
         zbox_branch: ${{ env.SNAPSHOT_BRANCH_0BOX }}
         zvault_branch: ${{ env.SNAPSHOT_BRANCH_ZVAULT }}
-        zauth_branch: ${{ env.SNAPSHOT_BRANCH_ZAUTH }}
+        zauth_branch: ${{ env.SNAPSHOT_BRANCH_ZAUTH-SERVER }}
         zdns_branch: ${{ env.SNAPSHOT_BRANCH_0DNS }}
         zs3server_branch:  ${{ env.SNAPSHOT_BRANCH_ZS3SERVER }}
         svc_account_secret: ${{ inputs.svc_account_secret }}
