@@ -119,6 +119,14 @@ runs:
         if [[ -n "${{ steps.get-images.outputs.zbox-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_ZBOX_TAG=$(echo '${{ steps.get-images.outputs.zbox-tag }}')" >> $GITHUB_ENV
         fi
+
+        if [[ -n "${{ steps.get-images.outputs.zvault-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_ZVAULT_TAG=$(echo '${{ steps.get-images.outputs.zvault-tag }}')" >> $GITHUB_ENV
+        fi
+
+        if [[ -n "${{ steps.get-images.outputs.zauth-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_ZAUTH_TAG=$(echo '${{ steps.get-images.outputs.zauth-tag }}')" >> $GITHUB_ENV
+        fi
         
         if [[ -n "${{ steps.get-images.outputs.zdns-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_ZDNS_TAG=$(echo '${{ steps.get-images.outputs.zdns-tag }}')" >> $GITHUB_ENV
