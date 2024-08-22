@@ -26,7 +26,7 @@ inputs:
   minio_cli_branch:
     required: false
     description: "0Minio CLI (branch or commit SHA) which the tests will use"
-    default: "master"
+    default: "staging"
   warp_cli_branch:
     required: false
     description: "0Warp CLI (branch or commit SHA) which the tests will use"
