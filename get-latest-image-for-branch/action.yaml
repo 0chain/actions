@@ -243,7 +243,7 @@ runs:
           then
              ./get_tag.sh zauth-server ${{ inputs.zauth_branch }} zauth-server
           else
-            echo "zauth_branch NOT specified, will skip deriving zauth image tag"
+            echo "zauth_branch NOT specified, will skip deriving zauth-server image tag"
         fi
         
         if [[ -n "${{ inputs.zdns_branch }}" ]];
