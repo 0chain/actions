@@ -470,7 +470,7 @@ runs:
              --set zauthServer.hostName=${{ env.NAMESPACE }} \
              --set zauthServer.host=devnet-0chain.net \
              --set zauthServer.image.tag=${{ env.ZAUTH_TAG }} \
-             -n ${{ env.NAMESPACE }} 0chain-helm/zauth-server --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+             -n ${{ env.NAMESPACE }} 0chain-helm/zauth --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
            echo "Retrying helm install"
