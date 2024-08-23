@@ -36,7 +36,7 @@ inputs:
     description: 'zvault branch to notify'
     default: 'staging'
     required: true
-  zauth_branch:
+  zauth_server_branch:
     description: 'zauth branch to notify'
     default: 'staging'
     required: true
@@ -84,7 +84,7 @@ runs:
         echo BLOBBER_SHA=$(./get_sha.sh blobber ${{ inputs.blobber_branch }}) >> $GITHUB_ENV
         echo ZBOX_SHA=$(./get_sha.sh 0box ${{ inputs.zbox_branch }}) >> $GITHUB_ENV
         echo ZVAULT_SHA=$(./get_sha.sh zvault ${{ inputs.zvault_branch }}) >> $GITHUB_ENV
-        echo ZAUTH_SHA=$(./get_sha.sh zauth-server ${{ inputs.zauth_branch }}) >> $GITHUB_ENV
+        echo ZAUTH_SHA=$(./get_sha.sh zauth-server ${{ inputs.zauth_server_branch }}) >> $GITHUB_ENV
         echo AUTHORIZER_SHA=$(./get_sha.sh token_bridge_authserver ${{ inputs.authorizer_branch }}) >> $GITHUB_ENV
 
     - name: "Get system tests branch PR"
@@ -125,7 +125,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -167,7 +167,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -209,7 +209,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -251,7 +251,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -293,7 +293,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -335,7 +335,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -377,7 +377,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -419,7 +419,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -461,7 +461,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -503,6 +503,6 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_branch }}  |
+          | zauth  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}

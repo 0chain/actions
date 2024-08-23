@@ -116,7 +116,7 @@ on:
         default: ''
         required: false
         type: string
-      zauth_branch:
+      zauth_server_branch:
         description: 'zauth-server branch to deploy'
         default: ''
         required: false
@@ -241,7 +241,7 @@ jobs:
         zbox_branch: ${{ inputs.zbox_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
         zvault_branch: ${{ inputs.zvault_branch }}
-        zauth_branch: ${{ inputs.zauth_branch }}
+        zauth_server_branch: ${{ inputs.zauth_server_branch }}
         zs3server_branch:  ${{ inputs.zs3server_branch }}
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
@@ -260,7 +260,7 @@ jobs:
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
         zvault_branch: ${{ inputs.zvault_branch }}
-        zauth_branch: ${{ inputs.zauth_branch }}
+        zauth_server_branch: ${{ inputs.zauth_server_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}
@@ -351,7 +351,7 @@ jobs:
         gosdk_branch: ${{ inputs.gosdk_branch }}
         zbox_branch: ${{ inputs.zbox_branch }}
         zvault_branch: ${{ inputs.zvault_branch }}
-        zauth_branch: ${{ inputs.zauth_branch }}
+        zauth_server_branch: ${{ inputs.zauth_server_branch }}
         zdns_branch: ${{ inputs.zdns_branch }}
         authorizer_branch: ${{ inputs.authorizer_branch }}
         skip_tests: ${{ env.SKIP_TESTS }}

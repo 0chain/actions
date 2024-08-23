@@ -29,7 +29,7 @@ inputs:
     description: 'zvault branch to deploy'
     default: ''
     required: false
-  zauth_branch:
+  zauth_server_branch:
     description: 'zauth branch to deploy'
     default: ''
     required: false
@@ -239,11 +239,11 @@ runs:
             echo "zvault_branch NOT specified, will skip deriving zvault image tag"
         fi
 
-        if [[ -n "${{ inputs.zauth_branch }}" ]];
+        if [[ -n "${{ inputs.zauth_server_branch }}" ]];
           then
-             ./get_tag.sh zauth-server ${{ inputs.zauth_branch }} zauth-server
+             ./get_tag.sh zauth-server ${{ inputs.zauth_server_branch }} zauth-server
           else
-            echo "zauth_branch NOT specified, will skip deriving zauth-server image tag"
+            echo "zauth_server_branch NOT specified, will skip deriving zauth-server image tag"
         fi
         
         if [[ -n "${{ inputs.zdns_branch }}" ]];
