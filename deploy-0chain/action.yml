@@ -469,7 +469,7 @@ runs:
            helm upgrade --install zauth \
              --set zauthServer.hostName=${{ env.NAMESPACE }} \
              --set zauthServer.host=devnet-0chain.net \
-             --set zauthServer.image.tag=${{ env.AUTHORIZER_TAG }} \
+             --set zauthServer.image.tag=${{ env.ZAUTH_TAG }} \
              -n ${{ env.NAMESPACE }} 0chain-helm/zauth --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
@@ -484,7 +484,7 @@ runs:
            helm upgrade --install zvault \
              --set zvault.hostName=${{ env.NAMESPACE }} \
              --set zvault.host=devnet-0chain.net \
-             --set zvault.image.tag=${{ env.AUTHORIZER_TAG }} \
+             --set zvault.image.tag=${{ env.ZVAULT_TAG }} \
              -n ${{ env.NAMESPACE }} 0chain-helm/zvault --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
            ((COUNT--))
