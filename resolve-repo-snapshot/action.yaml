@@ -126,8 +126,8 @@ runs:
             echo "SNAPSHOT_BRANCH_ZVAULT_TAG=$(echo '${{ steps.get-images.outputs.zvault-tag }}')" >> $GITHUB_ENV
         fi
 
-        if [[ -n "${{ steps.get-images.outputs.zauth-tag }}" ]];then
-            echo "SNAPSHOT_BRANCH_ZAUTH_TAG=$(echo '${{ steps.get-images.outputs.zauth-tag }}')" >> $GITHUB_ENV
+        if [[ -n "${{ steps.get-images.outputs.zauth-server-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_ZAUTH-SERVER=$(echo '${{ steps.get-images.outputs.zauth-server-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "${{ steps.get-images.outputs.zdns-tag }}" ]];then

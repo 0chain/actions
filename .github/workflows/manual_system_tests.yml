@@ -280,7 +280,7 @@ jobs:
         authorizer_image: ${{ steps.get-images.outputs.authorizer-tag }}
         zbox_image: ${{ steps.get-images.outputs.zbox-tag }}
         zvault_image: ${{ steps.get-images.outputs.zvault-tag }}
-        zauth_image: ${{ steps.get-images.outputs.zauth-tag }}
+        zauth_server_image: ${{ steps.get-images.outputs.zauth-server-tag }}
         zdns_image: ${{ steps.get-images.outputs.zdns-tag }}
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
