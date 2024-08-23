@@ -68,9 +68,9 @@ outputs:
   zvault-tag:
     description: "zvault docker image"
     value: ${{ steps.get-images.outputs.ZVAULT_TAG }}
-  zauth-tag:
-    description: "zauth docker image"
-    value: ${{ steps.get-images.outputs.ZAUTH_TAG }}
+  zauth-server-tag:
+    description: "zauth-server docker image"
+    value: ${{ steps.get-images.outputs.ZAUTH_SERVER_TAG }}
   zdns-tag:
     description: "0dns docker image"
     value: ${{ steps.get-images.outputs.ZDNS_TAG }}
