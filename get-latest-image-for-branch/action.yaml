@@ -30,7 +30,7 @@ inputs:
     default: ''
     required: false
   zauth_server_branch:
-    description: 'zauth branch to deploy'
+    description: 'zauth-server branch to deploy'
     default: ''
     required: false
   zdns_branch:

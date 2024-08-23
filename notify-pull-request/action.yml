@@ -37,7 +37,7 @@ inputs:
     default: 'staging'
     required: true
   zauth_server_branch:
-    description: 'zauth branch to notify'
+    description: 'zauth-server branch to notify'
     default: 'staging'
     required: true
   zdns_branch:
@@ -125,7 +125,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -167,7 +167,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -209,7 +209,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -251,7 +251,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -293,7 +293,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -335,7 +335,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -377,7 +377,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -419,7 +419,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -461,7 +461,7 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}
 
@@ -472,7 +472,7 @@ runs:
         owner: "0chain"
         repo: "zauth-server"
       id: zauth
-    - name: "Set zauth branch PR status"
+    - name: "Set zauth-server branch PR status"
       uses: 0chain/actions/set-pr-status@master
       if: steps.zauth.outputs.number
       with:
@@ -503,6 +503,6 @@ runs:
           | authorizer  | ${{ inputs.authorizer_branch }}  |
           | 0box  | ${{ inputs.zbox_branch }}  |
           | zvault  | ${{ inputs.zvault_branch }}  |
-          | zauth  | ${{ inputs.zauth_server_branch }}  |
+          | zauth-server  | ${{ inputs.zauth_server_branch }}  |
           | 0dns  | ${{ inputs.zdns_branch }}  |
         repo-token: ${{ inputs.github_token }}

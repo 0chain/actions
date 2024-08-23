@@ -217,7 +217,7 @@ runs:
         echo "Authorizer docker image:               [${{ env.AUTHORIZER_TAG }}]"
         echo "0box docker image:                     [${{ env.ZBOX_TAG }}]"
         echo "zvault docker image:                   [${{ env.ZVAULT_TAG }}]"
-        echo "zauth docker image:                    [${{ env.ZAUTH_SERVER_TAG }}]"
+        echo "zauth-server docker image:                    [${{ env.ZAUTH_SERVER_TAG }}]"
         echo "0dns docker image:                     [${{ env.ZDNS_TAG }}]"
         echo "S3 server client docker image:         [${{ env.ZS3_CLIENT }}]"
         echo "S3 server logsearchapi docker image:   [${{ env.ZS3_LOGSEARCHAPI }}]"
@@ -464,7 +464,7 @@ runs:
 
         ##############----------------- Installing zauth-server helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
-        RET=1         #You can set RET=0 to skip the zauth helm-chart deployment
+        RET=1         #You can set RET=0 to skip the zauth-server helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
            helm upgrade --install zauth-server \
              --set zauthServer.hostName=${{ env.NAMESPACE }} \
