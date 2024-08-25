@@ -88,6 +88,8 @@ runs:
         blobber_validator_branch: ${{ env.SNAPSHOT_BRANCH_BLOBBER }}
         authorizer_branch: ${{ env.SNAPSHOT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
         zbox_branch: ${{ env.SNAPSHOT_BRANCH_0BOX }}
+        zvault_branch: ${{ env.SNAPSHOT_BRANCH_ZVAULT }}
+        zauth_server_branch: ${{ env.SNAPSHOT_BRANCH_ZAUTH-SERVER }}
         zdns_branch: ${{ env.SNAPSHOT_BRANCH_0DNS }}
         zs3server_branch:  ${{ env.SNAPSHOT_BRANCH_ZS3SERVER }}
         svc_account_secret: ${{ inputs.svc_account_secret }}
@@ -118,6 +120,14 @@ runs:
         
         if [[ -n "${{ steps.get-images.outputs.zbox-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_ZBOX_TAG=$(echo '${{ steps.get-images.outputs.zbox-tag }}')" >> $GITHUB_ENV
+        fi
+
+        if [[ -n "${{ steps.get-images.outputs.zvault-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_ZVAULT_TAG=$(echo '${{ steps.get-images.outputs.zvault-tag }}')" >> $GITHUB_ENV
+        fi
+
+        if [[ -n "${{ steps.get-images.outputs.zauth-server-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_ZAUTH-SERVER=$(echo '${{ steps.get-images.outputs.zauth-server-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "${{ steps.get-images.outputs.zdns-tag }}" ]];then
