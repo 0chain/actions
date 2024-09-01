@@ -2,19 +2,19 @@ name: "Text to PNG"
 description: "Convert a Text File (eg. command output) to png, plscing it in the same working directory as the text file and optionally archiving it to github"
 inputs:
   file_location:
-    description: 'Text file (ANSI colour coding supported) to convert to a PNG'
+    description: "Text file (ANSI colour coding supported) to convert to a PNG"
     required: true
   archive_file:
-    description: 'Whether or not to archive the result png to github'
-    default: 'true'
+    description: "Whether or not to archive the result png to github"
+    default: "true"
 
 runs:
   using: "composite"
   steps:
-    - name: Setup go 1.21
+    - name: Setup go 1.22
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: "1.21"
 
     - name: "Convert file"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -49,7 +49,7 @@ runs:
         rm -rf ${{ env.FILE_PATH }}.png || true
 
         ' > ./post.sh;
-        chmod 777 ./post.sh;      
+        chmod 777 ./post.sh;
 
     - name: "Post: remove temp files"
       uses: webiny/action-post-run@2.0.1
