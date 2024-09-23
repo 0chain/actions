@@ -654,10 +654,10 @@ runs:
     #     which go
     #     go env
 
-    - name: Setup go 1.21
+    - name: Setup go 1.22
       uses: actions/setup-go@v4
       with:
-        go-version: '1.21' # The Go version to download (if necessary) and use.
+        go-version: '1.22' # The Go version to download (if necessary) and use.
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -722,14 +722,14 @@ runs:
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         go mod tidy
-        docker run --rm -v ./:/zwalletcli -w /zwalletcli golang:1.21 make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
+        docker run --rm -v ./:/zwalletcli -w /zwalletcli golang:1.22 make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         # make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
 
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         go mod tidy
-        docker run --rm -v ./:/zboxcli -w /zboxcli golang:1.21 make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
+        docker run --rm -v ./:/zboxcli -w /zboxcli golang:1.22 make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         # make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ..
         echo "CLI build SUCCESS!"
