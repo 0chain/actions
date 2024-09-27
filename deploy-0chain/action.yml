@@ -16,6 +16,10 @@ inputs:
     description: 'blobber DOCKER IMAGE to deploy'
     default: ''
     required: false
+  is_enterprise_blobbers:
+    description: 'flag to enable enterprise blobbers'
+    default: 'false'
+    required: false
   validator_image:
     description: 'validator DOCKER IMAGE to deploy'
     default: ''
@@ -423,7 +427,7 @@ runs:
              --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
-             --set blobber.config.is_enterprise="false" \
+             --set blobber.config.is_enterprise=${{ input.is_enterprise_blobbers }} \
              --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
              --set blobber.hostName=${{ env.NAMESPACE }} \
              --set blobber.host=devnet-0chain.net \
