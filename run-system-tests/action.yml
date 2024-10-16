@@ -19,6 +19,10 @@ inputs:
     required: false
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: ''
+  zus_cli_branch:
+    required: false
+    description: 'zus CLI (branch or commit SHA) which the tests will use'
+    default: ''
   s3_migration_cli_branch:
     required: false
     description: 'S3 Migration CLI (branch or commit SHA) which the tests will use'
@@ -133,6 +137,7 @@ runs:
         
         ./check-params.sh "${{inputs.zbox_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"      "ZBOX_BRANCH"
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.zus_cli_branch}}"          "${{ env.SNAPSHOT_BRANCH_ZUSCLI_BRANCH }}"   "ZUSCLI_BRANCH"
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
         ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
@@ -224,6 +229,7 @@ runs:
         echo "0box network URL:              [0box.${{ env.NETWORK_URL }}]"
         echo "0box CLI branch:               [${{ env.ZBOX_BRANCH }}]"
         echo "0wallet CLI branch:            [${{ env.ZWALLET_BRANCH }}]"
+        echo "zus-cli branch:                [${{ env.ZUSCLI_BRANCH }}]"
         echo "s3 migration CLI branch:       [${{ env.S3_MIGRATION_BRANCH }}]"
         echo "Ethereum node URL:             [https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}]"
         echo "Custom gosdk version:          [${{ env.GOSDK_VERSION }}]"
@@ -257,6 +263,14 @@ runs:
         repository: 0chain/zboxcli
         fetch-depth: 1
         path: ./zboxcli
+
+    - name: "Checkout zus-cli"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.ZUSCLI_BRANCH }}
+        repository: 0chain/zus-cli
+        fetch-depth: 1
+        path: ./zus-cli
 
     - name: "Checkout S3 Migration CLI"
       uses: actions/checkout@v3
@@ -321,6 +335,8 @@ runs:
         ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
         cd ../zboxcli
         ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        cd ../zus-cli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zus-cli
         cd ../s3-migration 
         ../upgrade-gosdk.sh $GOSDK_HEAD zs3cli
         cd ../tests/cli_tests
@@ -336,7 +352,7 @@ runs:
       run: |
         echo
         echo "======================================================"
-        echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
+        echo "BUILDING 0WALLET, 0BOX AND ZUS CLI BINARIES:"
         echo "======================================================"
         echo
         
@@ -351,6 +367,11 @@ runs:
         cd ../zboxcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ../tests/cli_tests
+
+        echo "Building zus-cli [${{ env.ZUSCLI_BRANCH }}]..."
+        cd ../zus-cli
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=zus-cli build failed::zus-cli build failed" && exit 1; }
+        mv zus-cli ../tests/cli_tests
         
         echo "Building s3 migration CLI [${{ env.S3_MIGRATION_BRANCH }}]..."
         cd ../s3-migration
@@ -438,7 +459,13 @@ runs:
         mkdir -p ${BRANCH_DIR}/latest/flaky_cli
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
+
         cd tests/cli_tests
+        # create symlink
+        ln -s ./zus-cli ./zbox
+        ln -s ./zus-cli ./zwallet
+        echo "VERIFY SYMLINKS:"
+        ls -l ./zbox ./zwallet
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
         echo "TESTS_READY=true" >> $GITHUB_ENV
@@ -581,6 +608,7 @@ runs:
         
         cp tests/cli_tests/zwallet .
         cp tests/cli_tests/zbox .
+        cp tests/cli_tests/zus-cli .
 
         ####### CREATING ALLOCATION THAT SHOULD RECEIVE CHALLENGES #######
         truncate -s 1000000 upload_test_file
