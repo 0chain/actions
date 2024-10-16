@@ -56,6 +56,10 @@ inputs:
     required: false
     description: '0Wallet CLI (branch or commit SHA) which the tests will use'
     default: ''
+  zus_cli_branch:
+    required: false
+    description: 'zus CLI (branch or commit SHA) which the tests will use'
+    default: ''
   custom_go_sdk_version:
     required: false
     default: ""
@@ -168,6 +172,7 @@ runs:
         ./check-params.sh "${{inputs.zdns_image}}"             "${{ env.SNAPSHOT_BRANCH_ZDNS_TAG }}"         "ZDNS_TAG"
         ./check-params.sh "${{inputs.zbox_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"          "ZBOX_BRANCH"
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"     "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"       "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.zus_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_ZUSCLI }}"           "ZUSCLI_BRANCH"
         ./check-params.sh "${{inputs.zs3_minio}}"              "${{ env.SNAPSHOT_BRANCH_MIBIOSERVER_TAG }}"  "ZS3_MINIO"
         ./check-params.sh "${{inputs.zs3_logsearchapi}}"       "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
         ./check-params.sh "${{inputs.zs3_client}}"             "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
@@ -676,13 +681,21 @@ runs:
         fetch-depth: 1
         path: ./zboxcli
 
+    - name: "Checkout zus-cli"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.ZUSCLI_BRANCH }}
+        repository: 0chain/zus-cli
+        fetch-depth: 1
+        path: ./zus-cli
+
     - name: "Upgrade GoSDK"
       shell: 'script --return --quiet --command "bash {0}"'
       if: ${{ env.GOSDK_VERSION != '' && env.GOSDK_VERSION != 'NONE' }}
       run: |
         echo
         echo "=============================================================="
-        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI"
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI AND ZUSCLI"
         echo "=============================================================="
         echo
 
@@ -704,6 +717,8 @@ runs:
         ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
         cd ../zboxcli
         ../upgrade-gosdk.sh $GOSDK_HEAD zboxcli
+        cd ../zus-cli
+        ../upgrade-gosdk.sh $GOSDK_HEAD zus-cli
 
         sudo rm -rf upgrade-gosdk.sh
 
@@ -713,7 +728,7 @@ runs:
       run: |
         echo
         echo "======================================================"
-        echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
+        echo "BUILDING 0WALLET, 0BOX AND ZUS-CLI BINARIES:"
         echo "======================================================"
         echo
         # echo "removing go.work file if present"
@@ -734,6 +749,13 @@ runs:
         # make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ..
         echo "CLI build SUCCESS!"
+
+        echo "Building zus-cli [${{ env.ZUSCLI_BRANCH }}]..."
+        cd ../zus-cli
+        go mod tidy
+        docker run --rm -v ./:/zus-cli -w /zus-cli golang:1.23 make install > build.log 2>&1 || { cat build.log && echo "::error title=zus-cli build failed::zus-cli build failed" && exit 1; }
+        mv zus-cli ..
+        echo "zus-cli build SUCCESS!"
 
     - name: "Health Check"
       shell: 'script --return --quiet --command "bash {0}"'
