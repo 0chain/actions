@@ -314,7 +314,7 @@ runs:
       run: |
         echo
         echo "=============================================================="
-        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI, ZS3CLI & SYSTEM TESTS"
+        echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI, ZUSCLI, ZS3CLI & SYSTEM TESTS"
         echo "=============================================================="
         echo
         
@@ -463,9 +463,10 @@ runs:
         cd tests/cli_tests
         # create symlink
         ln -s ./zus-cli ./zbox
-        ln -s ./zus-cli ./zwallet
+        # ln -s ./zus-cli ./zwallet
         echo "VERIFY SYMLINKS:"
-        ls -l ./zbox ./zwallet
+        ls -l ./zbox
+        # ls -l ./zbox ./zwallet
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
         echo "TESTS_READY=true" >> $GITHUB_ENV
