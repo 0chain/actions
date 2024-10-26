@@ -462,10 +462,12 @@ runs:
 
         cd tests/cli_tests
         # create symlink
+        rm ./zbox
         ln -s ./zus-cli ./zbox
         # ln -s ./zus-cli ./zwallet
         echo "VERIFY SYMLINKS:"
         ls -l ./zbox
+        readlink ./zbox
         # ls -l ./zbox ./zwallet
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
