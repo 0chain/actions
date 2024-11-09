@@ -134,7 +134,7 @@ runs:
     - name: Setup go 1.22
       uses: actions/setup-go@v5
       with:
-        go-version: "1.21"
+        go-version: '1.22'
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
