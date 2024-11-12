@@ -414,6 +414,14 @@ runs:
         ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
         ##############----------------- Installing blobber helm-chart --------------------###################
+        if [[ "${{ env.IS_EBLOBBER }}" == "true" ]]; then
+          echo "BLOBBER_DOCKER_REPO=$(echo "0chaindev/eblobber")" >> $GITHUB_ENV
+          echo "VALIDATOR_DOCKER_REPO=$(echo "0chaindev/evalidator")" >> $GITHUB_ENV
+        else
+          echo "BLOBBER_DOCKER_REPO=$(echo "0chaindev/blobber")" >> $GITHUB_ENV
+          echo "VALIDATOR_DOCKER_REPO=$(echo "0chaindev/validator")" >> $GITHUB_ENV
+        fi
+
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the blobber helm-chart deployment
         while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
@@ -435,6 +443,8 @@ runs:
              --set blobber.host=devnet-0chain.net \
              --set blobber.image.tag=${{ env.BLOBBER_TAG }} \
              --set validator.image.tag=${{ env.VALIDATOR_TAG }} \
+             --set blobber.image.repository=${{ env.BLOBBER_DOCKER_REPO }} \
+             --set validator.image.repository=${{ env.VALIDATOR_DOCKER_REPO }} \
              --set validator.hostName=${{ env.NAMESPACE }} \
              --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }} \
              0chain-helm/blobber --kubeconfig ./kube/${{ env.NAMESPACE }}-config
