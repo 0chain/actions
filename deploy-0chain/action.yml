@@ -163,8 +163,14 @@ runs:
 
         ./check-params.sh "${{inputs.miner_image}}"            "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
         ./check-params.sh "${{inputs.sharder_image}}"          "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
-        ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
-        ./check-params.sh "${{inputs.validator_image}}"        "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
+        
+        if [[ ${{inputs.is_enterprise_blobbers}} == "true" ]]; then
+            ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_EBLOBBER_TAG }}"      "BLOBBER_TAG"
+            ./check-params.sh "${{inputs.validator_image}}"        "${{ env.SNAPSHOT_BRANCH_EVALIDATOR_TAG }}"    "VALIDATOR_TAG"
+        else
+            ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
+            ./check-params.sh "${{inputs.validator_image}}"        "${{ env.SNAPSHOT_BRANCH_VALIDATOR_TAG }}"    "VALIDATOR_TAG"
+        fi
         ./check-params.sh "${{inputs.authorizer_image}}"       "${{ env.SNAPSHOT_BRANCH_AUTHORIZER_TAG }}"   "AUTHORIZER_TAG"
         ./check-params.sh "${{inputs.zbox_image}}"             "${{ env.SNAPSHOT_BRANCH_ZBOX_TAG }}"         "ZBOX_TAG"
         ./check-params.sh "${{inputs.zvault_image}}"           "${{ env.SNAPSHOT_BRANCH_ZVAULT_TAG }}"       "ZVAULT_TAG"
