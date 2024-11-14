@@ -420,12 +420,12 @@ runs:
         ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
         ##############----------------- Installing blobber helm-chart --------------------###################
-        if [[ ${{inputs.is_enterprise_blobbers}} == "true" ]]; then
-          echo "BLOBBER_DOCKER_REPO=$(echo "0chaindev/eblobber")" >> $GITHUB_ENV
-          echo "VALIDATOR_DOCKER_REPO=$(echo "0chaindev/evalidator")" >> $GITHUB_ENV
+        if [[ "${{ env.IS_EBLOBBER }}" == "true" ]]; then
+          echo "BLOBBER_DOCKER_REPO=0chaindev/eblobber" >> $GITHUB_ENV
+          echo "VALIDATOR_DOCKER_REPO=0chaindev/evalidator" >> $GITHUB_ENV
         else
-          echo "BLOBBER_DOCKER_REPO=$(echo "0chaindev/blobber")" >> $GITHUB_ENV
-          echo "VALIDATOR_DOCKER_REPO=$(echo "0chaindev/validator")" >> $GITHUB_ENV
+          echo "BLOBBER_DOCKER_REPO=0chaindev/blobber" >> $GITHUB_ENV
+          echo "VALIDATOR_DOCKER_REPO=0chaindev/validator" >> $GITHUB_ENV
         fi
 
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
