@@ -420,7 +420,7 @@ runs:
         ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
         ##############----------------- Installing blobber helm-chart --------------------###################
-        if [[ "${{ env.IS_EBLOBBER }}" == "true" ]]; then
+        if [[ ${{ env.IS_EBLOBBER }} == "true" ]]; then
           echo "BLOBBER_DOCKER_REPO=$(echo "0chaindev/eblobber")" >> $GITHUB_ENV
           echo "VALIDATOR_DOCKER_REPO=$(echo "0chaindev/evalidator")" >> $GITHUB_ENV
         else
