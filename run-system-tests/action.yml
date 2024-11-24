@@ -23,10 +23,6 @@ inputs:
     required: false
     description: "0Mc CLI (branch or commit SHA) which the tests will use"
     default: "staging"
-  minio_cli_branch:
-    required: false
-    description: "0Minio CLI (branch or commit SHA) which the tests will use"
-    default: "staging"
   warp_cli_branch:
     required: false
     description: "0Warp CLI (branch or commit SHA) which the tests will use"
