@@ -146,7 +146,6 @@ runs:
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
         ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
         ./check-params.sh "${{inputs.mc_cli_branch}}"           "${{ env.SNAPSHOT_BRANCH_MC_BRANCH }}"    "MC_BRANCH"
-        ./check-params.sh "${{inputs.minio_cli_branch}}"        "${{ env.SNAPSHOT_BRANCH_MINIO_BRANCH }}" "MINIO_BRANCH"
         ./check-params.sh "${{inputs.warp_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_WARP_BRANCH }}"  "WARP_BRANCH"
 
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
@@ -293,13 +292,11 @@ runs:
         fetch-depth: 1
         path: ./mc
 
-    - name: "Checkout 0Minio CLI"
-      uses: actions/checkout@v3
+    - name: "Set up Go 1.22"
+      uses: actions/setup-go@v2
       with:
-        ref: ${{ env.MINIO_BRANCH || 'staging' }}
-        repository: 0chain/zs3server
-        fetch-depth: 1
-        path: ./minio
+        go-version: "1.22.1"
+        cache: "go"
 
     - name: "Checkout 0Warp CLI"
       uses: actions/checkout@v3
@@ -402,11 +399,6 @@ runs:
         cd ../mc
         make install > build.log 2>&1 || { cat build.log && echo "::error title=mc CLI build failed::mc CLI build failed" && exit 1; }
         mv mc ../tests/cli_tests
-
-        echo "Building minio CLI master branch...."
-        cd ../minio
-        go build .
-        mv minio ../tests/cli_tests
 
 
         echo "Building warp CLI master branch...."
