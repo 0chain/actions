@@ -11,10 +11,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup go 1.21
+    - name: Setup go 1.22
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.22'
 
     - name: "Convert file"
       shell: 'script --return --quiet --command "bash {0}"'
