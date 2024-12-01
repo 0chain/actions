@@ -366,7 +366,6 @@ runs:
              --set blobber.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set validator.config.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
              --set blobber.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
-             --set blobber.config.is_enterprise="false" \
              --set blobber.config.update_allocations_interval=5s \
              --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
              --set blobber.hostName=${{ env.NAMESPACE }} \
