@@ -131,10 +131,10 @@ runs:
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
 
-    - name: Setup go 1.21
+    - name: Setup go 1.22
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.22'
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3

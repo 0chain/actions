@@ -460,6 +460,7 @@ runs:
              --set zbox.config.funding.referral_award_tokens=1000 \
              --set zbox.config.kafka.trigger_round=0 \
              --set zbox.config.kafka.enabled=true \
+             --set zbox.config.zus_blobber.write_price=0.1 \
              --set zbox.image.tag=${{ env.ZBOX_TAG }} -n ${{ env.NAMESPACE }} \
              0chain-helm/zbox --kubeconfig ./kube/${{ env.NAMESPACE }}-config
            RET=$?
