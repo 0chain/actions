@@ -462,13 +462,14 @@ runs:
 
         cd tests/cli_tests
         # create symlink
-        rm ./zbox
+        echo "CREATING SYMLINKS:"
+        rm -f ./zbox ./zwallet
         ln -s ./zus-cli ./zbox
-        # ln -s ./zus-cli ./zwallet
+        ln -s ./zus-cli ./zwallet
         echo "VERIFY SYMLINKS:"
-        ls -l ./zbox
+        ls -l ./zbox ./zwallet
         readlink ./zbox
-        # ls -l ./zbox ./zwallet
+        readlink ./zwallet
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
         echo "TESTS_READY=true" >> $GITHUB_ENV
