@@ -15,12 +15,26 @@ inputs:
     default: 'http://minio:9000'
 
 runs:
-  using: 'docker'
-  image: 'docker://minio/minio:latest'  # Correct format for Docker image
-  args:
-    - |
-      # Start the MinIO container
-      docker run -d --name minio -p 9000:9000 -p 9001:9001 \
-        -e "MINIO_ACCESS_KEY=${{ inputs.minio_access_key }}" \
-        -e "MINIO_SECRET_KEY=${{ inputs.minio_secret_key }}" \
-        min
+  using: 'composite'  # This allows you to run a set of actions in sequence
+  steps:
+    - name: Deploy MinIO
+      run: |
+        docker run -d --name minio -p 9000:9000 -p 9001:9001 \
+          -e "MINIO_ACCESS_KEY=${{ inputs.minio_access_key }}" \
+          -e "MINIO_SECRET_KEY=${{ inputs.minio_secret_key }}" \
+          minio/minio server /data --console-address ":9001"
+        
+        # Wait for MinIO to be ready
+        echo "Waiting for MinIO to start..."
+        sleep 10
+
+    - name: Run Health Checks
+      run: |
+        curl -X "GET" "${{ inputs.minio_url }}/minio/health/live"
+        curl -X "GET" "${{ inputs.minio_url }}/minio/health/ready"
+        echo "MinIO health checks passed."
+
+    - name: Additional Tests (Optional)
+      run: |
+        # Additional test steps (e.g., create a bucket, upload objects)
+        echo "You can add more tests here."
