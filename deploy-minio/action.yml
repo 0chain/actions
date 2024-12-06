@@ -1,0 +1,54 @@
+name: Deploy and Test MinIO
+
+description: 'Deploy MinIO and run tests against it'
+
+inputs:
+  minio_access_key:
+    description: 'MinIO access key'
+    required: true
+  minio_secret_key:
+    description: 'MinIO secret key'
+    required: true
+
+runs:
+  using: 'composite'  # This allows you to run a set of actions in sequence
+  steps:
+    - name: Check if MinIO container exists
+      shell: bash
+      run: |
+        # Check if the MinIO container already exists
+        existing_container=$(docker ps -aq -f name=minio)
+        if [ -n "$existing_container" ]; then
+          echo "MinIO container already exists. Stopping and removing it."
+          docker stop minio
+          docker rm minio
+        fi
+
+    - name: Deploy MinIO
+      shell: bash  # Explicitly define the shell
+      run: |
+        echo "Deploying MinIO server..."
+        docker run -d --name minio -p 9000:9000 -p 9001:9001 \
+          -e "MINIO_ACCESS_KEY=${{ inputs.minio_access_key }}" \
+          -e "MINIO_SECRET_KEY=${{ inputs.minio_secret_key }}" \
+          minio/minio server /data --console-address ":9001"
+        
+        # Wait for MinIO to start
+        echo "Waiting for MinIO to start..."
+        sleep 10  # Adjust the sleep time based on your environment
+
+    - name: Run Health Checks
+      shell: bash  # Explicitly define the shell
+      run: |
+        echo "Running health checks for MinIO at ${{ env.NETWORK_URL }}..."
+        
+        # Health check for MinIO using the NETWORK_URL environment variable
+        curl -X "GET" "${{ env.NETWORK_URL }}/minio/health/live"
+        curl -X "GET" "${{ env.NETWORK_URL }}/minio/health/ready"
+        echo "MinIO health checks passed."
+
+    - name: Additional Tests (Optional)
+      shell: bash  # Explicitly define the shell
+      run: |
+        # Additional test steps (e.g., create a bucket, upload objects)
+        echo "You can add more tests here."
