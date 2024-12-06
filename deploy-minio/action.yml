@@ -1,41 +1,38 @@
-stages:
-  - setup
-  - test
+name: Deploy and Test MinIO
 
-services:
-  - name: minio/minio
-    alias: minio
-    entrypoint:
-      - "minio"
-      - "server"
-      - "/data"
-    command:
-      - "--console-address"
-      - ":9001"
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+description: 'Deploy MinIO and run tests against it'
 
-# Define environment variables to interact with MinIO
-variables:
-  MINIO_ACCESS_KEY: "rootroot"
-  MINIO_SECRET_KEY: "rootroot"
-  MINIO_URL: "http://minio:9000"
-  MINIO_CONSOLE_URL: "http://minio:9001"
+inputs:
+  minio_access_key:
+    description: 'MinIO access key'
+    required: true
+  minio_secret_key:
+    description: 'MinIO secret key'
+    required: true
+  minio_url:
+    description: 'MinIO URL'
+    required: true
+    default: 'http://minio:9000'
 
+runs:
+  using: 'docker'
+  image: 'docker:latest'
+  args:
+    - |
+      # Start the MinIO container
+      docker run -d --name minio -p 9000:9000 -p 9001:9001 \
+        -e "MINIO_ACCESS_KEY=${{ inputs.minio_access_key }}" \
+        -e "MINIO_SECRET_KEY=${{ inputs.minio_secret_key }}" \
+        minio/minio server /data --console-address ":9001"
+      
+      # Wait for MinIO to be ready
+      echo "Waiting for MinIO to start..."
+      sleep 10  # Add a small delay to let MinIO initialize
 
-setup_minio:
-  stage: setup
-  script:
-    - echo "MinIO setup completed."
-  only:
-    - main
+      # Run health checks
+      curl -X "GET" "${{ inputs.minio_url }}/minio/health/live"
+      curl -X "GET" "${{ inputs.minio_url }}/minio/health/ready"
 
-run_tests:
-  stage: test
-  script:
-    - curl -X "GET" "$MINIO_URL/minio/health/live"
-    - curl -X "GET" "$MINIO_URL/minio/health/ready"
-    - echo "Running test against MinIO server"
-  only:
-    - main
+      # Your custom test script or additional testing commands here
+      echo "Running tests against MinIO..."
+      curl -X "GET" "${{ inputs.minio_url }}/minio/health/live"  # Example health check
