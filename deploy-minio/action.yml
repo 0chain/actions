@@ -16,23 +16,11 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker:latest'
+  image: 'docker://minio/minio:latest'  # Correct format for Docker image
   args:
     - |
       # Start the MinIO container
       docker run -d --name minio -p 9000:9000 -p 9001:9001 \
         -e "MINIO_ACCESS_KEY=${{ inputs.minio_access_key }}" \
         -e "MINIO_SECRET_KEY=${{ inputs.minio_secret_key }}" \
-        minio/minio server /data --console-address ":9001"
-      
-      # Wait for MinIO to be ready
-      echo "Waiting for MinIO to start..."
-      sleep 10  # Add a small delay to let MinIO initialize
-
-      # Run health checks
-      curl -X "GET" "${{ inputs.minio_url }}/minio/health/live"
-      curl -X "GET" "${{ inputs.minio_url }}/minio/health/ready"
-
-      # Your custom test script or additional testing commands here
-      echo "Running tests against MinIO..."
-      curl -X "GET" "${{ inputs.minio_url }}/minio/health/live"  # Example health check
+        min
