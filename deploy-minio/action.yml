@@ -9,10 +9,6 @@ inputs:
   minio_secret_key:
     description: 'MinIO secret key'
     required: true
-  minio_url:
-    description: 'MinIO URL'
-    required: true
-    default: 'http://minio:9000'
 
 runs:
   using: 'composite'  # This allows you to run a set of actions in sequence
@@ -20,6 +16,7 @@ runs:
     - name: Deploy MinIO
       shell: bash  # Explicitly define the shell
       run: |
+        echo "Deploying MinIO server..."
         docker run -d --name minio -p 9000:9000 -p 9001:9001 \
           -e "MINIO_ACCESS_KEY=${{ inputs.minio_access_key }}" \
           -e "MINIO_SECRET_KEY=${{ inputs.minio_secret_key }}" \
@@ -27,13 +24,16 @@ runs:
         
         # Wait for MinIO to be ready
         echo "Waiting for MinIO to start..."
-        sleep 10
+        sleep 10  # Adjust the sleep time based on your environment
 
     - name: Run Health Checks
       shell: bash  # Explicitly define the shell
       run: |
-        curl -X "GET" "${{ inputs.minio_url }}/minio/health/live"
-        curl -X "GET" "${{ inputs.minio_url }}/minio/health/ready"
+        echo "Running health checks for MinIO at ${{ env.NETWORK_URL }}..."
+        
+        # Health check for MinIO using the NETWORK_URL environment variable
+        curl -X "GET" "${{ env.NETWORK_URL }}/minio/health/live"
+        curl -X "GET" "${{ env.NETWORK_URL }}/minio/health/ready"
         echo "MinIO health checks passed."
 
     - name: Additional Tests (Optional)
