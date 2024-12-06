@@ -13,6 +13,17 @@ inputs:
 runs:
   using: 'composite'  # This allows you to run a set of actions in sequence
   steps:
+    - name: Check if MinIO container exists
+      shell: bash
+      run: |
+        # Check if the MinIO container already exists
+        existing_container=$(docker ps -aq -f name=minio)
+        if [ -n "$existing_container" ]; then
+          echo "MinIO container already exists. Stopping and removing it."
+          docker stop minio
+          docker rm minio
+        fi
+
     - name: Deploy MinIO
       shell: bash  # Explicitly define the shell
       run: |
@@ -22,7 +33,7 @@ runs:
           -e "MINIO_SECRET_KEY=${{ inputs.minio_secret_key }}" \
           minio/minio server /data --console-address ":9001"
         
-        # Wait for MinIO to be ready
+        # Wait for MinIO to start
         echo "Waiting for MinIO to start..."
         sleep 10  # Adjust the sleep time based on your environment
 
