@@ -279,7 +279,7 @@ runs:
         sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/yarn.gpg
         sudo sed -i '/yarnpkg/d' /etc/apt/sources.list.d/yarn.list
         sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
-       
+        
         # echo
         # echo "2> installing youtube-dl..."
         # sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
@@ -329,7 +329,7 @@ runs:
         ../../upgrade-gosdk.sh $GOSDK_HEAD "API System Tests"
         
         sudo rm -rf upgrade-gosdk.sh
-        
+
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -411,6 +411,7 @@ runs:
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1P]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^K0P][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0Tenderly[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TENDERLY_TEST_RUNNER_COMMAND.sh && chmod 777 TENDERLY_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestProtocolChallengeTimings[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=30m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHALLENGE_API_TEST_RUNNER_COMMAND.sh && chmod 777 CHALLENGE_API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestProtocolChallenge[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHALLENGE_TEST_RUNNER_COMMAND.sh && chmod 777 CHALLENGE_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^TestMonitoring[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > MONITORING_TEST_RUNNER_COMMAND.sh && chmod 777 MONITORING_TEST_RUNNER_COMMAND.sh
@@ -444,7 +445,7 @@ runs:
         echo "TESTS_READY=true" >> $GITHUB_ENV
 
     - name: "Set up frontend tests"
-      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
+      if: ${{ env.RUN_FRONTEND_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -462,7 +463,7 @@ runs:
         cd ..
 
     - name: Run frontend Tests
-      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ env.RUN_FRONTEND_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       uses: cypress-io/github-action@v5
       with:
         working-directory: ./gosdk/wasmsdk/cypress
@@ -472,7 +473,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ always() && env.TESTS_READY && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -555,6 +556,50 @@ runs:
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
           ./${{ env.BRANCH_DIR }}/latest/s3cli/index.html
+
+    - name: "Run TENDERLY (authorizer, validator & bridge) system tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.TENDERLY_VIRTUAL_TESTNET_RPC_ID != '' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING TENDERLY (authorizer, validator & bridge) SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+        
+        export HOME="/root"
+        GOPATH=$(echo $(go env GOPATH))
+
+        cd tests/cli_tests
+        system_tests_exit_code=0
+        echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
+        echo
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TENDERLY_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tenderly/index.html --title "0Chain TENDERLY (authorizer, validator & bridge) System tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo TENDERLY_TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TENDERLY_TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+        
+        exit $system_tests_exit_code
+
+    - name: "Archive TENDERLY (authorizer, validator & bridge) Config & Console Output"
+      continue-on-error: true
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.TENDERLY_VIRTUAL_TESTNET_RPC_ID != '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: System-Test-${{ env.TEST_TIME }}
+        path: |
+          ./tests/cli_tests/config
+          ./tests/cli_tests/cmdlog.log
+          ./${{ env.BRANCH_DIR }}/latest/tenderly/index.html
 
     - name: "Run Challenge System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -712,7 +757,7 @@ runs:
         
           ./zbox updateallocation --lock 0.1 --add_blobber "$add_blobber_id" --remove_blobber "$remove_blobber_id" --allocation "$(cat allocation5.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
           ./zbox upload --allocation "$(cat allocation5.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-          
+        
           # Insert add and remove blobber id in challenge_blobbers.txt
           echo "$add_blobber_id" >> challenge_blobbers.txt
           echo "$remove_blobber_id" >> challenge_blobbers.txt
@@ -816,7 +861,7 @@ runs:
 
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../MONITORING_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoringtestscli/index.html --title "0Chain System test suite: Monitoring tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-  
+        
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli ../../${{ env.BRANCH_DIR }}/latest/
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoringtestscli ../../${{ env.BRANCH_DIR }}/latest/
@@ -833,7 +878,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
-      if:  ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
@@ -904,7 +949,7 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ always() && env.TESTS_READY && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -941,7 +986,7 @@ runs:
 
     - name: "Run Chimney Blobber System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ always() && env.TESTS_READY && env.RUN_CHIMNEY_BLOBBER_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_CHIMNEY_BLOBBER_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -1009,7 +1054,7 @@ runs:
         fi
 
     - name: "Run Flaky CLI System Tests"
-      if:  ${{ always() && env.TESTS_READY && env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -1161,7 +1206,7 @@ runs:
           ./logs/validator-05
           ./logs/validator-06
         retention-days: 5
-    
+
     - name: "Archive Crash Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
@@ -1170,7 +1215,7 @@ runs:
         name: logging-crashed-pods
         path: |
           ./logs/crashed-logs.txt
-          
+
         retention-days: 5
 
     - name: "Deploy report pages"
