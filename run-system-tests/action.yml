@@ -83,7 +83,7 @@ inputs:
     default: "false"
     description: 'Run chimney blobber tests'
   TENDERLY_VIRTUAL_TESTNET_RPC_ID:
-    required: true
+    required: false
     description: 'Tenderly virtual testnet RPC ID is used to use Tenderly virtual testnet simulations for bridge tests'
   DEVOPS_CHANNEL_WEBHOOK_URL:
     required: false
