@@ -82,6 +82,10 @@ inputs:
     required: false
     default: "false"
     description: 'Run chimney blobber tests'
+  run_tenderly_tests:
+    required: false
+    default: "false"
+    description: 'Run tenderly (validators, authorizers & bridge) tests'
   TENDERLY_VIRTUAL_TESTNET_RPC_ID:
     required: false
     description: 'Tenderly virtual testnet RPC ID is used to use Tenderly virtual testnet simulations for bridge tests'
@@ -169,6 +173,13 @@ runs:
             echo RUN_S3_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
         
+        if [ "${{ inputs.run_tenderly_tests }}" == "false" ];
+          then
+            echo RUN_TENDERLY_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_TENDERLY_TESTS=true >> $GITHUB_ENV
+        fi
+        
         if [ "${{ inputs.run_api_system_tests }}" == "false" ];
           then
             echo RUN_API_SYSTEM_TESTS=false >> $GITHUB_ENV
@@ -230,6 +241,7 @@ runs:
         echo "Test file filter:              [${{ inputs.test_file_filter }}]"
         echo "Running CLI tests:             [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
         echo "Running S3 CLI tests:          [${{ env.RUN_S3_CLI_SYSTEM_TESTS }}]"
+        echo "Running Tenderly (validators, authorizers & bridge) tests: [${{ env.RUN_TENDERLY_TESTS }}]"
         echo "Running API tests:             [${{ env.RUN_API_SYSTEM_TESTS }}]"
         echo "Running Tokenomics tests:      [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
         echo "Running Chimney Blobber tests: [${{ env.RUN_CHIMNEY_BLOBBER_TESTS }}]"
@@ -385,21 +397,26 @@ runs:
         sed "s,chimney_test_network:.*,chimney_test_network: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
 
-        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/config.yaml
-        sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/config.yaml
-        sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/config.yaml
-        sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/config.yaml
-        sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/config.yaml
-        sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/config.yaml
+        if [ "${{ env.RUN_TENDERLY_TESTS }} == true ] &&  [ "${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}" != "" ]; then
+          sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/config.yaml
+          sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/config.yaml
+          sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/config.yaml
+          sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/config.yaml
+          sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/config.yaml
+          sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/config.yaml
 
-        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/zbox_config.yaml
-        sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/zbox_config.yaml
+          sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
+          sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/zbox_config.yaml
+          sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/zbox_config.yaml
+          sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/zbox_config.yaml
+          sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/zbox_config.yaml
+          sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/zbox_config.yaml
 
-        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
+          sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
+        else
+          echo "Tenderly tests are disabled since TENDERLY_VIRTUAL_TESTNET_RPC_ID is not provided"
+        fi
+        
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zvault_url:.*,zvault_url: https://zvault.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zauth_url:.*,zauth_url: https://zauth.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
@@ -559,7 +576,7 @@ runs:
 
     - name: "Run TENDERLY (authorizer, validator & bridge) system tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.TENDERLY_VIRTUAL_TESTNET_RPC_ID != '' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_TENDERLY_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
@@ -577,7 +594,7 @@ runs:
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TENDERLY_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tenderly/index.html --title "0Chain TENDERLY (authorizer, validator & bridge) System tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
 
-        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/s3cli ../../${{ env.BRANCH_DIR }}/latest/
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tenderly ../../${{ env.BRANCH_DIR }}/latest/
         echo "TESTS_RAN=true" >> $GITHUB_ENV
 
         if [[ $system_tests_exit_code == 0 ]];
@@ -585,14 +602,14 @@ runs:
             echo TENDERLY_TESTS_PASSED=true >> $GITHUB_ENV
           else
             echo TENDERLY_TESTS_PASSED=false >> $GITHUB_ENV
-            echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+            echo "::error title=TENDERLY CLI System tests faled!::TENDERLY CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
         
         exit $system_tests_exit_code
 
     - name: "Archive TENDERLY (authorizer, validator & bridge) Config & Console Output"
       continue-on-error: true
-      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.TENDERLY_VIRTUAL_TESTNET_RPC_ID != '' }}
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_TENDERLY_TESTS == 'true' }}
       uses: actions/upload-artifact@v3
       with:
         name: System-Test-${{ env.TEST_TIME }}
