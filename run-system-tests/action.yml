@@ -397,26 +397,21 @@ runs:
         sed "s,chimney_test_network:.*,chimney_test_network: https://${{ env.NETWORK_URL }}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zs3_server_url:.*,zs3_server_url: https://${{ env.NETWORK_URL }}/zs3server," -i ./tests/api_tests/config/api_tests_config.yaml
 
-        if [ "${{ env.RUN_TENDERLY_TESTS }} == true ] &&  [ "${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}" != "" ]; then
-          sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/config.yaml
-          sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/config.yaml
-          sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/config.yaml
-          sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/config.yaml
-          sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/config.yaml
-          sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/config.yaml
+        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/config.yaml
+        sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/config.yaml
+        sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/config.yaml
+        sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/config.yaml
+        sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/config.yaml
+        sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/config.yaml
 
-          sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
-          sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/zbox_config.yaml
-          sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/zbox_config.yaml
-          sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/zbox_config.yaml
-          sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/zbox_config.yaml
-          sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,token_address:.*,token_address: 0xb9EF770B6A5e12E45983C5D80545258aA38F3B78," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,bridge_address:.*,bridge_address: 0x7700D773022b19622095118Fadf46f7B9448Be9b," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,authorizer_address:.*,authorizer_address: 0x481daB4407b9880DE0A68dc62E6aF611c4949E42," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,ethereum_address:.*,ethereum_address: 0x8E25cfd9bd6c0ca67a5522cd920b3c66D39d6E97," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,password:.*,password: \"12345678\"," -i ./tests/cli_tests/config/zbox_config.yaml
 
-          sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
-        else
-          echo "Tenderly tests are disabled since TENDERLY_VIRTUAL_TESTNET_RPC_ID is not provided"
-        fi
-        
+        sed "s,ethereum_node_url:.*,ethereum_node_url: 'https://virtual.mainnet.rpc.tenderly.co/${{ inputs.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}'," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,0box_url:.*,0box_url: https://0box.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zvault_url:.*,zvault_url: https://zvault.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
         sed "s,zauth_url:.*,zauth_url: https://zauth.${{ env.NETWORK_URL }}," -i ./tests/api_tests/config/api_tests_config.yaml
