@@ -459,17 +459,7 @@ runs:
         mkdir -p ${BRANCH_DIR}/latest/flaky_cli
         mkdir -p ${BRANCH_DIR}/latest/tokenomics
 
-
         cd tests/cli_tests
-        # create symlink
-        echo "CREATING SYMLINKS:"
-        rm -f ./zbox ./zwallet
-        ln -s ./zus-cli ./zbox
-        ln -s ./zus-cli ./zwallet
-        echo "VERIFY SYMLINKS:"
-        ls -l ./zbox ./zwallet
-        readlink ./zbox
-        readlink ./zwallet
         (./zwallet version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZWallet Version Info:/") || true
         (./zbox version --configDir ./config --config ./zbox_config.yaml --wallet ../ignore --silent | grep -A2 'Version info' | sed "s/Version info:/ZBox Version Info:/") || true
         echo "TESTS_READY=true" >> $GITHUB_ENV
@@ -612,7 +602,6 @@ runs:
         
         cp tests/cli_tests/zwallet .
         cp tests/cli_tests/zbox .
-        cp tests/cli_tests/zus-cli .
 
         ####### CREATING ALLOCATION THAT SHOULD RECEIVE CHALLENGES #######
         truncate -s 1000000 upload_test_file
@@ -837,6 +826,58 @@ runs:
         GOPATH=$(echo $(go env GOPATH))
 
         cd tests/cli_tests
+        system_tests_exit_code=0
+        echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
+        echo
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html --title "0Chain System test suite [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../KILL_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli/index.html --title "0Chain System test suite: Kill tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../MONITORING_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoringtestscli/index.html --title "0Chain System test suite: Monitoring tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+  
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli ../../${{ env.BRANCH_DIR }}/latest/
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoringtestscli ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+
+        exit $system_tests_exit_code
+
+    - name: "Run zus-cli system tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CLI_SYSTEM_TESTS == 'true' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+        
+        export HOME="/root"
+
+        GOPATH=$(echo $(go env GOPATH))
+
+        # create symlink
+        echo "CREATING SYMLINKS:"
+        rm -f ./zbox ./zwallet
+        ln -s ./zus-cli ./zbox
+        ln -s ./zus-cli ./zwallet
+        echo "VERIFY SYMLINKS:"
+        ls -l ./zbox ./zwallet
+        readlink ./zbox
+        readlink ./zwallet
+
+        # cd tests/cli_tests
         system_tests_exit_code=0
         echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
         echo
