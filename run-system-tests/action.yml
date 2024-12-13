@@ -892,6 +892,7 @@ runs:
 
         GOPATH=$(echo $(go env GOPATH))
 
+        echo "CLI_TESTS_DIR=$(pwd)/tests/cli_tests" >> $GITHUB_ENV
         cd tests/cli_tests
         system_tests_exit_code=0
         echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
@@ -935,6 +936,8 @@ runs:
         GOPATH=$(echo $(go env GOPATH))
 
         # create symlink
+        cd $CLI_TESTS_DIR
+        echo "Current Directory: $(pwd)"
         echo "CREATING SYMLINKS:"
         rm -f ./zbox ./zwallet
         ln -s ./zus-cli ./zbox
@@ -944,7 +947,6 @@ runs:
         readlink ./zbox
         readlink ./zwallet
 
-        # cd tests/cli_tests
         system_tests_exit_code=0
         echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
         echo
