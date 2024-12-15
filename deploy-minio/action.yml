@@ -24,6 +24,12 @@ runs:
           docker rm minio
         fi
 
+    - name: Set up MinIO client with default keys
+      run: |
+          export MINIO_ACCESS_KEY=${{ inputs.minio_access_key || 'rootroot' }}
+          export MINIO_SECRET_KEY=${{ inputs.minio_secret_key || 'rootroot' }}
+          echo "Accessing MinIO with keys"
+
     - name: Deploy MinIO
       shell: bash # Explicitly define the shell
       run: |
