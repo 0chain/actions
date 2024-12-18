@@ -510,23 +510,28 @@ runs:
         done
 
         ##############----------------- Installing authorizer helm-chart --------------------###################
-        COUNT=3       #COUNT will be giving 3 try to install the helmchart.
-        RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
-        while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
-           helm upgrade --install authorizer \
-             --set authorizer.config.nativeEventFetch=true \
-             --set authorizer.authorizerCount=3 \
-             --set authorizer.hostName=${{ env.NAMESPACE }} \
-             --set authorizer.host=devnet-0chain.net \
-             --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} \
-             --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
-             --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} \
-             -n ${{ env.NAMESPACE }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
-           RET=$?
-           ((COUNT--))
-           echo "Retrying helm install"
-           sleep 2
-        done
+        if [[ ${{ env.ETHEREUM_NODE_URL }} != "" ]];
+          then
+            COUNT=3       #COUNT will be giving 3 try to install the helmchart.
+            RET=1         #You can set RET=0 to skip the authorizer helm-chart deployment
+            while [[ $RET -ne 0 && $COUNT -gt 0 ]]; do
+              helm upgrade --install authorizer \
+                --set authorizer.config.nativeEventFetch=true \
+                --set authorizer.authorizerCount=3 \
+                --set authorizer.hostName=${{ env.NAMESPACE }} \
+                --set authorizer.host=devnet-0chain.net \
+                --set authorizer.image.tag=${{ env.AUTHORIZER_TAG }} \
+                --set authorizer.config.config_yaml.block_worker=https://${{ env.NAMESPACE }}.devnet-0chain.net/dns \
+                --set authorizer.config.config_yaml.ethereum_node_url=${{ env.ETHEREUM_NODE_URL }} \
+                -n ${{ env.NAMESPACE }} 0chain-helm/authorizer --kubeconfig ./kube/${{ env.NAMESPACE }}-config
+              RET=$?
+              ((COUNT--))
+              echo "Retrying helm install"
+              sleep 2
+            done
+          else
+            echo "Skipping authorizers deployment..."
+        fi
         ' > ./deploy.sh;
         chmod 777 ./deploy.sh;
 
@@ -921,6 +926,7 @@ runs:
         EOF
 
     - name: "Register Authorizers"
+      if: ${{ env.ETHEREUM_NODE_URL != "" }}
       shell: 'script --return --quiet --command "bash {0}"'
       continue-on-error: true
       run: |
