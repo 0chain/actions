@@ -926,7 +926,7 @@ runs:
         EOF
 
     - name: "Register Authorizers"
-      if: ${{ env.ETHEREUM_NODE_URL != "" }}
+      if: ${{ env.ETHEREUM_NODE_URL != '' }}
       shell: 'script --return --quiet --command "bash {0}"'
       continue-on-error: true
       run: |
