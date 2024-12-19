@@ -217,19 +217,6 @@ jobs:
         version: '1.7'
         force: 'false'
         
-    - name: "Create Tenderly virtual testnet"
-      run: |
-        echo "TENDERLY_CREATION_INFO=$(curl -X POST \
-            -H "x-access-key: ${{ secrets.TENDERLY_SECRET }}" \
-            -H "Content-Type: application/json" \
-            -d '{"slug":"mainnet-dev-${{ env.RUNNER_NUMBER }}-${{ github.run_id }}","displayName":"mainnet-dev-${{ env.RUNNER_NUMBER }}-${{ github.run_id }}","description":"","visibility":"TEAM","tags":{"purpose":"development"},"networkConfig":{"networkId":"1","blockNumber":"18512782","chainConfig":{"chainId":"1"},"baseFeePerGas":"1"},"explorerConfig":{"enabled":false,"verificationVisibility":"bytecode"},"syncState":false}' \
-            https://api.tenderly.co/api/v1/account/zus_network/project/project/testnet/container)" >> $GITHUB_ENV
-
-    - name: "Parse Tenderly virtual testnet creation transaction result"
-      run: |
-        echo "TENDERLY_VIRTUAL_TESTNET_ID=$(echo '${{ env.TENDERLY_CREATION_INFO }}' | jq -r '.container.id')" >> $GITHUB_ENV
-        echo "TENDERLY_VIRTUAL_TESTNET_RPC_ID=$(echo '${{ env.TENDERLY_CREATION_INFO }}' | jq -r '.container.connectivityConfig.endpoints[0].id')" >> $GITHUB_ENV
-
     - name: "Get docker images for feature branches"
       if: ${{ env.SKIP_TESTS != 'true' }}
       uses: 0chain/actions/get-latest-image-for-branch@master
@@ -285,14 +272,14 @@ jobs:
         zbox_cli_branch: ${{ inputs.zbox_cli_branch }}
         zwallet_cli_branch: ${{ inputs.zwallet_cli_branch }}
         custom_go_sdk_version: ${{ env.GOSDK_SHA }}
-        TENDERLY_VIRTUAL_TESTNET_RPC_ID: ${{ env.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}
+        TENDERLY_VIRTUAL_TESTNET_RPC_ID: ""
         SUBGRAPH_API_URL: ${{ secrets.SUBGRAPH_API_URL }}
         zs3_client: ${{ steps.get-images.outputs.blimp_clientapi-tag }}
         zs3_logsearchapi: ${{ steps.get-images.outputs.blimp_logsearchapi-tag }}
         zs3_minio:  ${{ steps.get-images.outputs.blimp_minioserver-tag }}
         graphnode_sc: ${{ secrets.GRAPHNODE_SC }}
         graphnode_network: ${{ secrets.GRAPHNODE_NETWORK }}
-        graphnode_ethereum_node_url: https://virtual.mainnet.rpc.tenderly.co/${{ env.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}
+        graphnode_ethereum_node_url: ""
         svc_account_secret: ${{ secrets.SVC_ACCOUNT_SECRET }}
 
     - name: "Run System tests"
@@ -317,20 +304,12 @@ jobs:
         run_tokenomics_system_tests: ${{ inputs.run_tokenomics_system_tests }}
         run_smoke_tests: ${{ inputs.run_smoke_tests }}
         run_frontend_tests: ${{ inputs.run_frontend_tests }}
-        TENDERLY_VIRTUAL_TESTNET_RPC_ID: ${{ env.TENDERLY_VIRTUAL_TESTNET_RPC_ID }}
+        TENDERLY_VIRTUAL_TESTNET_RPC_ID: ""
         DEVOPS_CHANNEL_WEBHOOK_URL: ${{ secrets.DEVOPS_CHANNEL_WEBHOOK_URL }}
         S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
         S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         s3_migration_cli_branch: ${{ inputs.s3_migration_cli_branch }}
 
-    - name: "Remove Tenderly virtual testnet"
-      if: always()
-      run: |
-        curl -X DELETE \
-          -H "x-access-key: ${{ secrets.TENDERLY_SECRET }}" \
-          -H "Content-Type: application/json" \
-          https://api.tenderly.co/api/v1/account/zus_network/project/project/testnet/container/${{ env.TENDERLY_VIRTUAL_TESTNET_ID }}
-        
     - name: "Runner tidy up"
       if: always()
       continue-on-error: true
