@@ -488,7 +488,7 @@ runs:
         if [[ ${{ env.RUN_TENDERLY_TESTS }} == "true" ]];
           then
             echo "Running Tenderly tests..."
-            printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0Tenderly[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TENDERLY_TEST_RUNNER_COMMAND.sh && chmod 777 TENDERLY_TEST_RUNNER_COMMAND.sh
+            printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0Tenderly[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml TENDERLY_ENABLED=true go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TENDERLY_TEST_RUNNER_COMMAND.sh && chmod 777 TENDERLY_TEST_RUNNER_COMMAND.sh
           else
             echo "Skipping Tenderly tests..."
         fi
