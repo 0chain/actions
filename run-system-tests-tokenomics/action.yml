@@ -340,8 +340,6 @@ runs:
           else
             echo TOKENOMICS_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
-        fi $GITHUB_ENV
-            echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
         exit $tokenomics_system_tests_exit_code
@@ -393,6 +391,8 @@ runs:
             echo TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
+
+        exit $system_tests_exit_code
 
     - name: "Archive Tokenomics Test Config & Console Output"
       continue-on-error: true
