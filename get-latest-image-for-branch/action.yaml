@@ -17,7 +17,7 @@ inputs:
     description: 'blobber branch to deploy'
     default: ''
     required: false
-  eblobber_validator_branch:
+  eblobber_evalidator_branch:
     description: 'eblobber branch to deploy'
     default: ''
     required: false
@@ -224,6 +224,14 @@ runs:
             ./get_tag.sh blobber ${{ inputs.blobber_validator_branch }} validator
           else
             echo "blobber_validator_branch NOT specified, will skip deriving blobber and validator image tag"
+        fi
+        
+        if [[ -n "${{ inputs.eblobber_evalidator_branch }}" ]];
+          then
+            ./get_tag.sh blobber ${{ inputs.eblobber_evalidator_branch }} blobber
+            ./get_tag.sh blobber ${{ inputs.eblobber_evalidator_branch }} validator
+          else
+            echo "eblobber_evalidator_branch NOT specified, will skip deriving eblobber and evalidator image tag"
         fi
         
         if [[ -n "${{ inputs.authorizer_branch }}" ]];
