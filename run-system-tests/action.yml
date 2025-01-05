@@ -2,101 +2,114 @@ name: "0Chain System Tests"
 description: "Run 0Chain System Tests"
 inputs:
   repo_snapshots_branch:
-    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit branch params.'
-    default: ''
+    description: "Branch of repo-snapshots that should be used to select images. Overrides explicit branch params."
+    default: ""
     required: false
   system_tests_branch:
     required: false
-    description: 'System tests branch to run'
+    description: "System tests branch to run"
   network:
     required: true
-    description: 'Network to run system tests against INSTEAD OF DEPLOYING A NEW NETWORK. [example: dev.0chain.net]'
+    description: "Network to run system tests against INSTEAD OF DEPLOYING A NEW NETWORK. [example: dev.0chain.net]"
   zbox_cli_branch:
     required: false
-    description: '0Box CLI (branch or commit SHA) which the tests will use'
-    default: ''
+    description: "0Box CLI (branch or commit SHA) which the tests will use"
+    default: ""
   zwallet_cli_branch:
     required: false
-    description: '0Wallet CLI (branch or commit SHA) which the tests will use'
-    default: ''
+    description: "0Wallet CLI (branch or commit SHA) which the tests will use"
+    default: ""
+  mc_cli_branch:
+    required: false
+    description: "0Mc CLI (branch or commit SHA) which the tests will use"
+    default: "staging"
+  warp_cli_branch:
+    required: false
+    description: "0Warp CLI (branch or commit SHA) which the tests will use"
+    default: "master"
+
   s3_migration_cli_branch:
     required: false
-    description: 'S3 Migration CLI (branch or commit SHA) which the tests will use'
-    default: ''
+    description: "S3 Migration CLI (branch or commit SHA) which the tests will use"
+    default: ""
   deploy_report_page:
     required: true
     default: "true"
-    description: ''
+    description: ""
   archive_results:
     required: true
     default: "true"
-    description: ''
+    description: ""
   run_flaky_tests:
     required: true
     default: "true"
-    description: ''
+    description: ""
   retry_failures:
     required: true
     default: "true"
-    description: 'retry failing tests up to 3 times. will not retry when >10 tests have failed as this suggests a wider issue'
+    description: "retry failing tests up to 3 times. will not retry when >10 tests have failed as this suggests a wider issue"
   svc_account_secret:
     required: false
-    description: 'secret used to publish test results - will use your own credentials if not supplied'
+    description: "secret used to publish test results - will use your own credentials if not supplied"
   custom_go_sdk_version:
     required: true
     default: "NONE"
-    description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+    description: "custom gosdk version. Will upgrade CLI branches with this before running tests"
   test_file_filter:
     required: false
     default: ""
-    description: 'Subset of system tests to run'
+    description: "Subset of system tests to run"
   run_cli_system_tests:
     required: false
     default: "true"
-    description: 'Enable or disable CLI system tests'
+    description: "Enable or disable CLI system tests"
   run_s3mgrt_system_tests:
     required: false
     default: "true"
-    description: 'Enable or disable S3 migration CLI system tests'
+    description: "Enable or disable S3 migration CLI system tests"
   run_api_system_tests:
     required: false
     default: "true"
-    description: 'Enable or disable API system tests'
+    description: "Enable or disable API system tests"
   run_challenge_system_tests:
     required: false
     default: "false"
-    description: 'Enable or disable Challenge system tests'
+    description: "Enable or disable Challenge system tests"
   run_frontend_tests:
     required: false
     default: "true"
-    description: 'Run frontend system tests (cypress tests)'
+    description: "Run frontend system tests (cypress tests)"
   run_tokenomics_system_tests:
     required: false
     default: "false"
-    description: 'Enable or disable tokenomics system tests'
+    description: "Enable or disable tokenomics system tests"
   run_smoke_tests:
     required: false
     default: "false"
-    description: 'Run subset of system tests (smoke tests)'
+    description: "Run subset of system tests (smoke tests)"
   run_chimney_blobber_tests:
     required: false
     default: "false"
     description: 'Run chimney blobber tests'
+  run_tenderly_tests:
+    required: false
+    default: "false"
+    description: 'Run tenderly (validators, authorizers & bridge) tests'
   TENDERLY_VIRTUAL_TESTNET_RPC_ID:
-    required: true
+    required: false
     description: 'Tenderly virtual testnet RPC ID is used to use Tenderly virtual testnet simulations for bridge tests'
   DEVOPS_CHANNEL_WEBHOOK_URL:
     required: false
     default: ""
-    description: 'notification url'
+    description: "notification url"
   S3_SECRET_KEY:
     required: false
     default: ""
-    description: 's3 secret key'
+    description: "s3 secret key"
   S3_ACCESS_KEY:
     required: false
     default: ""
-    description: 's3 access key'
+    description: "s3 access key"
 
 runs:
   using: "composite"
@@ -130,13 +143,15 @@ runs:
         fi
         ' > ./check-params.sh;
         chmod 777 check-params.sh
-        
+
         ./check-params.sh "${{inputs.zbox_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"      "ZBOX_BRANCH"
         ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
         ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
         ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
         ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
-        
+        ./check-params.sh "${{inputs.mc_cli_branch}}"           "${{ env.SNAPSHOT_BRANCH_MC_BRANCH }}"    "MC_BRANCH"
+        ./check-params.sh "${{inputs.warp_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_WARP_BRANCH }}"  "WARP_BRANCH"
+
         echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
         echo "GOMODCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/go/pkg/mod" >> $GITHUB_ENV
         echo "GOCACHE=/root/actions-runner${RUNNER_NAME:(-1)}/_work/_tool/.cache/go-build" >> $GITHUB_ENV
@@ -146,15 +161,15 @@ runs:
 
         echo "RUN_SMOKE_TESTS : $RUN_SMOKE_TESTS"
         echo "run_smoke_tests : ${{ inputs.run_smoke_tests }}"
-        
-        
+
+
         if [[ "${{ inputs.run_frontend_tests }}" == "true"  || ("$GOSDK_VERSION" != "" && "$GOSDK_VERSION" != "NONE") ]];
           then
             echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
           else
             echo RUN_FRONTEND_TESTS=false >> $GITHUB_ENV
         fi   
-        
+
         if [ "${{ inputs.run_cli_system_tests }}" == "false" ];
           then
             echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
@@ -169,13 +184,20 @@ runs:
             echo RUN_S3_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
         
+        if [ "${{ inputs.run_tenderly_tests }}" == "false" ];
+          then
+            echo RUN_TENDERLY_TESTS=false >> $GITHUB_ENV
+          else
+            echo RUN_TENDERLY_TESTS=true >> $GITHUB_ENV
+        fi
+        
         if [ "${{ inputs.run_api_system_tests }}" == "false" ];
           then
             echo RUN_API_SYSTEM_TESTS=false >> $GITHUB_ENV
           else
             echo RUN_API_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
-        
+
         if [ "${{ inputs.retry_failures }}" == "true" ];
           then
             echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
@@ -196,7 +218,7 @@ runs:
           else
             echo RUN_CHALLENGE_SYSTEM_TESTS=true >> $GITHUB_ENV
         fi
-        
+
         if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ];
           then
             echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
@@ -230,11 +252,18 @@ runs:
         echo "Test file filter:              [${{ inputs.test_file_filter }}]"
         echo "Running CLI tests:             [${{ env.RUN_CLI_SYSTEM_TESTS }}]"
         echo "Running S3 CLI tests:          [${{ env.RUN_S3_CLI_SYSTEM_TESTS }}]"
+        echo "Running Tenderly (validators, authorizers & bridge) tests: [${{ env.RUN_TENDERLY_TESTS }}]"
         echo "Running API tests:             [${{ env.RUN_API_SYSTEM_TESTS }}]"
         echo "Running Tokenomics tests:      [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
         echo "Running Chimney Blobber tests: [${{ env.RUN_CHIMNEY_BLOBBER_TESTS }}]"
         echo "Running smoke tests:           [${{ env.RUN_SMOKE_TESTS }}]"
         echo "Running frontend tests:        [${{ env.RUN_FRONTEND_TESTS }}]"
+
+    - name: "Set up Go 1.22"
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.22"
+        cache: "go"
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -267,6 +296,28 @@ runs:
         path: ./s3-migration
         token: "${{ inputs.svc_account_secret }}"
 
+    - name: "Checkout 0MC CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.MC_BRANCH || 'staging' }}
+        repository: 0chain/mc
+        fetch-depth: 1
+        path: ./mc
+
+    - name: "Set up Go 1.22"
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.22.1"
+        cache: "go"
+
+    - name: "Checkout 0Warp CLI"
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.WARP_BRANCH || 'master' }}
+        repository: pewssh/warp
+        fetch-depth: 1
+        path: ./warp
+
     - name: "Install dependencies"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -279,13 +330,13 @@ runs:
         sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/yarn.gpg
         sudo sed -i '/yarnpkg/d' /etc/apt/sources.list.d/yarn.list
         sudo echo "deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list
-       
+        
         # echo
         # echo "2> installing youtube-dl..."
         # sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install youtube-dl" && exit 1; }
         # sudo chmod a+rx /usr/local/bin/youtube-dl
         # echo
-        
+
         # echo "3> installing ffmpeg..."
         # sudo apt update > build.log 2>&1 || { sleep 60 && apt update > build.log 2>&1 || { cat build.log && exit 1; }; }
         # sudo apt install -y ffmpeg > build.log 2>&1 || { sleep 60 && sudo apt install -y ffmpeg > build.log 2>&1 || { cat build.log && echo "::error title=Failed to install test dependency::failed to install ffmpeg" && exit 1; }; }
@@ -303,20 +354,20 @@ runs:
         echo "UPGRADING GOSDK IN ZBOXCLI, ZWALLETCLI, ZS3CLI & SYSTEM TESTS"
         echo "=============================================================="
         echo
-        
+
         GOSDK_HEAD=$(curl -s -H "Authorization: token ${{ inputs.svc_account_secret }}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${{ env.GOSDK_VERSION }} | jq -r '.object.sha')
         if [[ "$GOSDK_HEAD" == "null" ]]; then
             echo "[${{ env.GOSDK_VERSION }}] does not seem to be a valid branch (possibly a commit hash?). Will pass directly to go to resolve"
             GOSDK_HEAD="${{ env.GOSDK_VERSION }}"
         fi
-        
+
         echo '#!/bin/bash
         echo "Upgrading [$2] to GOSDK [${{ env.GOSDK_VERSION }}($1)]"
         go get github.com/0chain/gosdk@$1 || { echo "::error title=Failed to retrieve gosdk::failed to retrieve gosdk [${{ env.GOSDK_VERSION }}]" && exit 1; }
         go mod tidy || { echo "::error title=Failed to upgrade $2 gosdk::failed to upgrade $2 gosdk to [${{ env.GOSDK_VERSION }}]" && exit 1; }
         ' > ./upgrade-gosdk.sh;
         chmod 555 ./upgrade-gosdk.sh
-        
+
         cd ./zwalletcli 
         ../upgrade-gosdk.sh $GOSDK_HEAD zwalletcli
         cd ../zboxcli
@@ -327,9 +378,10 @@ runs:
         ../../upgrade-gosdk.sh $GOSDK_HEAD "CLI System Tests"
         cd ../api_tests
         ../../upgrade-gosdk.sh $GOSDK_HEAD "API System Tests"
-        
+
         sudo rm -rf upgrade-gosdk.sh
-        
+
+
 
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -339,24 +391,35 @@ runs:
         echo "BUILDING 0WALLET AND 0BOX CLI BINARIES:"
         echo "======================================================"
         echo
-        
+
         export HOME="/root"
-        
+
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ../tests/cli_tests
-        
+
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ../tests/cli_tests
-        
+
         echo "Building s3 migration CLI [${{ env.S3_MIGRATION_BRANCH }}]..."
         cd ../s3-migration
         make build > build.log 2>&1 || { cat build.log && echo "::error title=s3 migration CLI build failed::s3 migration CLI build failed" && exit 1; }
         mv s3mgrt ../tests/cli_tests
-        
+                
+        echo "Building mc CLI staging branch...."
+        cd ../mc
+        make install > build.log 2>&1 || { cat build.log && echo "::error title=mc CLI build failed::mc CLI build failed" && exit 1; }
+        mv mc ../tests/cli_tests
+
+
+        echo "Building warp CLI master branch...."
+        cd ../warp
+        go build > build.log 2>&1 || { cat build.log && echo "::error title=warp CLI build failed::warp CLI build failed" && exit 1; }
+        mv warp ../tests/cli_tests
+
         echo "CLI build SUCCESS!"
 
     - name: "Set up system tests"
@@ -375,7 +438,7 @@ runs:
         BRANCH_DIR=$(echo $([ -z '${{ github.event.pull_request.head.sha }}' ] && echo ${GITHUB_REF#refs/*/} || echo $GITHUB_HEAD_REF) |  sed 's/\//_/g')
         echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
         echo "TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')" >> $GITHUB_ENV
-        
+
         go install gotest.tools/gotestsum@latest
         go install github.com/vakenbolt/go-test-report@latest
 
@@ -407,7 +470,9 @@ runs:
         sed "s,s3_bucket_name_alternate:.*,s3_bucket_name_alternate: alternate-test-bucket-${{ env.RUNNER_NUMBER }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         sed "s,s3_access_key:.*,s3_access_key: ${{ inputs.S3_ACCESS_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
         sed "s,s3_secret_key:.*,s3_secret_key: ${{ inputs.S3_SECRET_KEY }}," -i ./tests/cli_tests/config/cli_tests_config.yaml
+
         
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0Tenderly[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TENDERLY_TEST_RUNNER_COMMAND.sh && chmod 777 TENDERLY_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1P]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^K0P][^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TEST_RUNNER_COMMAND.sh && chmod 777 TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0S3[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
@@ -418,6 +483,16 @@ runs:
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/tokenomics_tests_config.yaml go test -timeout=120m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TOKENOMICS_TEST_RUNNER_COMMAND.sh && chmod 777 TOKENOMICS_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test1ChimneyBlobberRewards$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=90m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > CHIMNEY_BLOBBER_TEST_RUNNER_COMMAND.sh && chmod 777 CHIMNEY_BLOBBER_TEST_RUNNER_COMMAND.sh
         printf '#!/bin/bash\nset -o pipefail\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml go test -timeout=60m -run  "^Test___Flaky.*$" ./... -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > FLAKY_TEST_RUNNER_COMMAND.sh && chmod 777 FLAKY_TEST_RUNNER_COMMAND.sh
+
+
+        if [[ ${{ env.RUN_TENDERLY_TESTS }} == "true" ]];
+          then
+            echo "Running Tenderly tests..."
+            printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0Tenderly[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${{ env.RUN_SMOKE_TESTS }} CONFIG_PATH=./zbox_config.yaml TENDERLY_ENABLED=true go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\/[pP]arallel\\")/d"' > TENDERLY_TEST_RUNNER_COMMAND.sh && chmod 777 TENDERLY_TEST_RUNNER_COMMAND.sh
+          else
+            echo "Skipping Tenderly tests..."
+        fi
+
 
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/api
         mkdir -p ${BRANCH_DIR}/${GITHUB_SHA}/cli
@@ -444,7 +519,7 @@ runs:
         echo "TESTS_READY=true" >> $GITHUB_ENV
 
     - name: "Set up frontend tests"
-      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' }}
+      if: ${{ env.RUN_FRONTEND_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -462,7 +537,7 @@ runs:
         cd ..
 
     - name: Run frontend Tests
-      if:  ${{ env.RUN_FRONTEND_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ env.RUN_FRONTEND_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       uses: cypress-io/github-action@v5
       with:
         working-directory: ./gosdk/wasmsdk/cypress
@@ -472,7 +547,7 @@ runs:
 
     - name: "Run API System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ always() && env.TESTS_READY && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_API_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -498,7 +573,7 @@ runs:
             echo API_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=API System tests faled!::API System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
-        
+
         exit $api_system_tests_exit_code
 
     - name: "Archive API Test Config & Console Output"
@@ -542,7 +617,7 @@ runs:
             echo S3CLI_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=S3 CLI System tests faled!::S3 CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
-        
+
         exit $system_tests_exit_code
 
     - name: "Archive S3CLI Config & Console Output"
@@ -555,6 +630,50 @@ runs:
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
           ./${{ env.BRANCH_DIR }}/latest/s3cli/index.html
+
+    - name: "Run TENDERLY (authorizer, validator & bridge) system tests"
+      shell: 'script --return --quiet --command "bash {0}"'
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_TENDERLY_TESTS == 'true' }}
+      run: |
+        echo
+        echo "======================================================"
+        echo "RUNNING TENDERLY (authorizer, validator & bridge) SYSTEM TESTS:"
+        echo "======================================================"
+        echo
+        
+        export HOME="/root"
+        GOPATH=$(echo $(go env GOPATH))
+
+        cd tests/cli_tests
+        system_tests_exit_code=0
+        echo "Sequential tests are currently running.... It will take a few minutes for initial test output to appear..."
+        echo
+        ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../TENDERLY_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+        cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tenderly/index.html --title "0Chain TENDERLY (authorizer, validator & bridge) System tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
+
+        cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/tenderly ../../${{ env.BRANCH_DIR }}/latest/
+        echo "TESTS_RAN=true" >> $GITHUB_ENV
+
+        if [[ $system_tests_exit_code == 0 ]];
+          then
+            echo TENDERLY_TESTS_PASSED=true >> $GITHUB_ENV
+          else
+            echo TENDERLY_TESTS_PASSED=false >> $GITHUB_ENV
+            echo "::error title=TENDERLY CLI System tests faled!::TENDERLY CLI System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
+        fi
+        
+        exit $system_tests_exit_code
+
+    - name: "Archive TENDERLY (authorizer, validator & bridge) Config & Console Output"
+      continue-on-error: true
+      if: ${{ env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_TENDERLY_TESTS == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: System-Test-${{ env.TEST_TIME }}
+        path: |
+          ./tests/cli_tests/config
+          ./tests/cli_tests/cmdlog.log
+          ./${{ env.BRANCH_DIR }}/latest/tenderly/index.html
 
     - name: "Run Challenge System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -578,7 +697,7 @@ runs:
         store_unlock_duration_sec: 2
         ' > config.yaml
         echo '{"client_id":"a9652ec2b8d32b860f9cc00e989a2ce574f93f84886168866775d625b12eac50","client_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","keys":[{"public_key":"c7db9e0640566ed3352104377786b21df491b026898af0c0dd62241638cc700d07d23f6890afc9e3a1606f76130bc5658b4bcce16d074ef97ed11d90adb867a2","private_key":"d35ac69eb7338167a01a34804a280ef534800bc885fcb10dbfc7b51c9df25b10"}],"mnemonics":"country suspect autumn silk blade chief suffer cigar into fortune lazy letter million length bullet cube project parrot race lock lawsuit donor glad basket","version":"1.0","date_created":"1661874692","nonce":0}' > zs3wallet.json
-        
+
         cp tests/cli_tests/zwallet .
         cp tests/cli_tests/zbox .
 
@@ -588,7 +707,7 @@ runs:
         ./zbox newallocation --lock 0.2 --data 3 --parity 3 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation1.txt
         echo "Allocation 1 hash: $(cat allocation1.txt)"
         ./zbox upload --allocation "$(cat allocation1.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        
+
         ####### CREATING ALLOCATION WITH UPLOAD AND DELETE THAT SHOULD NOT RECEIVE CHALLENGES #######
         ./zwallet faucet --methodName "pour" --tokens 10 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 0.2 --data 3 --parity 3 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
@@ -596,48 +715,48 @@ runs:
         ./zbox upload --allocation "$(cat allocation2.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         sleep 5
         ./zbox delete --allocation "$(cat allocation2.txt)" --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        
+
         ####### CREATING EMPTY ALLOCATION SHOULD NOT RECEIVE CHALLENGES #######
         ./zwallet faucet --methodName "pour" --tokens 10 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 0.2 --data 3 --parity 3 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation3.txt
         echo "Allocation 3 hash: $(cat allocation3.txt)"
-        
+
         ######## Updating allocation with add blobber and added blobber should receive challenges #######
         ./zwallet faucet --methodName "pour" --tokens 10 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 0.2 --data 2 --parity 2 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation4.txt
         echo "Allocation 4 hash: $(cat allocation4.txt)"
-        
+
         # Get the allocation response using the zbox command and store it in a variable
         allocation_response=$(./zbox getallocation --allocation "$(cat allocation4.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --json)
-        
+
         echo "Allocation response:"
         echo "$allocation_response"
-        
+
         # Get the ls-blobbers response using the zbox command and store it in a variable
         ls_blobbers_response=$(./zbox ls-blobbers --configDir . --config ./config.yaml --wallet ./zs3wallet.json --json)
-        
+
         echo "ls-blobbers response:"
         echo "$ls_blobbers_response"
-        
+
         # Extract blobber IDs from the get-allocation response
         blobber_ids=$(echo "$allocation_response" | jq -r '.blobbers[].id')
-        
+
         echo "Blobber IDs in the allocation response:"
         echo "$blobber_ids"
-        
+
         # Extract blobber IDs from the ls-blobbers response
         ls_blobber_ids=$(echo "$ls_blobbers_response" | jq -r '.[].id')
-        
+
         echo "Blobber IDs in the ls-blobbers response:"
         echo "$ls_blobber_ids"
-        
+
         while IFS= read -r blobber_id; do
           echo "Checking Blobber ID: $blobber_id"
-        
+
           # Check if the Blobber ID exists in the allocation response
           exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
           echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
-        
+
           # If the Blobber ID does not exist in the allocation response, select it and break the loop
           if [ -z "$exists_in_allocation" ]; then
             add_blobber_id=$blobber_id
@@ -645,43 +764,43 @@ runs:
             break
           fi
         done <<< $ls_blobber_ids
-        
+
         ./zbox updateallocation --lock 0.05 --add_blobber "$add_blobber_id" --allocation "$(cat allocation4.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox upload --allocation "$(cat allocation4.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        
+
         # Insert add blobber id in challenge_blobbers.txt
         echo "$add_blobber_id" >> challenge_blobbers.txt
-        
+
         ######## Updating allocation with add and remove blobber and where added blobber should receive and removed blobber should not receive challenges ########
         ./zwallet faucet --methodName "pour" --tokens 10 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 0.2 --data 2 --parity 2 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation5.txt
         echo "Allocation 5 hash: $(cat allocation5.txt)"
-        
+
         # Get the allocation response using the zbox command and store it in a variable
         allocation_response=$(./zbox getallocation --allocation "$(cat allocation5.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --json)
-        
+
         # Get the ls-blobbers response using the zbox command and store it in a variable
         ls_blobbers_response=$(./zbox ls-blobbers --configDir . --config ./config.yaml --wallet ./zs3wallet.json --json)
-        
+
         # Extract blobber IDs from the get-allocation response
         blobber_ids=$(echo "$allocation_response" | jq -r '.blobbers[].id')
-        
+
         # Extract blobber IDs from the ls-blobbers response
         ls_blobber_ids=$(echo "$ls_blobbers_response" | jq -r '.[].id')
-        
+
         # Logging
         echo "Blobber IDs in the allocation response:"
         echo "$blobber_ids"
         echo "Blobber IDs in the ls-blobbers response:"
         echo "$ls_blobber_ids"
-        
+
         while IFS= read -r blobber_id; do
           echo "Checking Blobber ID: $blobber_id"
-        
+
           # Check if the Blobber ID exists in the allocation response
           exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
           echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
-        
+
           # If the Blobber ID does not exist in the allocation response, select it and break the loop
           if [ -n "$exists_in_allocation" ]; then
             remove_blobber_id=$blobber_id
@@ -689,14 +808,14 @@ runs:
             break
           fi
         done <<< $ls_blobber_ids
-        
+
         while IFS= read -r blobber_id; do
           echo "Checking Blobber ID: $blobber_id"
-        
+
           # Check if the Blobber ID exists in the allocation response
           exists_in_allocation=$(echo "$blobber_ids" | grep -w "$blobber_id")
           echo "Blobber ID $blobber_id exists in allocation response: $exists_in_allocation"
-        
+
           # If the Blobber ID does not exist in the allocation response, select it and break the loop
           if [ -z "$exists_in_allocation" ]; then
             add_blobber_id=$blobber_id
@@ -704,20 +823,20 @@ runs:
             break
           fi
         done <<< $ls_blobber_ids
-        
+
         if [ -z "$add_blobber_id" ]; then
           echo "All Blobbers are in use. Randomly selected Blobber ID: $add_blobber_id"
         else 
           echo "Randomly selected Blobber ID: $add_blobber_id"
-        
+
           ./zbox updateallocation --lock 0.1 --add_blobber "$add_blobber_id" --remove_blobber "$remove_blobber_id" --allocation "$(cat allocation5.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
           ./zbox upload --allocation "$(cat allocation5.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-          
+        
           # Insert add and remove blobber id in challenge_blobbers.txt
           echo "$add_blobber_id" >> challenge_blobbers.txt
           echo "$remove_blobber_id" >> challenge_blobbers.txt
         fi
-        
+
         ####### CANCELLED ALLOCATION SHOULD NOT GET CHALLENGES ANYMORE #######
         ./zwallet faucet --methodName "pour" --tokens 10 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 0.2 --data 3 --parity 3 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation6.txt
@@ -725,18 +844,18 @@ runs:
         ./zbox upload --allocation "$(cat allocation6.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         sleep 5
         ./zbox alloc-cancel --allocation "$(cat allocation6.txt)" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
-        
+
         # Storing all three allocation IDs in a single file
         touch challenge_allocations.txt
         cat allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt allocation6.txt > challenge_allocations.txt
-        
+
         # Removing redundant files
         rm allocation1.txt allocation2.txt allocation3.txt allocation4.txt allocation5.txt allocation6.txt
-        
+
         # List all the files in current dir 
         echo "Files in current dir:"
         echo "$(ls -l)"
-        
+
         # cat challenge_allocations.txt and challenge_blobbers.txt
         echo "challenge_allocations.txt:"
         echo "$(cat challenge_allocations.txt)"
@@ -799,7 +918,7 @@ runs:
         echo "RUNNING SYSTEM TESTS:"
         echo "======================================================"
         echo
-        
+
         export HOME="/root"
 
         GOPATH=$(echo $(go env GOPATH))
@@ -816,7 +935,7 @@ runs:
 
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../MONITORING_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoringtestscli/index.html --title "0Chain System test suite: Monitoring tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
-  
+
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli ../../${{ env.BRANCH_DIR }}/latest/
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/killtestscli ../../${{ env.BRANCH_DIR }}/latest/
         cp -R ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/monitoringtestscli ../../${{ env.BRANCH_DIR }}/latest/
@@ -833,7 +952,7 @@ runs:
         exit $system_tests_exit_code
 
     - name: "Run subset of CLI System Tests"
-      if:  ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         export HOME="/root"
@@ -904,7 +1023,7 @@ runs:
 
     - name: "Run Tokenomics System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ always() && env.TESTS_READY && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -941,7 +1060,7 @@ runs:
 
     - name: "Run Chimney Blobber System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if:  ${{ always() && env.TESTS_READY && env.RUN_CHIMNEY_BLOBBER_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
+      if: ${{ always() && env.TESTS_READY && env.RUN_CHIMNEY_BLOBBER_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
       run: |
         echo
         echo "======================================================"
@@ -1009,7 +1128,7 @@ runs:
         fi
 
     - name: "Run Flaky CLI System Tests"
-      if:  ${{ always() && env.TESTS_READY && env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
+      if: ${{ always() && env.TESTS_READY && env.TESTS_PASSED == 'true' && inputs.run_flaky_tests == 'true' }}
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         echo
@@ -1019,7 +1138,7 @@ runs:
         echo
         export HOME="/root"
         GOPATH=$(echo $(go env GOPATH))
-        
+
         cd tests/cli_tests
         rm -rf cmdlog.log || true
         rm -rf test-output.json || true
@@ -1038,7 +1157,6 @@ runs:
           ./tests/cli_tests/config
           ./tests/cli_tests/cmdlog.log
           ./${{ env.BRANCH_DIR }}/latest/flaky_cli/index.html
-
 
     - name: "Extract Logs From Pods"
       continue-on-error: true
@@ -1161,7 +1279,7 @@ runs:
           ./logs/validator-05
           ./logs/validator-06
         retention-days: 5
-    
+
     - name: "Archive Crash Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
@@ -1170,7 +1288,7 @@ runs:
         name: logging-crashed-pods
         path: |
           ./logs/crashed-logs.txt
-          
+
         retention-days: 5
 
     - name: "Deploy report pages"

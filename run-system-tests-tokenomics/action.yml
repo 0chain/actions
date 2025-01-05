@@ -2,38 +2,38 @@ name: "0Chain System Tests"
 description: "Run 0Chain System Tests"
 inputs:
   repo_snapshots_branch:
-    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit branch params.'
-    default: ''
+    description: "Branch of repo-snapshots that should be used to select images. Overrides explicit branch params."
+    default: ""
     required: false
   system_tests_branch:
     required: false
-    description: 'System tests branch to run'
+    description: "System tests branch to run"
   network:
     required: true
-    description: 'Network to run system tests against INSTEAD OF DEPLOYING A NEW NETWORK. [example: dev.0chain.net]'
+    description: "Network to run system tests against INSTEAD OF DEPLOYING A NEW NETWORK. [example: dev.0chain.net]"
   zbox_cli_branch:
     required: false
-    description: '0Box CLI (branch or commit SHA) which the tests will use'
-    default: ''
+    description: "0Box CLI (branch or commit SHA) which the tests will use"
+    default: ""
   zwallet_cli_branch:
     required: false
-    description: '0Wallet CLI (branch or commit SHA) which the tests will use'
-    default: ''
+    description: "0Wallet CLI (branch or commit SHA) which the tests will use"
+    default: ""
   deploy_report_page:
     required: true
     default: "true"
-    description: ''
+    description: ""
   archive_results:
     required: true
     default: "true"
-    description: ''
+    description: ""
   retry_failures:
     required: true
     default: "true"
-    description: 'retry failing tests up to 3 times. will not retry when >10 tests have failed as this suggests a wider issue'
+    description: "retry failing tests up to 3 times. will not retry when >10 tests have failed as this suggests a wider issue"
   svc_account_secret:
     required: false
-    description: 'secret used to publish test results - will use your own credentials if not supplied'
+    description: "secret used to publish test results - will use your own credentials if not supplied"
   custom_go_sdk_version:
     required: true
     default: "NONE"
@@ -41,22 +41,22 @@ inputs:
   use_egosdk:
     required: false
     default: "false"
-    description: 'use egosdk instead of gosdk for enterprise blobbers network'
+    description: "custom gosdk version. Will upgrade CLI branches with this before running tests"
   tokenomics_test_filter:
     required: false
     default: ""
-    description: 'Subset of tokenomics tests to run'
+    description: "Subset of tokenomics tests to run"
   run_tokenomics_system_tests:
     required: false
     default: "false"
-    description: 'Enable or disable tokenomics system tests'
+    description: "Enable or disable tokenomics system tests"
   TENDERLY_VIRTUAL_TESTNET_RPC_ID:
     required: true
-    description: 'Tenderly virtual testnet RPC ID is used to use Tenderly virtual testnet simulations for bridge tests'
+    description: "Tenderly virtual testnet RPC ID is used to use Tenderly virtual testnet simulations for bridge tests"
   DEVOPS_CHANNEL_WEBHOOK_URL:
     required: false
     default: ""
-    description: 'notification url'
+    description: "notification url"
 
 runs:
   using: "composite"
@@ -147,10 +147,10 @@ runs:
         echo "Test file filter:         [${{ inputs.test_file_filter }}]"
         echo "Running Tokenomics tests: [${{ env.RUN_TOKENOMICS_SYSTEM_TESTS }}]"
 
-    - name: Setup go 1.21
+    - name: Setup go 1.22
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.22'
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -209,7 +209,6 @@ runs:
 
         # echo "4> installing cypress dependencies..."
         # apt install -y yarn libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-
 
     - name: "Upgrade GoSDK"
       shell: 'script --return --quiet --command "bash {0}"'
@@ -384,8 +383,6 @@ runs:
           else
             echo TOKENOMICS_TESTS_PASSED=false >> $GITHUB_ENV
             echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
-        fi $GITHUB_ENV
-            echo "::error title=Tokenomics System tests faled!::Tokenomics System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
         exit $tokenomics_system_tests_exit_code
@@ -438,6 +435,8 @@ runs:
             echo "::error title=System tests faled!::System tests failed. Ensure tests are running against the correct images/branches and rule out any possible code issues before attempting a re-run"
         fi
 
+        exit $system_tests_exit_code
+
     - name: "Archive Tokenomics Test Config & Console Output"
       continue-on-error: true
       if: ${{ always() && env.RUN_TOKENOMICS_SYSTEM_TESTS == 'true' && env.RUN_SUBSET_OF_TESTS == 'false' }}
@@ -479,7 +478,6 @@ runs:
           else
             echo "NOT preforming system stability check because network was not deployed as part of this test run"
         fi
-
 
     - name: "Extract Logs From Pods"
       continue-on-error: true
