@@ -65,8 +65,10 @@ outputs:
     value: ${{ steps.get-images.outputs.VALIDATOR_TAG }}
   eblobber-tag:
     description: "eblobber docker image"
+    value: ${{ steps.get-images.outputs.EBLOBBER_TAG }}
   evalidator-tag:
     description: "evalidator docker image"
+    value: ${{ steps.get-images.outputs.EVALUATOR_TAG }}
   authorizer-tag:
     description: "authorizer docker image"
     value: ${{ steps.get-images.outputs.AUTHORIZER_TAG }}
@@ -228,8 +230,8 @@ runs:
         
         if [[ -n "${{ inputs.eblobber_evalidator_branch }}" ]];
           then
-            ./get_tag.sh blobber ${{ inputs.eblobber_evalidator_branch }} blobber
-            ./get_tag.sh blobber ${{ inputs.eblobber_evalidator_branch }} validator
+            ./get_tag.sh eblobber ${{ inputs.eblobber_evalidator_branch }} eblobber
+            ./get_tag.sh eblobber ${{ inputs.eblobber_evalidator_branch }} evalidator
           else
             echo "eblobber_evalidator_branch NOT specified, will skip deriving eblobber and evalidator image tag"
         fi
