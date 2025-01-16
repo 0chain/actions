@@ -17,6 +17,10 @@ inputs:
     description: 'blobber branch to deploy'
     default: ''
     required: false
+  eblobber_evalidator_branch:
+    description: 'eblobber branch to deploy'
+    default: ''
+    required: false
   authorizer_branch:
     description: 'authorizer branch to deploy'
     default: ''
@@ -59,6 +63,12 @@ outputs:
   validator-tag:
     description: "validator docker image"
     value: ${{ steps.get-images.outputs.VALIDATOR_TAG }}
+  eblobber-tag:
+    description: "eblobber docker image"
+    value: ${{ steps.get-images.outputs.EBLOBBER_TAG }}
+  evalidator-tag:
+    description: "evalidator docker image"
+    value: ${{ steps.get-images.outputs.EVALUATOR_TAG }}
   authorizer-tag:
     description: "authorizer docker image"
     value: ${{ steps.get-images.outputs.AUTHORIZER_TAG }}
@@ -216,6 +226,14 @@ runs:
             ./get_tag.sh blobber ${{ inputs.blobber_validator_branch }} validator
           else
             echo "blobber_validator_branch NOT specified, will skip deriving blobber and validator image tag"
+        fi
+        
+        if [[ -n "${{ inputs.eblobber_evalidator_branch }}" ]];
+          then
+            ./get_tag.sh eblobber ${{ inputs.eblobber_evalidator_branch }} eblobber
+            ./get_tag.sh eblobber ${{ inputs.eblobber_evalidator_branch }} evalidator
+          else
+            echo "eblobber_evalidator_branch NOT specified, will skip deriving eblobber and evalidator image tag"
         fi
         
         if [[ -n "${{ inputs.authorizer_branch }}" ]];

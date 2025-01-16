@@ -82,10 +82,11 @@ runs:
     - name: "Get docker images for sprint branches"
       id: get-images
       if: ${{ inputs.resolve_images == 'true' }}
-      uses: 0chain/actions/get-latest-image-for-branch@master
+      uses: 0chain/actions/get-latest-image-for-branch@feature/add-egosdk-tokenomics-action
       with:
         miner_sharder_branch: ${{ env.SNAPSHOT_BRANCH_0CHAIN }}
         blobber_validator_branch: ${{ env.SNAPSHOT_BRANCH_BLOBBER }}
+        eblobber_evalidator_branch: ${{ env.SNAPSHOT_BRANCH_EBLOBBER}}
         authorizer_branch: ${{ env.SNAPSHOT_BRANCH_TOKEN_BRIDGE_AUTHSERVER }}
         zbox_branch: ${{ env.SNAPSHOT_BRANCH_0BOX }}
         zvault_branch: ${{ env.SNAPSHOT_BRANCH_ZVAULT }}
@@ -112,6 +113,14 @@ runs:
         
         if [[ -n "${{ steps.get-images.outputs.validator-tag }}" ]];then
             echo "SNAPSHOT_BRANCH_VALIDATOR_TAG=$(echo '${{ steps.get-images.outputs.validator-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.eblobber-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_BLOBBER_TAG=$(echo '${{ steps.get-images.outputs.eblobber-tag }}')" >> $GITHUB_ENV
+        fi
+        
+        if [[ -n "${{ steps.get-images.outputs.evalidator-tag }}" ]];then
+            echo "SNAPSHOT_BRANCH_VALIDATOR_TAG=$(echo '${{ steps.get-images.outputs.evalidator-tag }}')" >> $GITHUB_ENV
         fi
         
         if [[ -n "${{ steps.get-images.outputs.authorizer-tag }}" ]];then
