@@ -1009,7 +1009,6 @@ runs:
         ./zwallet faucet --methodName "pour" --tokens 9 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 5 --data 2 --parity 2 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation1.txt
         ./zbox newallocation --lock 5 --data 2 --parity 2 --size 1000000 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation2.txt
-        ./zbox rp-lock --tokens 3 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         echo "Allocation1 hash: $(cat allocation1.txt)"
         echo "ALLOCATION1=$(cat allocation1.txt)" >> $GITHUB_ENV
         echo "Allocation2 hash: $(cat allocation2.txt)"
