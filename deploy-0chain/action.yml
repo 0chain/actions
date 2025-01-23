@@ -398,8 +398,6 @@ runs:
         echo "==========================================================="
         wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zwallet
         chmod +x ./zwallet
-        wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zbox
-        chmod +x ./zbox
         
         #Function to check the command ran successfully otherwise exit on failure
         run_command() {
@@ -829,6 +827,8 @@ runs:
         echo "==========================================================="
         echo "SHOW BLOBBERS LIST"
         echo "==========================================================="
+        wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zbox
+        chmod +x ./zbox
         ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
 
         echo '#!/bin/bash
