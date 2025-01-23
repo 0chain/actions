@@ -398,6 +398,8 @@ runs:
         echo "==========================================================="
         wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zwallet
         chmod +x ./zwallet
+        wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zbox
+        chmod +x ./zbox
         
         #Function to check the command ran successfully otherwise exit on failure
         run_command() {
