@@ -2,59 +2,59 @@ name: "Deploy 0Chain Network"
 description: "Deploy 0Chain Network to k8s cluster using helm"
 inputs:
   kube_config:
-    description: 'cluster details'
+    description: "cluster details"
     required: true
   miner_image:
-    description: 'miner DOCKER IMAGE to deploy'
-    default: ''
+    description: "miner DOCKER IMAGE to deploy"
+    default: ""
     required: false
   sharder_image:
-    description: 'sharder DOCKER IMAGE to deploy'
-    default: ''
+    description: "sharder DOCKER IMAGE to deploy"
+    default: ""
     required: false
   blobber_image:
-    description: 'blobber DOCKER IMAGE to deploy'
-    default: ''
+    description: "blobber DOCKER IMAGE to deploy"
+    default: ""
     required: false
   validator_image:
-    description: 'validator DOCKER IMAGE to deploy'
-    default: ''
+    description: "validator DOCKER IMAGE to deploy"
+    default: ""
     required: false
   zbox_image:
-    description: '0box DOCKER IMAGE to deploy'
-    default: ''
+    description: "0box DOCKER IMAGE to deploy"
+    default: ""
     required: false
   zdns_image:
-    description: '0dns DOCKER IMAGE to deploy'
-    default: ''
+    description: "0dns DOCKER IMAGE to deploy"
+    default: ""
     required: false
   teardown_condition:
-    description: 'Variable on which to teardown network'
-    default: 'ALWAYS_TEARDOWN'
+    description: "Variable on which to teardown network"
+    default: "ALWAYS_TEARDOWN"
     required: false
   miner_fee:
-    description: 'Miner fee per transaction'
-    default: '0'
+    description: "Miner fee per transaction"
+    default: "0"
     required: false
   zbox_cli_branch:
     required: false
-    description: '0Box CLI (branch or commit SHA) which the tests will use'
-    default: ''
+    description: "0Box CLI (branch or commit SHA) which the tests will use"
+    default: ""
   zwallet_cli_branch:
     required: false
-    description: '0Wallet CLI (branch or commit SHA) which the tests will use'
-    default: ''
+    description: "0Wallet CLI (branch or commit SHA) which the tests will use"
+    default: ""
   custom_go_sdk_version:
     required: false
     default: ""
-    description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+    description: "custom gosdk version. Will upgrade CLI branches with this before running tests"
   repo_snapshots_branch:
-    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit image params above.'
-    default: ''
+    description: "Branch of repo-snapshots that should be used to select images. Overrides explicit image params above."
+    default: ""
     required: false
   svc_account_secret:
-    description: 'secret used to publish test results - will use your own credentials if not supplied'
-    default: ''
+    description: "secret used to publish test results - will use your own credentials if not supplied"
+    default: ""
     required: false
 
 runs:
@@ -74,7 +74,7 @@ runs:
         branchList="$(cd ../../_actions/0chain/actions/ && find . -name .github | grep -o -P '(?<=./).*(?=/.github)')"
         branchesCount=$(echo -n $branchList | xargs | grep -o ' ' | wc -l)
         branchesCount=$((branchesCount + 1))
-        
+
         if [ "$branchesCount" -gt "2" ]; then
           actionsBranch="master"
           echo -e "[$branchesCount] actions branches found in workflow file: \n $branchList \nUsing [master] branch to check out files for deploy. If this is not correct, then remove the ambiguity by changing every occurrence of '0chain/actions' actions to match the intended branch"
@@ -90,10 +90,10 @@ runs:
           actionsBranch=$branchList
           echo "Single actions branch [$actionsBranch] found in workflow file."
         fi
-        
+
         echo "ACTIONS_BRANCH=$actionsBranch" >> $GITHUB_ENV
         echo "NETWORK_URL=$(echo dev-${RUNNER_NAME:(-1)}.devnet-0chain.net)" >> $GITHUB_ENV
-        
+
         echo '#!/bin/bash
         if [[ -z "$1" || "$1" == "NONE" ]];then
             if [[ -z "$2" ]];then
@@ -109,7 +109,7 @@ runs:
         fi
         ' > ./check-params.sh;
         chmod 777 check-params.sh
-        
+
         ./check-params.sh "${{inputs.miner_image}}"            "${{ env.SNAPSHOT_BRANCH_MINER_TAG }}"        "MINER_TAG"
         ./check-params.sh "${{inputs.sharder_image}}"          "${{ env.SNAPSHOT_BRANCH_SHARDER_TAG }}"      "SHARDER_TAG"
         ./check-params.sh "${{inputs.blobber_image}}"          "${{ env.SNAPSHOT_BRANCH_BLOBBER_TAG }}"      "BLOBBER_TAG"
@@ -122,11 +122,11 @@ runs:
         ./check-params.sh "${{inputs.zs3_logsearchapi}}"       "${{ env.SNAPSHOT_BRANCH_LOGSEARCHAPI_TAG }}" "ZS3_LOGSEARCHAPI"
         ./check-params.sh "${{inputs.zs3_client}}"             "${{ env.SNAPSHOT_BRANCH_CLIENTAPI_TAG }}"    "ZS3_CLIENT"
         ./check-params.sh "${{inputs.custom_go_sdk_version}}"  "${{ env.SNAPSHOT_BRANCH_GOSDK }}"            "GOSDK_VERSION"
-        
+
         ALWAYS_TEARDOWN=true
         echo "TEARDOWN_CONDITION=${{inputs.teardown_condition}}" >> $GITHUB_ENV
         echo "MINER_FEE=${{inputs.miner_fee}}" >> $GITHUB_ENV
-        
+
         echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
         echo "NAMESPACE=dev-${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
 
@@ -159,7 +159,7 @@ runs:
     - name: "Install helm"
       uses: azure/setup-helm@v1
       with:
-        version: 'v3.2.2'
+        version: "v3.2.2"
 
     - name: "Install kubectl"
       uses: azure/setup-kubectl@v1
@@ -216,7 +216,7 @@ runs:
       run: |
         cd ..
         echo "ACTIONS branch: ${{ env.ACTIONS_BRANCH }}"
-        
+
         echo '#!/bin/bash
         sed -ri s/dev-./${{ env.NAMESPACE }}/ ../_actions/0chain/actions/${{ env.ACTIONS_BRANCH }}/values/test/$1.yaml
         kubectl -n ${{ env.NAMESPACE }} --kubeconfig ./kube/${{ env.NAMESPACE }}-config delete configmap $1
@@ -274,8 +274,8 @@ runs:
            echo "Retrying helm install"
            sleep 2
         done
-        
-        
+
+
         ##############----------------- Installing 0chain helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0chain-del helm-chart deployment
@@ -338,20 +338,31 @@ runs:
            echo "Retrying helm install"
            sleep 2
         done
-        
+
         echo "==========================================================="
         echo "ADDING apollo, ares, artemis, athena and demeter HARFORK"
         echo "==========================================================="
         wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zwallet
         chmod +x ./zwallet
 
-        ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n ares -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n artemis -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        #Function to check the command ran successfully otherwise exit on failure
+        run_command() {
+            "$@"
+            if [ $? -ne 0 ]; then
+                echo "Command failed: $@"
+                exit 1
+            fi
+        }
+        run_command ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n ares -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n artemis -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n hermes -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        
 
         ##############----------------- Installing blobber helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
@@ -383,7 +394,7 @@ runs:
            echo "Retrying helm install"
            sleep 2
         done
-        
+
         ##############----------------- Installing 0box helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
         RET=1         #You can set RET=0 to skip the 0Box helm-chart deployment
@@ -438,10 +449,10 @@ runs:
 
         ./deploy.sh
 
-    - name: Setup go 1.21
+    - name: Setup go 1.22
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.22'
 
     - name: "Checkout 0wallet CLI"
       uses: actions/checkout@v3
@@ -490,7 +501,6 @@ runs:
 
         sudo rm -rf upgrade-gosdk.sh
 
-
     - name: "Build CLI Binaries"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -503,14 +513,14 @@ runs:
         echo "Building zwalletcli [${{ env.ZWALLET_BRANCH }}]..."
         cd zwalletcli
         go mod tidy
-        docker run --rm -v ./:/zwalletcli -w /zwalletcli golang:1.21 make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
+        docker run --rm -v ./:/zwalletcli -w /zwalletcli golang:1.22 make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         # make install > build.log 2>&1 || { cat build.log && echo "::error title=zwallet CLI build failed::zwallet CLI build failed" && exit 1; }
         mv zwallet ..
-        
+
         echo "Building zboxcli [${{ env.ZBOX_BRANCH }}]..."
         cd ../zboxcli
         go mod tidy
-        docker run --rm -v ./:/zboxcli -w /zboxcli golang:1.21 make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
+        docker run --rm -v ./:/zboxcli -w /zboxcli golang:1.22 make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         # make install > build.log 2>&1 || { cat build.log && echo "::error title=zbox CLI build failed::zbox CLI build failed" && exit 1; }
         mv zbox ..
         echo "CLI build SUCCESS!"
@@ -550,7 +560,7 @@ runs:
         ./check_health.sh ${{ env.NETWORK_URL }} "blobber04/"
         ./check_health.sh ${{ env.NETWORK_URL }} "blobber05/"
         ./check_health.sh ${{ env.NETWORK_URL }} "blobber06/"
-        
+
     - name: "Add latest hard fork"
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
@@ -561,12 +571,12 @@ runs:
         confirmation_chain_length: 3
         store_unlock_duration_sec: 2
         ' > zbox_config.yaml
-        
+
         # echo "==========================================================="
         # echo "ADDING LATEST HARFORK"
         # echo "==========================================================="
-        
-        
+
+
         # echo '{"client_id":"1746b06bb09f55ee01b33b5e2e055d6cc7a900cb57c0a3a5eaabb8a0e7745802","client_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","keys":[{"public_key":"7b630ba670dac2f22d43c2399b70eff378689a53ee03ea20957bb7e73df016200fea410ba5102558b0c39617e5afd2c1843b161a1dedec15e1ab40543a78a518","private_key":"c06b6f6945ba02d5a3be86b8779deca63bb636ce7e46804a479c50e53c864915"}],"mnemonics":"cactus panther essence ability copper fox wise actual need cousin boat uncover ride diamond group jacket anchor current float rely tragic omit child payment","version":"1.0","date_created":"2021-08-04 18:53:56.949069945 +0100 BST m=+0.018986002"}' > owner_wallet.json
         # ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         # ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
@@ -575,7 +585,7 @@ runs:
         # ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         # ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         # ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-
+        # ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
     - name: "Wait for 0Chain network deployment to complete"
       shell: 'script --return --quiet --command "bash {0}"'
