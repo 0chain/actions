@@ -35,7 +35,7 @@ runs:
 
     - name: "Archive file"
       if: ${{ inputs.archive_file == 'true' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.FILENAME }}.png
         path: ${{ env.FILE_PATH }}.png
