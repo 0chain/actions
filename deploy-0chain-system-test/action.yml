@@ -388,15 +388,23 @@ runs:
         wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zwallet
         chmod +x ./zwallet
 
-        ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n ares -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n artemis -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n hermes -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        #Function to check the command ran successfully otherwise exit on failure
+        run_command() {
+            "$@"
+            if [ $? -ne 0 ]; then
+                echo "Command failed: $@"
+                exit 1
+            fi
+        }
+        run_command ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n ares -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n artemis -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n hermes -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
         ##############----------------- Installing blobber helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.

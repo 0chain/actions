@@ -362,7 +362,7 @@ runs:
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
              --set sharder.config.zchain01.kafka.enabled=true \
              --set sharder.config.zchain01.kafka.trigger_round=0 \
-             --set sharder.config.zchain02.kafka.enabled=false \
+             --set sharder.config.zchain02.kafka.enabled=true \
              --set sharder.config.zchain02.kafka.trigger_round=0 \
              --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
              --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
@@ -398,16 +398,24 @@ runs:
         echo "==========================================================="
         wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zwallet
         chmod +x ./zwallet
-
-        ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n ares -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n artemis -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
-        ./zwallet add-hardfork -n hermes -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        
+        #Function to check the command ran successfully otherwise exit on failure
+        run_command() {
+            "$@"
+            if [ $? -ne 0 ]; then
+                echo "Command failed: $@"
+                exit 1
+            fi
+        }
+        run_command ./zwallet mn-update-config --keys cost.add_hardfork --values 100 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n apollo -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n ares -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n artemis -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n athena -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n demeter -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n hermes -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
         ##############----------------- Installing blobber helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
@@ -819,6 +827,8 @@ runs:
         echo "==========================================================="
         echo "SHOW BLOBBERS LIST"
         echo "==========================================================="
+        wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zbox
+        chmod +x ./zbox
         ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
 
         echo '#!/bin/bash
