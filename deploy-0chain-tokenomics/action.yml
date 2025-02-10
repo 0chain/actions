@@ -361,6 +361,7 @@ runs:
         run_command ./zwallet add-hardfork -n electra -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         run_command ./zwallet add-hardfork -n hercules -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
         run_command ./zwallet add-hardfork -n hermes -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
+        run_command ./zwallet add-hardfork -n jason -r 0 --wallet owner_wallet.json --config ./zbox_config.yaml --configDir .
 
         ##############----------------- Installing blobber helm-chart --------------------###################
         COUNT=3       #COUNT will be giving 3 try to install the helmchart.
