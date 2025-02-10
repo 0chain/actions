@@ -682,7 +682,7 @@ runs:
     - name: "Archive Sharder Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: logging-pods-tests-sharder
         path: |
@@ -692,7 +692,7 @@ runs:
     - name: "Archive Miner Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: logging-pods-tests-miner
         path: |
@@ -704,7 +704,7 @@ runs:
     - name: "Archive Blobber Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: logging-pods-tests-blobber
         path: |
@@ -719,7 +719,7 @@ runs:
     - name: "Archive Validator Logs"
       continue-on-error: true
       if: ${{ failure() && env.NAMESPACE != '' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: logging-pods-tests-validator
         path: |

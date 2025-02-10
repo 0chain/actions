@@ -56,7 +56,7 @@ runs:
         cd web-apps
         yarn workspace test cypress:${{ inputs.web-app-name }}:run
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: ${{ inputs.web-app-name }}-cypress-artifacts

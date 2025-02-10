@@ -362,7 +362,7 @@ runs:
              --set sharder.config.zchain02.delegate_wallet="b3e3f587dd65aaf4118adf87878a138dbb3163a3b169a0d1872aa9a7a0fa5c50" \
              --set sharder.config.zchain01.kafka.enabled=true \
              --set sharder.config.zchain01.kafka.trigger_round=0 \
-             --set sharder.config.zchain02.kafka.enabled=false \
+             --set sharder.config.zchain02.kafka.enabled=true \
              --set sharder.config.zchain02.kafka.trigger_round=0 \
              --set miner.config.zchain01.delegate_wallet="9636ab821fd93a37740ab4c6a27d9e2cf3a4072b4bc8fd1c6048f9c3ef9cf2a8" \
              --set miner.config.zchain02.delegate_wallet="b8b25d509afbe8f68f1342a2fa719acf312915a6f5a5bb0918cad6598e01325f" \
@@ -828,6 +828,8 @@ runs:
         echo "==========================================================="
         echo "SHOW BLOBBERS LIST"
         echo "==========================================================="
+        wget https://zus-loadtest-report.s3.us-east-2.amazonaws.com/binaries/zbox
+        chmod +x ./zbox
         ./zbox --configDir . --config ./zbox_config.yaml --wallet ../ignore ls-blobbers --all
 
         echo '#!/bin/bash
