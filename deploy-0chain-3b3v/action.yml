@@ -373,6 +373,8 @@ runs:
              --set blobber.blobberCount=3 \
              --set validator.validatorCount=3 \
              --set blobber.config.read_price=0.01 \
+             --set blobber.config.0box.client_id=d4c5ad2959282b05a1c267c542c859271670da1b0b44f0714babfb87e57c3c83 \
+             --set blobber.config.0box.public_key=d7dba8a72b5752b37001d07247e3c7c475c6cb5374962ce608965aeefaa999142b3adfd34e9c1c9949210c05c45b5b51ddb83a3234b56983b3936b25717d6c8d \
              --set blobber.config.price_in_usd="false" \
              --set blobber.config.writemarker_redeem.max_chain_length=1 \
              --set blobber.config.writemarker_redeem.max_timestamp_gap=1800 \
