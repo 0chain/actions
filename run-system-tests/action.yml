@@ -772,7 +772,7 @@ runs:
         echo "$add_blobber_id" >> challenge_blobbers.txt
 
         ######## Updating allocation with add and remove blobber and where added blobber should receive and removed blobber should not receive challenges ########
-        ./zwallet faucet --methodName "pour" --tokens 1000--input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zwallet faucet --methodName "pour" --tokens 1000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 0.2 --data 2 --parity 2 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation5.txt
         echo "Allocation 5 hash: $(cat allocation5.txt)"
 
@@ -838,7 +838,7 @@ runs:
         fi
 
         ####### CANCELLED ALLOCATION SHOULD NOT GET CHALLENGES ANYMORE #######
-        ./zwallet faucet --methodName "pour" --tokens 1000--input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
+        ./zwallet faucet --methodName "pour" --tokens 1000 --input "{}" --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
         ./zbox newallocation --lock 0.2 --data 3 --parity 3 --size 1073741824 --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent | grep 'Allocation' | grep -o "[a-z0-9]\{64\}" > allocation6.txt
         echo "Allocation 6 hash: $(cat allocation6.txt)"
         ./zbox upload --allocation "$(cat allocation6.txt)" --localpath ./upload_test_file --remotepath /upload_test_file --configDir . --config ./config.yaml --wallet ./zs3wallet.json --silent
