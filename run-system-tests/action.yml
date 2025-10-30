@@ -870,7 +870,7 @@ runs:
         system_tests_exit_code=0
 
         echo "Sleeping for 45 minutes..."
-        sleep 2700
+        # sleep 2700
         echo "Tests started..."
         ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${{ env.SHOULD_RETRY_FAILURES }} --raw-command -- ../../CHALLENGE_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
         cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${{ env.BRANCH_DIR }}/${GITHUB_SHA}/challengetestscli/index.html --title "0Chain System test suite: Challenge tests [${{ env.BRANCH_DIR }}/${GITHUB_SHA:0:8}] ran against [${{ env.NETWORK_URL }}] at [${{ env.TEST_TIME }}]"
