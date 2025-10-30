@@ -677,7 +677,7 @@ runs:
 
     - name: "Run Challenge System Tests"
       shell: 'script --return --quiet --command "bash {0}"'
-      if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
+      # if: ${{ always() && env.TESTS_READY && env.RUN_SUBSET_OF_TESTS == 'false' && env.RUN_CHALLENGE_SYSTEM_TESTS == 'true' }}
       run: |
         echo
         echo "======================================================"
