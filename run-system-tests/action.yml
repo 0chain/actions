@@ -260,10 +260,12 @@ runs:
         echo "Running frontend tests:        [${{ env.RUN_FRONTEND_TESTS }}]"
 
     - name: "Set up Go 1.22"
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: "1.22"
-        cache: "go"
+        cache: true
+        cache-dependency-path: |
+          **/go.sum
 
     - name: "Checkout System Tests"
       uses: actions/checkout@v3
@@ -305,10 +307,12 @@ runs:
         path: ./mc
 
     - name: "Set up Go 1.22"
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: "1.22.1"
-        cache: "go"
+        cache: true
+        cache-dependency-path: |
+          **/go.sum
 
     - name: "Checkout 0Warp CLI"
       uses: actions/checkout@v3
