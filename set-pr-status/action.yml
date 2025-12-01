@@ -35,8 +35,9 @@ runs:
           --header "Accept: application/vnd.github.v3+json" \
           --header "Authorization: token ${{inputs.github_token}}" \
           --header "Content-Type: application/json"  > pr.json
-
-          status_url=$(cat pr.json | python -c "import json,sys;obj=json.load(sys.stdin);print obj[\"statuses_url\"]")
+          echo "Full PR JSON response:"
+          cat pr.json
+          status_url=$(cat pr.json | python -c "import json,sys;obj=json.load(sys.stdin);print(obj.get(\"statuses_url\", \"\"))")
           rm -rf pr.json
 
           curl --silent --location --request POST "$status_url" \
