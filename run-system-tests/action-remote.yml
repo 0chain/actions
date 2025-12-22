@@ -1,0 +1,610 @@
+name: '0Chain System Tests (Remote)'
+description: 'Run 0Chain System Tests on a remote Linux host'
+inputs:
+  repo_snapshots_branch:
+    description: 'Branch of repo-snapshots that should be used to select images. Overrides explicit branch params.'
+    default: ''
+    required: false
+  system_tests_branch:
+    required: false
+    description: 'System tests branch to run'
+  network:
+    required: true
+    description: 'Network to run system tests against INSTEAD OF DEPLOYING A NEW NETWORK. [example: dev.0chain.net]'
+  linux_server_ipv4:
+    required: false
+    default: ''
+    description: 'IPv4 address of external Linux host available to the tests'
+  linux_server_ipv6:
+    required: false
+    default: ''
+    description: 'IPv6 address of external Linux host available to the tests'
+  linux_server_username:
+    required: false
+    default: ''
+    description: 'Username for external Linux host access'
+  linux_server_password:
+    required: false
+    default: ''
+    description: 'Password for external Linux host access'
+  linux_server_hostkey:
+    required: false
+    default: ''
+    description: 'SSH host key (known_hosts format) for the external Linux host'
+  linux_server_remote_path:
+    required: false
+    default: '~/actions/run-system-tests'
+    description: 'Absolute path on remote Linux host to sync workspace into'
+  zbox_cli_branch:
+    required: false
+    description: '0Box CLI (branch or commit SHA) which the tests will use'
+    default: ''
+  zwallet_cli_branch:
+    required: false
+    description: '0Wallet CLI (branch or commit SHA) which the tests will use'
+    default: ''
+  mc_cli_branch:
+    required: false
+    description: '0Mc CLI (branch or commit SHA) which the tests will use'
+    default: 'staging'
+  warp_cli_branch:
+    required: false
+    description: '0Warp CLI (branch or commit SHA) which the tests will use'
+    default: 'master'
+  s3_migration_cli_branch:
+    required: false
+    description: 'S3 Migration CLI (branch or commit SHA) which the tests will use'
+    default: ''
+  deploy_report_page:
+    required: true
+    default: 'true'
+    description: ''
+  archive_results:
+    required: true
+    default: 'true'
+    description: ''
+  run_flaky_tests:
+    required: true
+    default: 'true'
+    description: ''
+  retry_failures:
+    required: true
+    default: 'true'
+    description: 'retry failing tests up to 3 times. will not retry when >10 tests have failed as this suggests a wider issue'
+  svc_account_secret:
+    required: false
+    description: 'secret used to publish test results - will use your own credentials if not supplied'
+  custom_go_sdk_version:
+    required: true
+    default: 'NONE'
+    description: 'custom gosdk version. Will upgrade CLI branches with this before running tests'
+  test_file_filter:
+    required: false
+    default: ''
+    description: 'Subset of system tests to run'
+  run_cli_system_tests:
+    required: false
+    default: 'true'
+    description: 'Enable or disable CLI system tests'
+  run_s3mgrt_system_tests:
+    required: false
+    default: 'true'
+    description: 'Enable or disable S3 migration CLI system tests'
+  run_api_system_tests:
+    required: false
+    default: 'true'
+    description: 'Enable or disable API system tests'
+  run_challenge_system_tests:
+    required: false
+    default: 'false'
+    description: 'Enable or disable Challenge system tests'
+  run_frontend_tests:
+    required: false
+    default: 'true'
+    description: 'Run frontend system tests (cypress tests)'
+  run_tokenomics_system_tests:
+    required: false
+    default: 'false'
+    description: 'Enable or disable tokenomics system tests'
+  run_smoke_tests:
+    required: false
+    default: 'false'
+    description: 'Run subset of system tests (smoke tests)'
+  DROPBOX_ACCESS_TOKEN:
+    required: false
+    default: ''
+    description: 'Dropbox access token (not used in remote run yet)'
+  GDRIVE_ACCESS_TOKEN:
+    required: false
+    default: ''
+    description: 'GDrive access token (not used in remote run yet)'
+  run_chimney_blobber_tests:
+    required: false
+    default: 'false'
+    description: 'Run chimney blobber tests'
+  run_tenderly_tests:
+    required: false
+    default: 'false'
+    description: 'Run tenderly (validators, authorizers & bridge) tests'
+  TENDERLY_VIRTUAL_TESTNET_RPC_ID:
+    required: false
+    description: 'Tenderly virtual testnet RPC ID is used to use Tenderly virtual testnet simulations for bridge tests'
+  DEVOPS_CHANNEL_WEBHOOK_URL:
+    required: false
+    default: ''
+    description: 'notification url'
+  S3_SECRET_KEY:
+    required: false
+    default: ''
+    description: 's3 secret key'
+  S3_ACCESS_KEY:
+    required: false
+    default: ''
+    description: 's3 access key'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Get sprint branch from repo_snapshots_branch'
+      if: ${{ inputs.repo_snapshots_branch != '' }}
+      uses: 0chain/actions/resolve-repo-snapshot@master
+      with:
+        repo_snapshots_branch: ${{ inputs.repo_snapshots_branch }}
+        svc_account_secret: ${{ inputs.svc_account_secret }}
+        resolve_images: false
+
+    - name: 'Config: prepare env'
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        set -euo pipefail
+        echo "RUNNER_NUMBER=${RUNNER_NAME:(-1)}" >> $GITHUB_ENV
+        echo "NETWORK_URL=$(echo ${{ inputs.network }})" >> $GITHUB_ENV
+        echo "::add-mask::${{ inputs.linux_server_password }}"
+        echo "::add-mask::${{ inputs.linux_server_hostkey }}"
+        echo "LINUX_SERVER_IPV4=${{ inputs.linux_server_ipv4 }}" >> $GITHUB_ENV
+        echo "LINUX_SERVER_IPV6=${{ inputs.linux_server_ipv6 }}" >> $GITHUB_ENV
+        echo "LINUX_SERVER_USERNAME=${{ inputs.linux_server_username }}" >> $GITHUB_ENV
+        echo "LINUX_SERVER_PASSWORD=${{ inputs.linux_server_password }}" >> $GITHUB_ENV
+        echo "LINUX_SERVER_HOSTKEY=${{ inputs.linux_server_hostkey }}" >> $GITHUB_ENV
+        echo "LINUX_SERVER_REMOTE_PATH=${{ inputs.linux_server_remote_path }}" >> $GITHUB_ENV
+        echo "S3_ACCESS_KEY=${{ inputs.S3_ACCESS_KEY }}" >> $GITHUB_ENV
+        echo "S3_SECRET_KEY=${{ inputs.S3_SECRET_KEY }}" >> $GITHUB_ENV
+        echo "TEST_FILE_FILTER=${{ inputs.test_file_filter }}" >> $GITHUB_ENV
+
+        echo "RUN_SMOKE_TESTS=${{ inputs.run_smoke_tests }}" >> $GITHUB_ENV
+
+        echo '#!/bin/bash
+        if [[ -z "$1" || "$1" == "NONE" ]];then
+           if [[ -z "$2" ]];then
+             echo "::error title=Branch/Image not specified!::$3 was not specified explicitly and could not be resolved using repo_snapshots_branch"
+             exit 1
+           else
+             echo "Using $3 [$2] from repo_snapshots_branch"
+             export $3=$2
+             echo "$3=$2" >> $GITHUB_ENV
+           fi
+        else
+           echo "Using $3 tag [$1] from input values"
+           export $3=$1
+           echo "$3=$1" >> $GITHUB_ENV
+        fi
+        ' > ./check-params.sh;
+        chmod 777 check-params.sh
+
+        ./check-params.sh "${{inputs.zbox_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_ZBOXCLI }}"      "ZBOX_BRANCH"
+        ./check-params.sh "${{inputs.zwallet_cli_branch}}"      "${{ env.SNAPSHOT_BRANCH_ZWALLETCLI }}"   "ZWALLET_BRANCH"
+        ./check-params.sh "${{inputs.system_tests_branch}}"     "${{ env.SNAPSHOT_BRANCH_SYSTEM_TEST }}"  "SYSTEM_TESTS_BRANCH"
+        ./check-params.sh "${{inputs.s3_migration_cli_branch}}" "${{ env.SNAPSHOT_BRANCH_S3-MIGRATION }}" "S3_MIGRATION_BRANCH"
+        ./check-params.sh "${{inputs.custom_go_sdk_version}}"   "${{ env.SNAPSHOT_BRANCH_GOSDK }}"        "GOSDK_VERSION"
+        ./check-params.sh "${{inputs.mc_cli_branch}}"           "${{ env.SNAPSHOT_BRANCH_MC_BRANCH }}"    "MC_BRANCH"
+        ./check-params.sh "${{inputs.warp_cli_branch}}"         "${{ env.SNAPSHOT_BRANCH_WARP_BRANCH }}"  "WARP_BRANCH"
+
+        echo "RUN_FRONTEND_TESTS=false" >> $GITHUB_ENV
+
+        if [ "${{ inputs.run_cli_system_tests }}" == "false" ]; then
+          echo RUN_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_s3mgrt_system_tests }}" == "false" ]; then
+          echo RUN_S3_CLI_SYSTEM_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_S3_CLI_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_tenderly_tests }}" == "false" ]; then
+          echo RUN_TENDERLY_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_TENDERLY_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_api_system_tests }}" == "false" ]; then
+          echo RUN_API_SYSTEM_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_API_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_challenge_system_tests }}" == "false" ]; then
+          echo RUN_CHALLENGE_SYSTEM_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_CHALLENGE_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_tokenomics_system_tests }}" == "false" ]; then
+          echo RUN_TOKENOMICS_SYSTEM_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_TOKENOMICS_SYSTEM_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.run_chimney_blobber_tests }}" == "false" ]; then
+          echo RUN_CHIMNEY_BLOBBER_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_CHIMNEY_BLOBBER_TESTS=true >> $GITHUB_ENV
+        fi
+
+        if [ "${{ inputs.retry_failures }}" == "true" ]; then
+          echo SHOULD_RETRY_FAILURES='--rerun-fails --rerun-fails-max-failures=25' >> $GITHUB_ENV
+        else
+          echo SHOULD_RETRY_FAILURES='' >> $GITHUB_ENV
+        fi
+
+        if [[ -z "${{ inputs.test_file_filter }}" ]]; then
+          echo RUN_SUBSET_OF_TESTS=false >> $GITHUB_ENV
+        else
+          echo RUN_SUBSET_OF_TESTS=true >> $GITHUB_ENV
+        fi
+
+    - name: 'Prepare SSH to remote test host'
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        set -euo pipefail
+        REMOTE_HOST=${{ inputs.linux_server_ipv4 != '' && inputs.linux_server_ipv4 || inputs.linux_server_ipv6 }}
+        if [[ -z "$REMOTE_HOST" ]]; then
+          echo "::error title=Missing remote host::Provide linux_server_ipv4 or linux_server_ipv6"
+          exit 1
+        fi
+
+        if [[ -z "${{ inputs.linux_server_username }}" || -z "${{ inputs.linux_server_password }}" ]]; then
+          echo "::error title=Missing remote credentials::username/password required for SSH"
+          exit 1
+        fi
+
+        if [[ -z "${{ inputs.linux_server_hostkey }}" ]]; then
+          echo "::error title=Missing hostkey::linux_server_hostkey (known_hosts format) is required"
+          exit 1
+        fi
+
+        REMOTE_PATH=${{ inputs.linux_server_remote_path }}
+
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        echo "${{ inputs.linux_server_hostkey }}" > ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
+
+        cat > ./ssh-wrapper.sh <<'EOF'
+        #!/usr/bin/env bash
+        set -eo pipefail
+        sshpass -p "${LINUX_SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" "$@"
+        EOF
+        chmod +x ./ssh-wrapper.sh
+
+        cat > ./rsync-wrapper.sh <<'EOF'
+        #!/usr/bin/env bash
+        set -eo pipefail
+        sshpass -p "${LINUX_SERVER_PASSWORD}" rsync -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" "$@"
+        EOF
+        chmod +x ./rsync-wrapper.sh
+
+        echo "REMOTE_HOST=$REMOTE_HOST" >> $GITHUB_ENV
+        echo "REMOTE_PATH=$REMOTE_PATH" >> $GITHUB_ENV
+        echo "SSH_WRAPPER=$PWD/ssh-wrapper.sh" >> $GITHUB_ENV
+        echo "RSYNC_WRAPPER=$PWD/rsync-wrapper.sh" >> $GITHUB_ENV
+
+        "$PWD/ssh-wrapper.sh" "${{ inputs.linux_server_username }}"@"$REMOTE_HOST" "mkdir -p $REMOTE_PATH && chmod 755 $REMOTE_PATH"
+
+    - name: 'Checkout System Tests'
+      uses: actions/checkout@v3
+      with:
+        repository: '0chain/system_test'
+        ref: ${{ env.SYSTEM_TESTS_BRANCH }}
+
+    - name: 'Checkout 0wallet CLI'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.ZWALLET_BRANCH }}
+        repository: 0chain/zwalletcli
+        fetch-depth: 1
+        path: ./zwalletcli
+
+    - name: 'Checkout 0box CLI'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.ZBOX_BRANCH }}
+        repository: 0chain/zboxcli
+        fetch-depth: 1
+        path: ./zboxcli
+
+    - name: 'Checkout S3 Migration CLI'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.S3_MIGRATION_BRANCH }}
+        repository: 0chain/s3-migration
+        fetch-depth: 1
+        path: ./s3-migration
+        token: '${{ inputs.svc_account_secret }}'
+
+    - name: 'Checkout 0MC CLI'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.MC_BRANCH || 'staging' }}
+        repository: 0chain/mc
+        fetch-depth: 1
+        path: ./mc
+
+    - name: 'Checkout 0Warp CLI'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ env.WARP_BRANCH || 'master' }}
+        repository: pewssh/warp
+        fetch-depth: 1
+        path: ./warp
+
+    - name: 'Create remote runner script'
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        set -euo pipefail
+        cat > remote-run.sh <<'EOF'
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        SUDO_PW="${LINUX_SERVER_PASSWORD}"
+        export HOME="/root"
+        export PATH="/usr/local/go/bin:$PATH"
+
+        sudo_exec() {
+          echo "$SUDO_PW" | sudo -S "$@"
+        }
+
+        # ensure directories
+        mkdir -p logs
+
+        BRANCH_DIR=$(echo "${GITHUB_REF#refs/*/}" | sed 's/\//_/g')
+        if [ -n "${GITHUB_HEAD_REF:-}" ]; then
+          BRANCH_DIR=$(echo "${GITHUB_HEAD_REF}" | sed 's/\//_/g')
+        fi
+        TEST_TIME=$(date '+%Y-%m-%d_%H.%M.%S')
+
+        echo "BRANCH_DIR=$BRANCH_DIR" > remote-env.txt
+        echo "TEST_TIME=$TEST_TIME" >> remote-env.txt
+
+        # install deps
+        sudo_exec apt-get update -y
+        sudo_exec apt-get install -y build-essential git curl jq rsync sshpass pkg-config zip unzip
+        # yarn repo
+        sudo_exec curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo_exec tee /etc/apt/trusted.gpg.d/yarn.gpg >/dev/null
+        sudo_exec sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main' > /etc/apt/sources.list.d/yarn.list"
+        sudo_exec apt-get update -y
+        sudo_exec apt-get install -y yarn nodejs
+
+        # install go 1.22.1 if missing
+        if ! command -v go >/dev/null || [[ "$(go version | awk '{print $3}')" != "go1.22.1" ]]; then
+          curl -sL https://go.dev/dl/go1.22.1.linux-amd64.tar.gz -o /tmp/go.tar.gz
+          sudo_exec rm -rf /usr/local/go
+          sudo_exec tar -C /usr/local -xzf /tmp/go.tar.gz
+        fi
+        export PATH="/usr/local/go/bin:$PATH"
+
+        # gosdk upgrade
+        if [[ -n "${GOSDK_VERSION:-}" && "${GOSDK_VERSION}" != "NONE" ]]; then
+          GOSDK_HEAD=$(curl -s -H "Authorization: token ${SVC_ACCOUNT_SECRET:-}" https://api.github.com/repos/0chain/gosdk/git/refs/heads/${GOSDK_VERSION} | jq -r '.object.sha')
+          if [[ "$GOSDK_HEAD" == "null" ]]; then
+            GOSDK_HEAD="${GOSDK_VERSION}"
+          fi
+          cat > upgrade-gosdk.sh <<'EOS'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          REF="$1"
+          NAME="$2"
+          echo "Upgrading [$NAME] to GOSDK [$REF]"
+          go get github.com/0chain/gosdk@"$REF"
+          go mod tidy
+          EOS
+          chmod 755 upgrade-gosdk.sh
+          (cd zwalletcli && ../upgrade-gosdk.sh "$GOSDK_HEAD" zwalletcli)
+          (cd zboxcli && ../upgrade-gosdk.sh "$GOSDK_HEAD" zboxcli)
+          (cd s3-migration && ../upgrade-gosdk.sh "$GOSDK_HEAD" zs3cli)
+          (cd tests/cli_tests && ../../upgrade-gosdk.sh "$GOSDK_HEAD" "CLI System Tests")
+          (cd tests/api_tests && ../../upgrade-gosdk.sh "$GOSDK_HEAD" "API System Tests")
+          rm -f upgrade-gosdk.sh
+        fi
+
+        # build binaries
+        export GOPATH="$(go env GOPATH)"
+        (cd zwalletcli && make install > build.log 2>&1 && mv zwallet ../tests/cli_tests) || { cat zwalletcli/build.log; exit 1; }
+        (cd zboxcli && make install > build.log 2>&1 && mv zbox ../tests/cli_tests) || { cat zboxcli/build.log; exit 1; }
+        (cd s3-migration && make build > build.log 2>&1 && mv s3mgrt ../tests/cli_tests) || { cat s3-migration/build.log; exit 1; }
+        (cd mc && make install > build.log 2>&1 && mv mc ../tests/cli_tests) || { cat mc/build.log; exit 1; }
+        (cd warp && go build > build.log 2>&1 && mv warp ../tests/cli_tests) || { cat warp/build.log; exit 1; }
+
+        # set up system tests
+        go install gotest.tools/gotestsum@latest
+        go install github.com/vakenbolt/go-test-report@latest
+
+        sed "s,block_worker:.*,block_worker: https://${NETWORK_URL}/dns," -i ./tests/cli_tests/config/config.yaml
+        sed "s,block_worker:.*,block_worker: https://${NETWORK_URL}/dns," -i ./tests/cli_tests/config/zbox_config.yaml
+        sed "s,block_worker:.*,block_worker: https://${NETWORK_URL}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,chimney_test_network:.*,chimney_test_network: https://${NETWORK_URL}/dns," -i ./tests/api_tests/config/api_tests_config.yaml
+        sed "s,s3_access_key:.*,s3_access_key: ${S3_ACCESS_KEY}," -i ./tests/cli_tests/config/cli_tests_config.yaml
+        sed "s,s3_secret_key:.*,s3_secret_key: ${S3_SECRET_KEY}," -i ./tests/cli_tests/config/cli_tests_config.yaml
+
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test0Tenderly[^___]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${RUN_SMOKE_TESTS} CONFIG_PATH=./zbox_config.yaml go test -timeout=20m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\\/parallel\\")/d"' > TENDERLY_TEST_RUNNER_COMMAND.sh && chmod 777 TENDERLY_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1P]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${RUN_SMOKE_TESTS} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\\/parallel\\")/d"' > API_TEST_RUNNER_COMMAND.sh && chmod 777 API_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${RUN_SMOKE_TESTS} CONFIG_PATH=./zbox_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\\/parallel\\")/d"' > CLI_TEST_RUNNER_COMMAND.sh && chmod 777 CLI_TEST_RUNNER_COMMAND.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${RUN_SMOKE_TESTS} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\\/parallel\\")/d"' > API_TEST_RUNNER_COMMAND_SUBSET.sh && chmod 777 API_TEST_RUNNER_COMMAND_SUBSET.sh
+        printf '#!/bin/bash\nset -o pipefail\n[ -z "$1" ] && TESTS_TO_RUN="-run  ^Test[^___1]*$ ./..." || TESTS_TO_RUN=$1\nSMOKE_TEST_MODE=${RUN_SMOKE_TESTS} CONFIG_PATH=./config/api_tests_config.yaml go test -timeout=45m $TESTS_TO_RUN -json -count=1 | sed -r "/(=== (CONT|RUN|PAUSE).*)|(--- FAIL:.*)|(\\"Test\\":\\".*\\/parallel\\")/d"' > S3CLI_TEST_RUNNER_COMMAND.sh && chmod 777 S3CLI_TEST_RUNNER_COMMAND.sh
+
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/cli"
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/api"
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/s3cli"
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/tenderly"
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/challengetestsapi"
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/tokenomics"
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/api_tests"
+        mkdir -p "./${BRANCH_DIR}/${GITHUB_SHA}/flaky_cli"
+        mkdir -p "./${BRANCH_DIR}/latest"
+
+        export TESTS_RAN=false
+        export TESTS_PASSED=false
+        export API_TESTS_RAN=false
+        export API_TESTS_PASSED=false
+        export FLAKY_TESTS_RAN=false
+
+        # Run API tests
+        if [[ "${RUN_API_SYSTEM_TESTS}" == "true" && "${RUN_SUBSET_OF_TESTS}" == "false" ]]; then
+          cd tests/api_tests
+          api_system_tests_exit_code=0
+          ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${SHOULD_RETRY_FAILURES} --raw-command -- ../../API_TEST_RUNNER_COMMAND.sh || api_system_tests_exit_code=$?
+          cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${BRANCH_DIR}/${GITHUB_SHA}/api/index.html --title "0Chain API System test suite [${BRANCH_DIR}/${GITHUB_SHA:0:8}] ran against [${NETWORK_URL}] at [${TEST_TIME}]"
+          cp -R ../../${BRANCH_DIR}/${GITHUB_SHA}/api ../../${BRANCH_DIR}/latest/
+          API_TESTS_RAN=true
+          if [[ $api_system_tests_exit_code == 0 ]]; then
+            API_TESTS_PASSED=true
+          fi
+          cd ../..
+        fi
+
+        # Run S3 CLI tests
+        if [[ "${RUN_S3_CLI_SYSTEM_TESTS}" == "true" && "${RUN_SUBSET_OF_TESTS}" == "false" ]]; then
+          cd tests/cli_tests
+          system_tests_exit_code=0
+          ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${SHOULD_RETRY_FAILURES} --raw-command -- ../../S3CLI_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+          cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${BRANCH_DIR}/${GITHUB_SHA}/s3cli/index.html --title "0Chain S3 CLI System tests [${BRANCH_DIR}/${GITHUB_SHA:0:8}] ran against [${NETWORK_URL}] at [${TEST_TIME}]"
+          cp -R ../../${BRANCH_DIR}/${GITHUB_SHA}/s3cli ../../${BRANCH_DIR}/latest/
+          TESTS_RAN=true
+          cd ../..
+          if [[ $system_tests_exit_code -ne 0 ]]; then
+            TESTS_PASSED=false
+            echo "S3 CLI tests failed"
+          fi
+        fi
+
+        # Run CLI tests
+        if [[ "${RUN_CLI_SYSTEM_TESTS}" == "true" && "${RUN_SUBSET_OF_TESTS}" == "false" ]]; then
+          cd tests/cli_tests
+          system_tests_exit_code=0
+          ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${SHOULD_RETRY_FAILURES} --raw-command -- ../../CLI_TEST_RUNNER_COMMAND.sh || system_tests_exit_code=$?
+          cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${BRANCH_DIR}/${GITHUB_SHA}/cli/index.html --title "0Chain CLI System tests [${BRANCH_DIR}/${GITHUB_SHA:0:8}] ran against [${NETWORK_URL}] at [${TEST_TIME}]"
+          cp -R ../../${BRANCH_DIR}/${GITHUB_SHA}/cli ../../${BRANCH_DIR}/latest/
+          TESTS_RAN=true
+          if [[ $system_tests_exit_code -eq 0 ]]; then
+            TESTS_PASSED=true
+          else
+            TESTS_PASSED=false
+          fi
+          cd ../..
+        fi
+
+        # Run subset CLI tests
+        if [[ "${RUN_SUBSET_OF_TESTS}" == "true" ]]; then
+          cd tests/cli_tests
+          system_tests_exit_code=0
+          ${GOPATH}/bin/gotestsum --jsonfile test-output.json --hide-summary=output --format testname ${SHOULD_RETRY_FAILURES} --raw-command -- ../../CLI_TEST_RUNNER_COMMAND.sh "${TEST_FILE_FILTER}" || system_tests_exit_code=$?
+          cat test-output.json | ${GOPATH}/bin/go-test-report --groupSize 1 --output ../../${BRANCH_DIR}/${GITHUB_SHA}/cli/index.html --title "0Chain CLI System tests [${BRANCH_DIR}/${GITHUB_SHA:0:8}] ran against [${NETWORK_URL}] at [${TEST_TIME}]"
+          cp -R ../../${BRANCH_DIR}/${GITHUB_SHA}/cli ../../${BRANCH_DIR}/latest/
+          TESTS_RAN=true
+          if [[ $system_tests_exit_code -eq 0 ]]; then
+            TESTS_PASSED=true
+          else
+            TESTS_PASSED=false
+          fi
+          cd ../..
+        fi
+
+        # write env back
+        {
+          echo "BRANCH_DIR=$BRANCH_DIR"
+          echo "TEST_TIME=$TEST_TIME"
+          echo "TESTS_RAN=$TESTS_RAN"
+          echo "TESTS_PASSED=$TESTS_PASSED"
+          echo "API_TESTS_RAN=$API_TESTS_RAN"
+          echo "API_TESTS_PASSED=$API_TESTS_PASSED"
+          echo "FLAKY_TESTS_RAN=$FLAKY_TESTS_RAN"
+        } > remote-env.txt
+        EOF
+        chmod +x remote-run.sh
+
+    - name: 'Sync workspace to remote host'
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        set -euo pipefail
+        "$RSYNC_WRAPPER" -az --delete --exclude '.git' ./ "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST":"$REMOTE_PATH"/
+
+    - name: 'Run remote system tests'
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        set -euo pipefail
+        "$SSH_WRAPPER" "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST" "cd $REMOTE_PATH && LINUX_SERVER_PASSWORD='${LINUX_SERVER_PASSWORD}' NETWORK_URL='${NETWORK_URL}' RUN_SMOKE_TESTS='${RUN_SMOKE_TESTS}' RUN_CLI_SYSTEM_TESTS='${RUN_CLI_SYSTEM_TESTS}' RUN_S3_CLI_SYSTEM_TESTS='${RUN_S3_CLI_SYSTEM_TESTS}' RUN_TENDERLY_TESTS='${RUN_TENDERLY_TESTS}' RUN_API_SYSTEM_TESTS='${RUN_API_SYSTEM_TESTS}' RUN_CHALLENGE_SYSTEM_TESTS='${RUN_CHALLENGE_SYSTEM_TESTS}' RUN_TOKENOMICS_SYSTEM_TESTS='${RUN_TOKENOMICS_SYSTEM_TESTS}' RUN_CHIMNEY_BLOBBER_TESTS='${RUN_CHIMNEY_BLOBBER_TESTS}' RUN_SUBSET_OF_TESTS='${RUN_SUBSET_OF_TESTS}' SHOULD_RETRY_FAILURES=\"${SHOULD_RETRY_FAILURES}\" GOSDK_VERSION='${GOSDK_VERSION}' TEST_FILE_FILTER='${TEST_FILE_FILTER}' S3_ACCESS_KEY='${S3_ACCESS_KEY}' S3_SECRET_KEY='${S3_SECRET_KEY}' GITHUB_REF='${GITHUB_REF}' GITHUB_HEAD_REF='${GITHUB_HEAD_REF}' GITHUB_SHA='${GITHUB_SHA}' SVC_ACCOUNT_SECRET='${{ inputs.svc_account_secret }}' BRANCH_DIR='${BRANCH_DIR}' TEST_TIME='${TEST_TIME}' bash remote-run.sh"
+
+    - name: 'Sync artifacts back from remote'
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        set -euo pipefail
+        "$RSYNC_WRAPPER" -az "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST":"$REMOTE_PATH/remote-env.txt" ./remote-env.txt
+        source ./remote-env.txt
+        echo "BRANCH_DIR=$BRANCH_DIR" >> $GITHUB_ENV
+        echo "TEST_TIME=$TEST_TIME" >> $GITHUB_ENV
+        echo "TESTS_RAN=$TESTS_RAN" >> $GITHUB_ENV
+        echo "TESTS_PASSED=$TESTS_PASSED" >> $GITHUB_ENV
+        echo "API_TESTS_RAN=$API_TESTS_RAN" >> $GITHUB_ENV
+        echo "API_TESTS_PASSED=$API_TESTS_PASSED" >> $GITHUB_ENV
+        echo "FLAKY_TESTS_RAN=$FLAKY_TESTS_RAN" >> $GITHUB_ENV
+        "$RSYNC_WRAPPER" -az "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST":"$REMOTE_PATH/${BRANCH_DIR}" "./${BRANCH_DIR}"
+        "$RSYNC_WRAPPER" -az "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST":"$REMOTE_PATH/logs" "./logs"
+
+    - name: 'Archive System Test Reports'
+      continue-on-error: true
+      if: ${{ always() && env.TESTS_RAN == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: system-test-reports-${{ github.run_id }}
+        path: ./${{ env.BRANCH_DIR }}/latest
+        retention-days: 7
+
+    - name: 'Archive Logs'
+      continue-on-error: true
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: system-test-logs-${{ github.run_id }}
+        path: ./logs
+        retention-days: 5
+
+    - name: 'Deploy report pages'
+      continue-on-error: true
+      if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        publish_branch: test_reports
+        keep_files: true
+        github_token: '${{ inputs.svc_account_secret }}'
+        publish_dir: './${{ env.BRANCH_DIR }}'
+        destination_dir: './${{ env.BRANCH_DIR }}'
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+
+    - name: 'Report Links'
+      continue-on-error: true
+      if: ${{ always() && env.TESTS_RAN == 'true' && inputs.deploy_report_page == 'true' }}
+      shell: 'script --return --quiet --command "bash {0}"'
+      run: |
+        echo
+        echo "======================================================"
+        echo "SYSTEM TESTS HTML REPORTS:"
+        echo "======================================================"
+        echo
+        echo "::notice title=System tests report::System tests report: https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH_DIR }}/${GITHUB_SHA}/cli/index.html"
+        echo "::notice title=API System tests report::API System tests report: https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH_DIR }}/${GITHUB_SHA}/api/index.html"
+        if [ "${{ env.FLAKY_TESTS_RAN }}" == "true" ]; then
+          echo "::notice title=Flaky system tests report::Flaky system tests report: https://0chain.github.io/${{ github.event.repository.name }}/${{ env.BRANCH_DIR }}/${GITHUB_SHA}/flaky_cli/index.html"
+        fi
