@@ -285,33 +285,19 @@ runs:
         fi
 
         REMOTE_PATH=${{ inputs.linux_server_remote_path }}
-        WRAPPER_DIR=${GITHUB_WORKSPACE:-$PWD}
 
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
         echo "${{ inputs.linux_server_hostkey }}" > ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
 
-        cat > "${WRAPPER_DIR}/ssh-wrapper.sh" <<'EOF'
-        #!/usr/bin/env bash
-        set -eo pipefail
-        sshpass -p "${LINUX_SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" "$@"
-        EOF
-        chmod +x "${WRAPPER_DIR}/ssh-wrapper.sh"
-
-        cat > "${WRAPPER_DIR}/rsync-wrapper.sh" <<'EOF'
-        #!/usr/bin/env bash
-        set -eo pipefail
-        sshpass -p "${LINUX_SERVER_PASSWORD}" rsync -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" "$@"
-        EOF
-        chmod +x "${WRAPPER_DIR}/rsync-wrapper.sh"
-
         echo "REMOTE_HOST=$REMOTE_HOST" >> $GITHUB_ENV
         echo "REMOTE_PATH=$REMOTE_PATH" >> $GITHUB_ENV
-        echo "SSH_WRAPPER=${WRAPPER_DIR}/ssh-wrapper.sh" >> $GITHUB_ENV
-        echo "RSYNC_WRAPPER=${WRAPPER_DIR}/rsync-wrapper.sh" >> $GITHUB_ENV
-
-        "${WRAPPER_DIR}/ssh-wrapper.sh" "${{ inputs.linux_server_username }}"@"$REMOTE_HOST" "mkdir -p $REMOTE_PATH && chmod 755 $REMOTE_PATH"
+        sshpass -p "${LINUX_SERVER_PASSWORD}" ssh \
+          -o StrictHostKeyChecking=yes \
+          -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+          "${{ inputs.linux_server_username }}"@"$REMOTE_HOST" \
+          "mkdir -p $REMOTE_PATH && chmod 755 $REMOTE_PATH"
 
     - name: 'Checkout System Tests'
       uses: actions/checkout@v3
@@ -548,33 +534,20 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         set -euo pipefail
-        if [ ! -f "$RSYNC_WRAPPER" ]; then
-          echo "rsync wrapper missing at $RSYNC_WRAPPER, recreating..."
-          cat > "$RSYNC_WRAPPER" <<'EOF'
-          #!/usr/bin/env bash
-          set -eo pipefail
-          sshpass -p "${LINUX_SERVER_PASSWORD}" rsync -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" "$@"
-          EOF
-          chmod +x "$RSYNC_WRAPPER"
-        fi
-
-        if [ ! -f "$SSH_WRAPPER" ]; then
-          echo "ssh wrapper missing at $SSH_WRAPPER, recreating..."
-          cat > "$SSH_WRAPPER" <<'EOF'
-          #!/usr/bin/env bash
-          set -eo pipefail
-          sshpass -p "${LINUX_SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" "$@"
-          EOF
-          chmod +x "$SSH_WRAPPER"
-        fi
-
-        "$RSYNC_WRAPPER" -az --delete --exclude '.git' ./ "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST":"$REMOTE_PATH"/
+        sshpass -p "${LINUX_SERVER_PASSWORD}" rsync \
+          -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
+          -az --delete --exclude '.git' ./ \
+          "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST":"$REMOTE_PATH"/
 
     - name: 'Run remote system tests'
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         set -euo pipefail
-        "$SSH_WRAPPER" "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST" "cd $REMOTE_PATH && LINUX_SERVER_PASSWORD='${LINUX_SERVER_PASSWORD}' NETWORK_URL='${NETWORK_URL}' RUN_SMOKE_TESTS='${RUN_SMOKE_TESTS}' RUN_CLI_SYSTEM_TESTS='${RUN_CLI_SYSTEM_TESTS}' RUN_S3_CLI_SYSTEM_TESTS='${RUN_S3_CLI_SYSTEM_TESTS}' RUN_TENDERLY_TESTS='${RUN_TENDERLY_TESTS}' RUN_API_SYSTEM_TESTS='${RUN_API_SYSTEM_TESTS}' RUN_CHALLENGE_SYSTEM_TESTS='${RUN_CHALLENGE_SYSTEM_TESTS}' RUN_TOKENOMICS_SYSTEM_TESTS='${RUN_TOKENOMICS_SYSTEM_TESTS}' RUN_CHIMNEY_BLOBBER_TESTS='${RUN_CHIMNEY_BLOBBER_TESTS}' RUN_SUBSET_OF_TESTS='${RUN_SUBSET_OF_TESTS}' SHOULD_RETRY_FAILURES=\"${SHOULD_RETRY_FAILURES}\" GOSDK_VERSION='${GOSDK_VERSION}' TEST_FILE_FILTER='${TEST_FILE_FILTER}' S3_ACCESS_KEY='${S3_ACCESS_KEY}' S3_SECRET_KEY='${S3_SECRET_KEY}' GITHUB_REF='${GITHUB_REF}' GITHUB_HEAD_REF='${GITHUB_HEAD_REF}' GITHUB_SHA='${GITHUB_SHA}' SVC_ACCOUNT_SECRET='${{ inputs.svc_account_secret }}' BRANCH_DIR='${BRANCH_DIR}' TEST_TIME='${TEST_TIME}' bash remote-run.sh"
+        sshpass -p "${LINUX_SERVER_PASSWORD}" ssh \
+          -o StrictHostKeyChecking=yes \
+          -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+          "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST" \
+          "cd $REMOTE_PATH && LINUX_SERVER_PASSWORD='${LINUX_SERVER_PASSWORD}' NETWORK_URL='${NETWORK_URL}' RUN_SMOKE_TESTS='${RUN_SMOKE_TESTS}' RUN_CLI_SYSTEM_TESTS='${RUN_CLI_SYSTEM_TESTS}' RUN_S3_CLI_SYSTEM_TESTS='${RUN_S3_CLI_SYSTEM_TESTS}' RUN_TENDERLY_TESTS='${RUN_TENDERLY_TESTS}' RUN_API_SYSTEM_TESTS='${RUN_API_SYSTEM_TESTS}' RUN_CHALLENGE_SYSTEM_TESTS='${RUN_CHALLENGE_SYSTEM_TESTS}' RUN_TOKENOMICS_SYSTEM_TESTS='${RUN_TOKENOMICS_SYSTEM_TESTS}' RUN_CHIMNEY_BLOBBER_TESTS='${RUN_CHIMNEY_BLOBBER_TESTS}' RUN_SUBSET_OF_TESTS='${RUN_SUBSET_OF_TESTS}' SHOULD_RETRY_FAILURES=\"${SHOULD_RETRY_FAILURES}\" GOSDK_VERSION='${GOSDK_VERSION}' TEST_FILE_FILTER='${TEST_FILE_FILTER}' S3_ACCESS_KEY='${S3_ACCESS_KEY}' S3_SECRET_KEY='${S3_SECRET_KEY}' GITHUB_REF='${GITHUB_REF}' GITHUB_HEAD_REF='${GITHUB_HEAD_REF}' GITHUB_SHA='${GITHUB_SHA}' SVC_ACCOUNT_SECRET='${{ inputs.svc_account_secret }}' BRANCH_DIR='${BRANCH_DIR}' TEST_TIME='${TEST_TIME}' bash remote-run.sh"
 
     - name: 'Sync artifacts back from remote'
       shell: 'script --return --quiet --command "bash {0}"'
