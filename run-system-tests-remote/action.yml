@@ -378,7 +378,7 @@ runs:
         sudo_exec apt-get update -y
         sudo_exec apt-get install -y build-essential git curl jq rsync sshpass pkg-config zip unzip
         # yarn repo
-        sudo_exec curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo_exec tee /etc/apt/trusted.gpg.d/yarn.gpg >/dev/null
+        sudo_exec curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor 2>/dev/null | sudo_exec tee /etc/apt/trusted.gpg.d/yarn.gpg >/dev/null
         sudo_exec sh -c "echo 'deb [signed-by=/etc/apt/trusted.gpg.d/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main' > /etc/apt/sources.list.d/yarn.list"
         sudo_exec apt-get update -y
         sudo_exec apt-get install -y yarn nodejs
@@ -455,6 +455,9 @@ runs:
         export API_TESTS_RAN=false
         export API_TESTS_PASSED=false
         export FLAKY_TESTS_RAN=false
+
+        # Disable exit-on-error for test execution so all tests run regardless of individual failures
+        set +e
 
         # Run API tests
         if [[ "${RUN_API_SYSTEM_TESTS}" == "true" && "${RUN_SUBSET_OF_TESTS}" == "false" ]]; then
