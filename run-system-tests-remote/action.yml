@@ -548,6 +548,26 @@ runs:
       shell: 'script --return --quiet --command "bash {0}"'
       run: |
         set -euo pipefail
+        if [ ! -f "$RSYNC_WRAPPER" ]; then
+          echo "rsync wrapper missing at $RSYNC_WRAPPER, recreating..."
+          cat > "$RSYNC_WRAPPER" <<'EOF'
+          #!/usr/bin/env bash
+          set -eo pipefail
+          sshpass -p "${LINUX_SERVER_PASSWORD}" rsync -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" "$@"
+          EOF
+          chmod +x "$RSYNC_WRAPPER"
+        fi
+
+        if [ ! -f "$SSH_WRAPPER" ]; then
+          echo "ssh wrapper missing at $SSH_WRAPPER, recreating..."
+          cat > "$SSH_WRAPPER" <<'EOF'
+          #!/usr/bin/env bash
+          set -eo pipefail
+          sshpass -p "${LINUX_SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" "$@"
+          EOF
+          chmod +x "$SSH_WRAPPER"
+        fi
+
         "$RSYNC_WRAPPER" -az --delete --exclude '.git' ./ "${LINUX_SERVER_USERNAME}"@"$REMOTE_HOST":"$REMOTE_PATH"/
 
     - name: 'Run remote system tests'
