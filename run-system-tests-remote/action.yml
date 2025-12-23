@@ -285,32 +285,33 @@ runs:
         fi
 
         REMOTE_PATH=${{ inputs.linux_server_remote_path }}
+        WRAPPER_DIR=${GITHUB_WORKSPACE:-$PWD}
 
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
         echo "${{ inputs.linux_server_hostkey }}" > ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
 
-        cat > ./ssh-wrapper.sh <<'EOF'
+        cat > "${WRAPPER_DIR}/ssh-wrapper.sh" <<'EOF'
         #!/usr/bin/env bash
         set -eo pipefail
         sshpass -p "${LINUX_SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" "$@"
         EOF
-        chmod +x ./ssh-wrapper.sh
+        chmod +x "${WRAPPER_DIR}/ssh-wrapper.sh"
 
-        cat > ./rsync-wrapper.sh <<'EOF'
+        cat > "${WRAPPER_DIR}/rsync-wrapper.sh" <<'EOF'
         #!/usr/bin/env bash
         set -eo pipefail
         sshpass -p "${LINUX_SERVER_PASSWORD}" rsync -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" "$@"
         EOF
-        chmod +x ./rsync-wrapper.sh
+        chmod +x "${WRAPPER_DIR}/rsync-wrapper.sh"
 
         echo "REMOTE_HOST=$REMOTE_HOST" >> $GITHUB_ENV
         echo "REMOTE_PATH=$REMOTE_PATH" >> $GITHUB_ENV
-        echo "SSH_WRAPPER=$PWD/ssh-wrapper.sh" >> $GITHUB_ENV
-        echo "RSYNC_WRAPPER=$PWD/rsync-wrapper.sh" >> $GITHUB_ENV
+        echo "SSH_WRAPPER=${WRAPPER_DIR}/ssh-wrapper.sh" >> $GITHUB_ENV
+        echo "RSYNC_WRAPPER=${WRAPPER_DIR}/rsync-wrapper.sh" >> $GITHUB_ENV
 
-        "$PWD/ssh-wrapper.sh" "${{ inputs.linux_server_username }}"@"$REMOTE_HOST" "mkdir -p $REMOTE_PATH && chmod 755 $REMOTE_PATH"
+        "${WRAPPER_DIR}/ssh-wrapper.sh" "${{ inputs.linux_server_username }}"@"$REMOTE_HOST" "mkdir -p $REMOTE_PATH && chmod 755 $REMOTE_PATH"
 
     - name: 'Checkout System Tests'
       uses: actions/checkout@v3
