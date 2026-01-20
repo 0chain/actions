@@ -439,7 +439,7 @@ runs:
              --set validator.config.delegate_wallet=591d6d0d5642bdbc924756ca2647b4b59adce0acd02a487ecc4d1bd4669293a8 \
              --set blobber.hostName=${{ env.NAMESPACE }} \
              --set blobber.host=devnet-0chain.net \
-             --set blobber.image.tag=${{ env.BLOBBER_TAG }} \
+             --set blobber.image.tag=v1.15.3 \
              --set validator.image.tag=${{ env.VALIDATOR_TAG }} \
              --set validator.hostName=${{ env.NAMESPACE }} \
              --set validator.host=devnet-0chain.net -n ${{ env.NAMESPACE }} \
